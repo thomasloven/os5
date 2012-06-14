@@ -1,15 +1,13 @@
 
 %include "include/asm_macros.inc"
 
-MBOOT_HEADER_FLAGS	equ	MBOOT_PAGE_ALIGNED_FLAG | MBOOT_MEMORY_INFO_FLAG
-MBOOT_HEADER_CHECKSUM	equ	-(MBOOT_HEADER_FLAGS + MBOOT_HEADER_MAGIC)
-
 [bits 32]
 
 section .bss
 
 align 0x8
 
+; Stack for booting
 [global BootStack]
 BootStackTop:
 	resb BOOT_STACK_SIZE
@@ -19,6 +17,9 @@ section .data
 
 align 0x1000
 
+; Page directory for booting up.
+; First four megabytes are identity mapped as well as
+; mapped to 0xC0000000
 [global BootPageDirectory]
 BootPageDirectory:
 	dd (BootPageTable - KERNEL_OFFSET) + 0x3
@@ -34,6 +35,8 @@ BootPageTable:
 		%assign i i+1
 	%endrep
 
+; Hard-coded GDT.
+; GDT pointer is wrapped into the first entry
 [global gdt]
 gdt_ptr:
 gdt:
@@ -49,15 +52,18 @@ section .text
 
 align 4
 
+; GRUB Multiboot data
 MultiBootHeader:
 	dd MBOOT_HEADER_MAGIC
 	dd MBOOT_HEADER_FLAGS
 	dd MBOOT_HEADER_CHECKSUM
 
+; Kernel start point
 [global start]
 start:
 	cli
 
+; Load page directory and enable paging
 	mov ecx, BootPageDirectory - KERNEL_OFFSET
 	mov cr3, ecx
 	mov ecx, cr0
@@ -67,6 +73,7 @@ start:
 	jmp ecx
 
 .higherHalf:
+	; Load GDT
 	mov ecx, gdt_ptr
 	lgdt [ecx]
 
@@ -74,17 +81,24 @@ start:
 	jmp 0x8:.gdtLoaded
 
 .gdtLoaded:
+	; Clear the identity mapping from the page directory
 	mov edx, BootPageDirectory
 	xor ecx, ecx
 	mov [edx], ecx
 	invlpg[0]
 
+	; Load a stack for booting
 	mov esp, BootStack
 	mov ebp, BootStack
 
+	; eax contains the magic number from GRUB 0x1BADB003
+	push eax
+
+	; ebx contains the address of the Multiboot information structure
 	add ebx, KERNEL_OFFSET
 	push ebx
 
+	; Call the c function for setting up
 [extern kinit]
 call kinit
 jmp $

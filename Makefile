@@ -11,8 +11,8 @@ LD := i386-elf-ld
 ASFLAGS := -f elf
 CCFLAGS := -nostdlib -nostdinc -fno-builtin -fno-exceptions -m32
 CCFLAGS += -fomit-frame-pointer -fno-asynchronous-unwind-tables 
-CCFLAGS += -fno-unwind-tables -I$(BUILDDIR)/include
-LDFLAGS := -T $(BUILDDIR)/include/Link.ld
+CCFLAGS += -fno-unwind-tables -I$(BUILDDIR)/library/include
+LDFLAGS := -T $(BUILDDIR)/library/include/Link.ld
 
 export BUILDDIR AS CC LD ASFLAGS CCFLAGS LDFLAGS
 

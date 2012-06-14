@@ -8,7 +8,7 @@ if [ "`uname -s`" = "Darwin" ]; then
 fi
 
 sudo mkdir $mpoint
-sudo $mcmd $mydev $mpoint $mcmd2
+sudo $mcmd $mydev $mpoint $mcmd2 >/dev/null
 
 echo "   Copying"
 sudo cp kernel/kernel $mpoint
@@ -17,5 +17,4 @@ sudo cp build/menu.lst $mpoint/boot/grub/menu.lst
 echo "   Copied"
 
 sudo umount -f $mpoint
-sudo rm -r $mpoint
 echo "   Unmounted"
