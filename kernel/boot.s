@@ -91,7 +91,7 @@ start:
 	mov esp, BootStack
 	mov ebp, BootStack
 
-	; eax contains the magic number from GRUB 0x1BADB003
+	; eax contains the magic number from GRUB 0x2BADB002
 	push eax
 
 	; ebx contains the address of the Multiboot information structure
