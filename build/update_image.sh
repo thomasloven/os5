@@ -7,6 +7,7 @@ if [ "`uname -s`" = "Darwin" ]; then
 	mcmd2='-o force'
 fi
 
+cp build/floppy2.img build/floppy.img
 sudo mkdir $mpoint
 sudo $mcmd $mydev $mpoint $mcmd2 >/dev/null
 

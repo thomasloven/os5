@@ -1,7 +1,7 @@
 TARGET := kernel
 SUBDIR := kernel
 
-SOURCES := kinit.o boot.o
+SOURCES := boot.o kinit.o 
 SOURCES += $(patsubst %.asm,%.o,$(shell find . -name "*.asm" | grep -v boot.asm))
 SOURCES += $(patsubst %.c,%.o,$(shell find . -name "*.c" | grep -v kinit.c))
 
