@@ -2,13 +2,11 @@ TARGET := kernel
 SUBDIR := kernel
 
 SOURCES := kinit.o boot.o
-SOURCES += $(patsubst %.s,%.o,$(shell find . -name "*.s" | grep -v boot.s))
-SOURCES += $(patsubst %.c,%.0,$(shell find . -name "*.c" | grep -v kinit.c))
+SOURCES += $(patsubst %.asm,%.o,$(shell find . -name "*.asm" | grep -v boot.asm))
+SOURCES += $(patsubst %.c,%.o,$(shell find . -name "*.c" | grep -v kinit.c))
 
-CCFLAGS += -Iinclude
+CCFLAGS += -Iinclude 
 LDFLAGS := -T $(BUILDDIR)/$(SUBDIR)/include/Link.ld
-
-.SUFFICES: .o .s .c
 
 all: $(TARGET)
 
@@ -16,13 +14,17 @@ $(TARGET): $(SOURCES)
 	@echo "   ln     " $(TARGET)
 	@$(LD) $(LDFLAGS) -o $(TARGET) $(SOURCES)
 
-.c.o:
+%.o: %.c
 	@echo "   gcc    " $<
-	@$(CC) $(CFLAGS) -c $< -o $@
+	@$(CC) $(CCFLAGS) -c $< -o $@
 
-.s.o:
+%.o : %.s
 	@echo "   nasm   " $<
 	@$(AS) $(ASFLAGS) $< -o $@
+
+%.s: %.asm
+	@echo "   gcc     " $<
+	@$(CC) -E $(CCFLAGS) -o $@ -x assembler-with-cpp $<
 
 clean:
 	-@rm $(SOURCES) 2>/dev/null

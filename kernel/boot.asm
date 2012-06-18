@@ -1,5 +1,6 @@
 
-%include "include/asm_macros.inc"
+;%include "include/asm_macros.inc"
+#include <asm_macros.inc>
 
 [bits 32]
 
