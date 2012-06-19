@@ -24,5 +24,20 @@ void kdbg_printf(char *str, ...);
 int kdbg_num2str(uint32_t num, uint32_t base, char *buf);
 void kdbg_setclr(uint32_t style);
 
+#ifndef NDEBUG
+
+#define debug kdbg_printf
+#define assert(n) ({if(!(n)){ \
+	debug("\n WARNING! \n Assertion failed (%s)", #n); \
+	debug(": %s line %d", __FILE__, __LINE__- 2); \
+	for(;;);}})
+
+#else
+
+	#define debug(...) 
+	#define assert(n) 
+
+#endif
+
 #endif
 

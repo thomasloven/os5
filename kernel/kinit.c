@@ -7,5 +7,7 @@ void kinit()
 	kdbg_init();
 	debug("Hello, world!\n%x%d",0x123ABC, 123);
 
+	assert(3<2);
+
 
 }

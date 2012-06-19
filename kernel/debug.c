@@ -77,6 +77,9 @@ void kdbg_printf(char *str, ...)
 					kdbg_printf("0x");
 					kdbg_printf(buf);
 					break;
+				case 's':
+					kdbg_printf(va_arg(args, char *));
+					break;
 				default:
 					str--;
 					kdbg_putch(*str, text_style);
