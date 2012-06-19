@@ -1,5 +1,5 @@
 
-;%include "include/asm_macros.inc"
+#include <multiboot.h>
 #include <asm_macros.inc>
 
 [bits 32]
@@ -55,7 +55,7 @@ align 4
 
 ; GRUB Multiboot data
 MultiBootHeader:
-	dd MBOOT_HEADER_MAGIC
+	dd MBOOT_MAGIC1
 	dd MBOOT_HEADER_FLAGS
 	dd MBOOT_HEADER_CHECKSUM
 
