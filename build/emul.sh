@@ -1,3 +1,3 @@
 #!/bin/bash
 
-bochs-term -f build/bochsrc.txt
+screen bochs-term -f build/bochsrc.txt
