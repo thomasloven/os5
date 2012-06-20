@@ -14,7 +14,7 @@ uint8_t text_style;
 void kdbg_init()
 {
 	scrn_x = scrn_y = 0;
-	text_style = VGA_STYLE(LGRY, BLCK);
+	text_style = VGA_STYLE(GRAY, BLACK);
 	memset((uint8_t *)vidmem, 0x0, SCRN_W*SCRN_H*2);
 }
 

@@ -8,8 +8,23 @@
 
 #define VGA_STYLE(text,bckg) text | bckg
 
-#define BLCK	0x0
-#define LGRY	0x7
+#define BLACK	0x0
+#define BLUE	0x01
+#define GREEN	0x02
+#define CYAN	0x03
+#define RED		0x04
+#define MAGENTA	0x05
+#define BROWN	0x06
+#define GRAY	0x07
+#define LBLACK	0x08
+#define LBLUE	0x09
+#define LGREEN	0x0A
+#define LCYAN	0x0B
+#define LRED	0x0C
+#define LMAGENTA	0x0D
+#define LBROWN	0x0E
+#define LGRAY	0x0F
+#define WHITE	0x0F
 
 #ifndef __ASSEMBLER__
 
