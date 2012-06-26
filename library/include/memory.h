@@ -3,13 +3,15 @@
 
 #ifndef __ASSEMBLER__
 
-#define memcopy(dst, src, len) uint8_t *dst2 = dst; \
-	uint8_t *src2 = src; \
-	uint32_t len2 = len; \
-	for(;len2;len2--) *dst2++ = *src2++
+#define memcopy(dst, src, len) \
+	uint8_t *dst_ = (uint8_t *)(dst); \
+	uint8_t *src_ = (uint8_t *)(src); \
+	uint32_t len_ = (len); \
+	for(;len_;len_--) *dst_++ = *src_++
 
-#define memset(dst, val, len) uint8_t *dst2 = dst; \
-	uint32_t len2 = len; \
-	for(;len2;len2--) *dst2++ = val
+#define memset(dst, val, len) \
+	uint8_t *dst_ = (uint8_t *)(dst); \
+	uint32_t len_ = (len); \
+	for(;len_;len_--) *dst_++ = val
 
 #endif

@@ -47,6 +47,9 @@ void kdbg_setclr(uint32_t style);
 	debug(": %s line %d", __FILE__, __LINE__- 2); \
 	for(;;);}})
 
+#define panic(n) \
+	({ debug(n); \
+	for(;;);})
 #else
 
 	#define debug(...) 
