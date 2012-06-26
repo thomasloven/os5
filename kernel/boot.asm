@@ -1,6 +1,7 @@
 
 #include <multiboot.h>
 #include <asm_macros.inc>
+#include <vmm.h>
 
 [bits 32]
 
@@ -23,16 +24,16 @@ align 0x1000
 ; mapped to 0xC0000000
 [global BootPageDirectory]
 BootPageDirectory:
-	dd (BootPageTable - KERNEL_OFFSET) + 0x3
-	times ((KERNEL_OFFSET >> 22) - 1) dd 0x0
-	dd (BootPageTable - KERNEL_OFFSET) + 0x3
-	times (1022 - (KERNEL_OFFSET >> 22)) dd 0x0
-	dd (BootPageDirectory - KERNEL_OFFSET) + 0x3
+	dd (BootPageTable - KERNEL_OFFSET)+(PAGE_PRESENT | PAGE_WRITE)
+	times (vmm_dir_idx(KERNEL_OFFSET) - 1) dd 0x0
+	dd (BootPageTable - KERNEL_OFFSET)+(PAGE_PRESENT | PAGE_WRITE)
+	times (1022 - vmm_dir_idx(KERNEL_OFFSET)) dd 0x0
+	dd (BootPageDirectory - KERNEL_OFFSET)+(PAGE_PRESENT | PAGE_WRITE)
 
 BootPageTable:
 	%assign i 0
 	%rep 1024
-		dd (i << 12) | 0x3
+		dd (i << 12) | PAGE_PRESENT | PAGE_WRITE
 		%assign i i+1
 	%endrep
 
@@ -86,7 +87,7 @@ start:
 	mov edx, BootPageDirectory
 	xor ecx, ecx
 	mov [edx], ecx
-	invlpg[0]
+	vmm_flush_tlb(0)
 
 	; Load a stack for booting
 	mov esp, BootStack

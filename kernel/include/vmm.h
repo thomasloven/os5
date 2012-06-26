@@ -15,7 +15,11 @@
 #define vmm_table_idx(page) (page >> 12)
 #define vmm_dir_idx(page) (page >> 22)
 
-#ifndef __ASSEMBLER__
+#ifdef __ASSEMBLER__
+
+#define vmm_flush_tlb(page) invlpg[page]
+
+#else
 
 #define vmm_flush_tlb(page) \
 	asm volatile ("invlpg (%0)" : : "a" (page & PAGE_MASK))
