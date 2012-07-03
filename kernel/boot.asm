@@ -1,7 +1,7 @@
-
 #include <multiboot.h>
-#include <asm_macros.inc>
 #include <vmm.h>
+#include <arch.h>
+#include <pmm.h>
 
 [bits 32]
 
@@ -12,7 +12,7 @@ align 0x8
 ; Stack for booting
 [global BootStack]
 BootStackTop:
-	resb BOOT_STACK_SIZE
+	resb 2*PAGE_SIZE - 1
 BootStack:
 
 section .data
