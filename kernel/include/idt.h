@@ -42,5 +42,23 @@ struct idt_pointer
 } __attribute__((packed));
 
 void idt_init();
+#else
+
+%macro INTNOERR 1
+	[global isr%1]
+	isr%1:
+		cli
+		push 0
+		push %1
+		jmp int_stub
+%endmacro
+
+%macro INTERR 1
+	[global isr%1]
+	isr%1:
+		cli
+		push %1
+		jmp int_stub
+%endmacro
 
 #endif

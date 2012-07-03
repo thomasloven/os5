@@ -1,27 +1,11 @@
 #include <arch.h>
+#include <idt.h>
 
 global idt_flush
 idt_flush:
 	mov eax, [esp+4]
 	lidt [eax]
 	ret
-
-%macro INTNOERR 1
-	[global isr%1]
-	isr%1;
-		cli
-		push 0
-		push %1
-		jmp int_stub
-%endmacro
-
-%macro INTERR 1
-	[global isr%1]
-	isr%1:
-		cli
-		push %1
-		jmp int_stub
-%endmacro
 
 INTNOERR 0
 INTNOERR 1
