@@ -68,6 +68,7 @@ int_stub:
 
 	push esp
 	call idt_handler
+	mov esp, eax
 
 [global int_return]
 int_return:

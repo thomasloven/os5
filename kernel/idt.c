@@ -109,5 +109,17 @@ void idt_init()
 
 registers *idt_handler(registers *r)
 {
-	panic("Interrupt received");
+	if(ISIRQ(r->int_no))
+	{
+		if(INT2IRQ(r->int_no) > 8)
+			outb(SPIC_CMD_PORT, PIC_EOI);
+		outb(MPIC_CMD_PORT, PIC_EOI);
+	}
+	debug("\nInterrupt received, %x, %x", r->int_no, INT2IRQ(r->int_no));
+	if(r->int_no != 32)
+	{
+		print_registers(r);
+		for(;;);
+	}
+	return r;
 }

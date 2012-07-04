@@ -23,6 +23,11 @@
 #define SEG_USER_CODE	0x18
 #define SEG_USER_DATA	0x20
 
+#define ISIRQ(num)	((num >= 32) && (num <= 47))
+#define INT2IRQ(num)	(num - 32)
+#define IRQ2INT(num)	(num + 32)
+
+#define PIC_EOI	0x20
 
 #ifndef __ASSEMBLER__
 
