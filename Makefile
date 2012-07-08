@@ -21,7 +21,9 @@ export BUILDDIR AS CC LD ASFLAGS CCFLAGS LDFLAGS
 .PHONY: $(DIRS) floppy emul
 .default: all floppy emul
 
-l: all floppy emul
+nd: all floppy emul
+
+d: all floppy demul
 
 all: $(DIRS)
     
@@ -39,6 +41,10 @@ floppy: force
 emul: force
 	@echo "  STARTING EMULATOR"
 	@build/emul.sh
+
+demul: force
+	@echo "  STARTING EMULATOR (DEBUGGER)"
+	@build/demul.sh
 
 force:
 	true
