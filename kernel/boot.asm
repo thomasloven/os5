@@ -2,6 +2,7 @@
 #include <vmm.h>
 #include <arch.h>
 #include <pmm.h>
+#include <debug.h>
 
 [bits 32]
 
@@ -103,4 +104,7 @@ start:
 	; Call the c function for setting up
 [extern kinit]
 call kinit
+mov esp, eax
+[extern int_return]
+jmp int_return
 jmp $

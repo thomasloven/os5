@@ -107,7 +107,7 @@ void idt_init()
 	idt_flush((uint32_t)&idt_p);
 }
 
-registers *idt_handler(registers *r)
+registers_t *idt_handler(registers_t *r)
 {
 	if(ISIRQ(r->int_no))
 	{

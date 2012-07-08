@@ -9,6 +9,8 @@ typedef struct heap_header_struct
 } chunk_t;
 
 void *kmalloc(uint32_t size);
+void *kcalloc(uint32_t size);
+void *kvalloc(uint32_t size);
 void kfree(void *a);
 
 #define chunk_head(a) ((chunk_t *)((uint32_t)a-sizeof(chunk_t)))

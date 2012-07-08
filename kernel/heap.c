@@ -118,3 +118,25 @@ void *kmalloc(uint32_t size)
 
 	return chunk_data(cur_chunk);
 }
+
+void *kcalloc(uint32_t size)
+{
+	void *c = kmalloc(size);
+	memset(c, 0, size);
+	return c;
+}
+
+void *kvalloc(uint32_t size)
+{
+	void *pos = kmalloc(size + PAGE_SIZE);
+	split_chunk(chunk_head(pos), PAGE_SIZE - ((uint32_t) pos % PAGE_SIZE));
+
+	chunk_t *new = chunk_head(pos)->next;
+	split_chunk(new, size + sizeof(chunk_t));
+	new->allocated = TRUE;
+
+	kfree(pos);
+
+	return chunk_data(new);
+}
+

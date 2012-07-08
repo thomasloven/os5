@@ -1,4 +1,5 @@
 #pragma once
+#include <stdint.h>
 
 #ifndef __ASSEMBLER__
 
@@ -31,7 +32,7 @@ uint32_t int_no, err_code;
 uint32_t eip;
 uint32_t cs;
 uint32_t eflags, useresp, ss;
-} registers;
+} registers_t;
 
 #define print_registers(r) \
 	debug("\n\neax:%x ebx:%x ecx:%x edx:%x", r->eax, r->ebx, r->ecx, r->edx); \
