@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <pmm.h>
 
+#define USER_STACK_TOP 0xC0000000
 #define KERNEL_OFFSET 0xC0000000
 #define KERNEL_HEAP_START 0xE0000000
 #define KERNEL_HEAP_END 0xF0000000

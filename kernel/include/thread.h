@@ -37,4 +37,4 @@ typedef union
 thread_info_t *current_thread_info();
 
 #define current (current_thread_info()->tcb)
-
+#define thread_info_stack(info) ((uint32_t)&info->stack_bottom)

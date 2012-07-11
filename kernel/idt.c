@@ -3,9 +3,11 @@
 #include <arch.h>
 #include <k_debug.h>
 #include <memory.h>
+#include <thread.h>
 
 idt_entry_t idt[NUM_INTERRUPTS];
 struct idt_pointer idt_p;
+extern gdt_entry_t gdt[6];
 
 extern void isr0(void), isr1(void), isr2(void), isr3(void), isr4(void), isr5(void), isr6(void), isr7(void), isr8(void), isr9(void), isr10(void), isr11(void), isr12(void), isr13(void), isr14(void), isr15(void), isr16(void), isr17(void), isr18(void), isr19(void), isr20(void), isr21(void), isr22(void), isr23(void), isr24(void), isr25(void), isr26(void), isr27(void), isr28(void), isr29(void), isr30(void), isr31(void), isr32(void), isr33(void), isr34(void), isr35(void), isr36(void), isr37(void), isr38(void), isr39(void), isr40(void), isr41(void), isr42(void), isr43(void), isr44(void), isr45(void), isr46(void), isr47(void);
 
@@ -115,11 +117,50 @@ registers_t *idt_handler(registers_t *r)
 			outb(SPIC_CMD_PORT, PIC_EOI);
 		outb(MPIC_CMD_PORT, PIC_EOI);
 	}
-	debug("\nInterrupt received, %x, %x", r->int_no, INT2IRQ(r->int_no));
 	if(r->int_no != 32)
 	{
+		debug("\nInterrupt received, %x, %x", r->int_no, INT2IRQ(r->int_no));
 		print_registers(r);
-		for(;;);
+		enable_interrupts();
+		if(!ISIRQ(r->int_no))
+			for(;;);
+	}
+	if(r->cs & 0x3)
+	{
+		r->eflags &= EFL_CPL3;
+	}
+	else
+	{
+		r->eflags &= ~EFL_CPL3;
 	}
 	return r;
 }
+
+void tss_init()
+{
+	uint32_t base = (uint32_t)&global_tss;
+	uint32_t limit = sizeof(tss_t);
+
+	gdt[GDT_TSS].base_l = (base & 0xFFFF);
+	gdt[GDT_TSS].base_m = ((base >> 16) & 0xFF);
+	gdt[GDT_TSS].base_h = ((base >> 24) & 0xFF);
+
+	gdt[GDT_TSS].limit_l = (limit & 0xFFFF);
+	gdt[GDT_TSS].limit_h = ((limit >> 16) & 0xFF);
+
+	gdt[GDT_TSS].flags = 0;
+
+	gdt[GDT_TSS].access = 0x89;
+
+	memset(&global_tss, 0, sizeof(tss_t));
+	global_tss.ss0 = SEG_KERNEL_DATA;
+	global_tss.ds = SEG_KERNEL_DATA;
+	global_tss.es = SEG_KERNEL_DATA;
+	global_tss.fs = SEG_KERNEL_DATA;
+	global_tss.gs = SEG_KERNEL_DATA;
+	global_tss.cs = SEG_KERNEL_CODE;
+	global_tss.iomap = sizeof(tss_t);
+
+	tss_flush(SEG_TSS);
+}
+

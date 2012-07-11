@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <k_debug.h>
 #include <pmm.h>
+#include <vmm.h>
 #include <multiboot.h>
 #include <heap.h>
 #include <idt.h>
@@ -11,9 +12,9 @@
 
 void myfunc(void)
 {
-	debug("It worked!");
-	debug("\ncurrent:%x", current.tid);
-	for(;;)asm("hlt");
+	uint32_t localvar = 0xABC;
+	asm volatile("jmp *%0" : : "r" (localvar));
+	for(;;);
 }
 
 registers_t *kinit(mboot_info_t *mboot, uint32_t mboot_magic)
@@ -22,26 +23,29 @@ registers_t *kinit(mboot_info_t *mboot, uint32_t mboot_magic)
 	kdbg_init();
 	pmm_init(mboot);
 	idt_init();
-	debug("Hello, world!\n%x%d",0x123ABC, 123);
-	debug("\nheader%x\nmagic%x",mboot, mboot_magic);
+	tss_init();
 
 
+	thread_info_t *init = kvalloc(sizeof(thread_info_t));
+	memset(init, 0, sizeof(thread_info_t));
 
-	enable_interrupts();
-	thread_info_t *stk = kvalloc(sizeof(thread_info_t));
-	debug("\n Stack position:%x", (uint32_t)stk);
-	memset(stk, 0, sizeof(thread_info_t));
+	uint32_t usermode_function_entry = 0x10000;
+	vmm_page_set(usermode_function_entry, vmm_page_val(pmm_alloc_page(), PAGE_PRESENT | PAGE_WRITE | PAGE_USER));
+	memcopy(usermode_function_entry, &myfunc, 0x100);
 
-	stk->tcb.tid = 0xABABAB;
-	stk->tcb.r.eip = &myfunc;
-	stk->tcb.r.esp = kmalloc(0x2000) + 0x1FF0;
-	stk->tcb.r.ebp = stk->tcb.r.esp;
-	stk->tcb.r.ds = 0x10;
-	stk->tcb.r.cs = 0x08;
-	/*stk->tcb.r.eflags = 1<<9;*/
-	return &stk->tcb.r;
-	assert(3<2);
+	init->tcb.r.eip = usermode_function_entry;
 
+	init->tcb.r.useresp = USER_STACK_TOP;
+	init->tcb.r.ebp = init->tcb.r.useresp;
 
+	init->tcb.r.cs = SEG_USER_CODE|3;
+	init->tcb.r.ds = SEG_USER_DATA|3;
+	init->tcb.r.ss = SEG_USER_DATA|3;
+
+	init->tcb.r.eflags = EFL_CPL3 | EFL_INT;
+
+	set_kernel_stack(thread_info_stack(init));
+
+	return &init->tcb.r;
 }
 

@@ -59,8 +59,6 @@ void pmm_free_page(uintptr_t page)
 
 void pmm_init(mboot_info_t *mboot)
 {
-	debug("Starting pmm");
-
 	pmm_pos = (mboot->mem_upper + PAGE_SIZE) & PAGE_MASK;
 	pmm_running = FALSE;
 

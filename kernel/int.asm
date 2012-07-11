@@ -1,10 +1,17 @@
 #include <arch.h>
 #include <idt.h>
 
-global idt_flush
+[global idt_flush]
 idt_flush:
 	mov eax, [esp+4]
 	lidt [eax]
+	ret
+
+[global tss_flush]
+tss_flush:
+	mov eax, [esp+4]
+	ltr ax
+.flush:
 	ret
 
 INTNOERR 0
