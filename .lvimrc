@@ -1,0 +1,14 @@
+let $SCRPATH=expand("<sfile>:p:h")
+set path=$SCRPATH/**
+
+let NERDTreeIgnore = ['\.o$']
+
+set foldmethod=indent
+set foldcolumn=1
+
+call rainbow_parenthsis#LoadRound()
+call rainbow_parenthsis#LoadSquare()
+call rainbow_parenthsis#LoadBraces()
+call rainbow_parenthsis#LoadChevrons()
+call rainbow_parenthsis#Activate()
+
