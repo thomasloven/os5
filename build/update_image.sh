@@ -13,6 +13,10 @@ if [ ! -d "$mpoint" ]; then
 fi
 $mcmd $mydev $mpoint $mcmd2 >/dev/null
 
+while [ ! -d $mpoint/boot ]; do
+	echo "Waiting..."
+	sleep 1
+done
 echo "   Copying"
 cp kernel/kernel $mpoint
 cp build/grub.conf $mpoint/boot/grub/grub.conf
