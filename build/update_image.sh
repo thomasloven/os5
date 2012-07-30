@@ -2,20 +2,22 @@
 
 if [ "`uname -s`" = "Darwin" ]; then
 	mydev='build/floppy.img'
-	mpoint='/Volumes/osdev'
+	mpoint='floppy'
 	mcmd='fuse-ext2'
 	mcmd2='-o force'
 fi
 
 cp build/floppy2.img build/floppy.img
-sudo mkdir $mpoint
-sudo $mcmd $mydev $mpoint $mcmd2 >/dev/null
+if [ ! -d "$mpoint" ]; then
+	mkdir $mpoint
+fi
+$mcmd $mydev $mpoint $mcmd2 >/dev/null
 
 echo "   Copying"
-sudo cp kernel/kernel $mpoint
-sudo cp build/grub.conf $mpoint/boot/grub/grub.conf
-sudo cp build/menu.lst $mpoint/boot/grub/menu.lst
+cp kernel/kernel $mpoint
+cp build/grub.conf $mpoint/boot/grub/grub.conf
+cp build/menu.lst $mpoint/boot/grub/menu.lst
 echo "   Copied"
 
-sudo umount -f $mpoint
+umount -f $mpoint
 echo "   Unmounted"
