@@ -71,8 +71,7 @@ void idt_set(uint32_t num, uint32_t base, uint32_t segment, uint8_t flags)
 {
 	if(!base) return;
 
-	idt[num].base_low = (uint16_t)(base & 0xFFFF);
-	idt[num].base_high = (uint16_t)(base >> 16);
+	idt_set_base(idt[num], base);
 	idt[num].segment = segment;
 	idt[num].reserved = 0;
 	idt[num].flags = flags;
@@ -125,14 +124,6 @@ registers_t *idt_handler(registers_t *r)
 		if(!ISIRQ(r->int_no))
 			for(;;);
 	}
-	if(r->cs & 0x3)
-	{
-		r->eflags &= EFL_CPL3;
-	}
-	else
-	{
-		r->eflags &= ~EFL_CPL3;
-	}
 	return r;
 }
 
@@ -141,24 +132,13 @@ void tss_init()
 	uint32_t base = (uint32_t)&global_tss;
 	uint32_t limit = sizeof(tss_t);
 
-	gdt[GDT_TSS].base_l = (base & 0xFFFF);
-	gdt[GDT_TSS].base_m = ((base >> 16) & 0xFF);
-	gdt[GDT_TSS].base_h = ((base >> 24) & 0xFF);
-
-	gdt[GDT_TSS].limit_l = (limit & 0xFFFF);
-	gdt[GDT_TSS].limit_h = ((limit >> 16) & 0xFF);
-
+	set_gdt_base(gdt[GDT_TSS], base);
+	set_gdt_limit(gdt[GDT_TSS], limit);
 	gdt[GDT_TSS].flags = 0;
-
 	gdt[GDT_TSS].access = 0x89;
 
 	memset(&global_tss, 0, sizeof(tss_t));
 	global_tss.ss0 = SEG_KERNEL_DATA;
-	global_tss.ds = SEG_KERNEL_DATA;
-	global_tss.es = SEG_KERNEL_DATA;
-	global_tss.fs = SEG_KERNEL_DATA;
-	global_tss.gs = SEG_KERNEL_DATA;
-	global_tss.cs = SEG_KERNEL_CODE;
 	global_tss.iomap = sizeof(tss_t);
 
 	tss_flush(SEG_TSS);

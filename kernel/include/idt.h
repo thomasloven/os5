@@ -39,12 +39,16 @@
 
 typedef struct interrupt_descriptor
 {
-	uint16_t base_low;
+	uint16_t base_l;
 	uint16_t segment;
 	uint8_t reserved;
 	uint8_t flags;
-	uint16_t base_high;
+	uint16_t base_h;
 } __attribute__((packed)) idt_entry_t;
+
+#define idt_set_base(IDT, BASE) \
+	(IDT).base_l = (uint16_t)((BASE) & 0xFFFF); \
+	(IDT).base_h = (uint16_t)((BASE) >> 16);
 
 struct idt_pointer
 {
@@ -62,6 +66,15 @@ typedef struct gdt_struct
 	uint8_t flags :4;
 	uint8_t base_h;
 }__attribute__((packed)) gdt_entry_t;
+
+#define set_gdt_base(GDT, BASE) \
+	(GDT).base_l = ((BASE) & 0xFFFF); \
+	(GDT).base_m = (((BASE) >> 16) & 0xFF); \
+	(GDT).base_h = (((BASE) >> 24) & 0xFF);
+
+#define set_gdt_limit(GDT, LIMIT) \
+	(GDT).limit_l = ((LIMIT) & 0xFF); \
+	(GDT).limit_h = (((LIMIT) & 0x0F));
 
 typedef struct tss_struct
 {
