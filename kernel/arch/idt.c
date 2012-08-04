@@ -119,6 +119,7 @@ registers_t *idt_handler(registers_t *r)
 	if(r->int_no != 32)
 	{
 		debug("\nInterrupt received, %x, %x", r->int_no, INT2IRQ(r->int_no));
+		debug("\n Tid: %x", current->tid);
 		print_registers(r);
 		enable_interrupts();
 		if(!ISIRQ(r->int_no))
