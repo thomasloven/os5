@@ -1,6 +1,7 @@
 #pragma once
 #include <stdint.h>
 
+#ifndef __ASSEMBLER__
 typedef struct heap_header_struct
 {
 	struct heap_header_struct *prev, *next;
@@ -15,4 +16,6 @@ void kfree(void *a);
 
 #define chunk_head(a) ((chunk_t *)((uint32_t)a-sizeof(chunk_t)))
 #define chunk_data(c) ((void *)((uint32_t)c + sizeof(chunk_t)))
+
+#endif
 

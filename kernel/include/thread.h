@@ -3,7 +3,7 @@
 #include <arch.h>
 #include <pmm.h>
 
-
+#ifndef __ASSEMBLER__
 
 typedef struct thread_struct
 {
@@ -43,3 +43,5 @@ thread_info_t *current_thread_info();
 #define stack_from_tcb(tcb) (&tcb->tid)
 
 thread_t *thread_init(uint32_t usermode_function_entry);
+
+#endif

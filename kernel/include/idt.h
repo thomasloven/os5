@@ -1,5 +1,6 @@
 #pragma once
 #include <stdint.h>
+#include <thread.h>
 
 #define NUM_INTERRUPTS 255
 
@@ -34,6 +35,10 @@
 
 #define EFL_CPL3 0x3000
 #define EFL_INT 0x200
+
+#define INT_GPF	0xD
+#define INT_PF	0xE
+
 
 #ifndef __ASSEMBLER__
 
@@ -87,14 +92,21 @@ typedef struct tss_struct
 	uint16_t trap, iomap;
 }__attribute__((packed)) tss_t;
 
+typedef thread_t *(*int_handler_t)(thread_t *);
+
 void idt_init();
 void tss_init();
 
+thread_t *idt_handler(thread_t *t);
+int_handler_t register_int_handler(uint32_t num, int_handler_t handler);
+
 tss_t global_tss;
+
+thread_t *page_fault_handler(thread_t *t);
 
 #define set_kernel_stack(stack) global_tss.esp0 = (uint32_t)(stack)
 
-#else
+#else // ifndef __ASSEMBLER__
 
 %macro INTNOERR 1
 	[global isr%1]

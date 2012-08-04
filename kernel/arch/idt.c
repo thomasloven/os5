@@ -6,6 +6,7 @@
 #include <thread.h>
 
 idt_entry_t idt[NUM_INTERRUPTS];
+int_handler_t int_handlers[NUM_INTERRUPTS];
 struct idt_pointer idt_p;
 extern gdt_entry_t gdt[6];
 
@@ -95,6 +96,7 @@ void idt_init()
 	idt_p.offset = (uint32_t)&idt;
 
 	memset(idt,0,sizeof(idt_entry_t)*NUM_INTERRUPTS);
+	memset(int_handlers,0,sizeof(int_handler_t)*NUM_INTERRUPTS);
 
 	uint32_t i;
 	for(i = 0; i < NUM_INTERRUPTS; i++)
@@ -108,24 +110,37 @@ void idt_init()
 	idt_flush((uint32_t)&idt_p);
 }
 
-registers_t *idt_handler(registers_t *r)
+thread_t *idt_handler(thread_t *t)
 {
-	if(ISIRQ(r->int_no))
+	if(ISIRQ(t->r.int_no))
 	{
-		if(INT2IRQ(r->int_no) > 8)
+		if(INT2IRQ(t->r.int_no) > 8)
 			outb(SPIC_CMD_PORT, PIC_EOI);
 		outb(MPIC_CMD_PORT, PIC_EOI);
-	}
-	if(r->int_no != 32)
-	{
-		debug("\nInterrupt received, %x, %x", r->int_no, INT2IRQ(r->int_no));
-		debug("\n Tid: %x", current->tid);
-		print_registers(r);
-		enable_interrupts();
-		if(!ISIRQ(r->int_no))
+		if(INT2IRQ(t->r.int_no) != 0)
+			debug("!");
+	} else {
+		if(int_handlers[t->r.int_no])
+		{
+			enable_interrupts();
+			return int_handlers[t->r.int_no](t);
+		} else {
+			debug("\nUnhanded interrupt received, %x, %x", t->r.int_no, INT2IRQ(t->r.int_no));
+			debug("\n Tid: %x", current->tid);
+			print_registers(&t->r);
+			enable_interrupts();
 			for(;;);
+		}
 	}
-	return r;
+	return t;
+}
+
+
+int_handler_t register_int_handler(uint32_t num, int_handler_t handler)
+{
+	int_handler_t old = int_handlers[num];
+	int_handlers[num] = handler;
+	return old;
 }
 
 void tss_init()
