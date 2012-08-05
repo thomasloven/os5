@@ -92,17 +92,20 @@ typedef struct tss_struct
 	uint16_t trap, iomap;
 }__attribute__((packed)) tss_t;
 
-typedef thread_t *(*int_handler_t)(thread_t *);
+typedef registers_t *(*int_handler_t)(registers_t *);
 
 void idt_init();
 void tss_init();
 
-thread_t *idt_handler(thread_t *t);
+registers_t *idt_handler(registers_t *t);
 int_handler_t register_int_handler(uint32_t num, int_handler_t handler);
 
 tss_t global_tss;
 
-thread_t *page_fault_handler(thread_t *t);
+registers_t *page_fault_handler(registers_t *t);
+
+extern void idt_flush(uint32_t idt);
+extern void tss_flush(uint32_t segment);
 
 #define set_kernel_stack(stack) global_tss.esp0 = (uint32_t)(stack)
 

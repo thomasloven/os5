@@ -113,7 +113,7 @@ int kdbg_num2str(uint32_t num, uint32_t base, char *buf)
 	{
 		buf[0] = '0';
 		buf[1] = '\0';
-		return;
+		return 0;
 	}
 
 	uint32_t i=0, j=0;
