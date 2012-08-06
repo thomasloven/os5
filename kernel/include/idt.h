@@ -2,7 +2,7 @@
 #include <stdint.h>
 #include <thread.h>
 
-#define NUM_INTERRUPTS 255
+#define NUM_INTERRUPTS 256
 
 #define MPIC_CMD_PORT	0x20
 #define MPIC_DATA_PORT	0x21

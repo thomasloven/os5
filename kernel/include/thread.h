@@ -2,6 +2,7 @@
 
 #include <arch.h>
 #include <pmm.h>
+#include <lists.h>
 
 #ifndef __ASSEMBLER__
 
@@ -10,9 +11,11 @@ typedef struct thread_struct
 	registers_t r;
 	uint32_t tid;
 	uint32_t state;
+	list_t tasks;
+	registers_t *kernel_thread;
 } thread_t;
 
-// Chaning this will require chaning kvalloc and all calls to it and current_thread_info()
+// Changing this will require chaning kvalloc and all calls to it and current_thread_info()
 #define MAX_THREAD_STACK_SIZE PAGE_SIZE
 #define MIN_THREAD_STACK_SIZE (sizeof(uint32_t) * 100)
 
@@ -43,5 +46,6 @@ thread_info_t *current_thread_info();
 #define stack_from_tcb(tcb) (&tcb->tid)
 
 thread_t *thread_init(uint32_t usermode_function_entry);
+registers_t *switch_kernel_thread(registers_t *r);
 
 #endif
