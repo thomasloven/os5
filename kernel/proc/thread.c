@@ -21,7 +21,7 @@ thread_info_t *current_thread_info()
 	return ti;
 }
 
-thread_t *new_thread()
+thread_t *alloc_thread()
 {
 	thread_info_t *th_info = kvalloc(sizeof(thread_info_t));
 	memset(&th_info->tcb, 0, sizeof(thread_t));
@@ -31,20 +31,27 @@ thread_t *new_thread()
 	return &th_info->tcb;
 }
 
-thread_t *thread_init(uint32_t usermode_function_entry)
+thread_t *new_thread(void *func, uint8_t user)
 {
 
 	/*next_tid = 1;*/
 
-	thread_t *init = new_thread();
+	thread_t *init = alloc_thread();
 
-	init->r.eip = usermode_function_entry;
-	init->r.useresp = USER_STACK_TOP;
-	init->r.ebp = init->r.useresp;
+	init->r.eip = (uint32_t)func;
+	if(user)
+	{
+		init->r.useresp = USER_STACK_TOP;
+		init->r.ebp = init->r.useresp;
 
-	init->r.cs = SEG_KERNEL_CODE;
-	init->r.ds = SEG_KERNEL_DATA;
-	init->r.ss = SEG_KERNEL_DATA;
+		init->r.cs = SEG_USER_CODE | 0x3;
+		init->r.ds = SEG_USER_DATA | 0x3;
+		init->r.ss = SEG_USER_DATA | 0x3;
+	} else {
+		init->r.cs = SEG_KERNEL_CODE;
+		init->r.ds = SEG_KERNEL_DATA;
+		init->r.ss = SEG_KERNEL_DATA;
+	}
 
 	scheduler_insert(init);
 
@@ -55,12 +62,13 @@ thread_t *thread_init(uint32_t usermode_function_entry)
 
 registers_t *switch_kernel_thread(registers_t *r)
 {
-	current->kernel_thread = r;
-
-	scheduler_insert(current);
+	if(r)
+	{
+		current->kernel_thread = r;
+		scheduler_insert(current);
+	}
 
 	thread_t *next = scheduler_next();
-
 	scheduler_remove(next);
 
 	return next->kernel_thread;

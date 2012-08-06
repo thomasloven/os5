@@ -38,6 +38,10 @@
 
 #define INT_GPF	0xD
 #define INT_PF	0xE
+#define INT_SYSCALL	0x80
+#define INT_SCHEDULE	0x82
+
+#define IRQ_TIMER 0
 
 
 #ifndef __ASSEMBLER__

@@ -16,7 +16,7 @@ void myfunc(void)
 	for(;;)
 	{
 		debug("A");
-		asm volatile("int $0x82");
+		schedule();
 	}
 }
 void myfunc2(void)
@@ -24,7 +24,7 @@ void myfunc2(void)
 	for(;;)
 	{
 		debug("B");
-		asm volatile("int $0x82");
+		schedule();
 	}
 
 }
@@ -39,13 +39,12 @@ registers_t *kinit(mboot_info_t *mboot, uint32_t mboot_magic)
 	scheduler_init();
 
 	register_int_handler(INT_PF, page_fault_handler);
-	register_int_handler(0x82, switch_kernel_thread);
+	register_int_handler(INT_SCHEDULE, switch_kernel_thread);
 
 	debug("Starting up thread");
 
-	thread_t *init = thread_init((uint32_t)&myfunc);
-	thread_t *th2 = thread_init((uint32_t)&myfunc2);
-	scheduler_remove(init);
+	thread_t *init = new_thread(&myfunc,0);
+	thread_t *th2 = new_thread(&myfunc2,0);
 
 	init->r.eflags = EFL_INT;
 
@@ -54,6 +53,6 @@ registers_t *kinit(mboot_info_t *mboot, uint32_t mboot_magic)
 	debug("Starting up thread");
 
 
-	return &init->r;
+	return switch_kernel_thread(0);
 }
 
