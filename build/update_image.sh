@@ -23,5 +23,5 @@ cp build/grub.conf $mpoint/boot/grub/grub.conf
 cp build/menu.lst $mpoint/boot/grub/menu.lst
 echo "   Copied"
 
-umount -f $mpoint
+umount $mpoint
 echo "   Unmounted"
