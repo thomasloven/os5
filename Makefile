@@ -6,15 +6,17 @@ TARGET := i386-elf
 
 AS := nasm
 CC := i386-elf-gcc
+CPP := i386-elf-gcc -E
 LD := i386-elf-ld
 
 ASFLAGS := -f elf
 CCFLAGS := -nostdlib -nostdinc -fno-builtin -fno-exceptions -m32
 CCFLAGS += -fomit-frame-pointer -fno-asynchronous-unwind-tables 
 CCFLAGS += -fno-unwind-tables -I$(BUILDDIR)/library/include
+CPPFLAGS := $(CCFLAGS)
 LDFLAGS := -T $(BUILDDIR)/library/include/Link.ld
 
-export BUILDDIR AS CC LD ASFLAGS CCFLAGS LDFLAGS
+export BUILDDIR AS CC CPP LD ASFLAGS CCFLAGS CPPFLAGS LDFLAGS
 
 .SILENT:
 

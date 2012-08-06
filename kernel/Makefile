@@ -6,6 +6,7 @@ SOURCES += $(patsubst %.asm,%.o,$(shell find . -name "*.asm" | grep -v boot.asm)
 SOURCES += $(patsubst %.c,%.o,$(shell find . -name "*.c" | grep -v kinit.c))
 
 CCFLAGS += -Iinclude 
+CPPFLAGS += -Iinclude
 LDFLAGS := -T $(BUILDDIR)/$(SUBDIR)/include/Link.ld
 
 all: $(TARGET)
@@ -24,7 +25,7 @@ $(TARGET): $(SOURCES)
 
 %.s: %.asm
 	@echo "   gcc     " $<
-	@$(CC) -E $(CCFLAGS) -o $@ -x assembler-with-cpp $<
+	@$(CPP) -E $(CPPFLAGS) -o $@ -x assembler-with-cpp $<
 
 clean:
 	-@rm $(SOURCES) 2>/dev/null
