@@ -20,6 +20,10 @@ thread_t *scheduler_next()
 {
 	if(run_queue.next)
 		return list_entry(run_queue.next, thread_t, tasks);
+	else
+	{
+		for(;;);
+	}
 }
 
 void scheduler_init()

@@ -128,7 +128,13 @@ registers_t *idt_handler(registers_t *r)
 	if(int_handlers[r->int_no])
 	{
 		enable_interrupts();
-		return int_handlers[r->int_no](r);
+		registers_t *ret = int_handlers[r->int_no](r);
+		if ((ret->cs & 0x3) == 0x3)
+		{
+			set_kernel_stack(stack_from_tcb(current));
+		}
+			ret->eflags |= EFL_INT;
+		return ret;
 	} else {
 		if(!ISIRQ(r->int_no))
 		{

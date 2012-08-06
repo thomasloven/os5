@@ -13,18 +13,21 @@
 
 void myfunc(void)
 {
+		debug("A");
 	for(;;)
 	{
 		debug("A");
-		schedule();
+		/*schedule();*/
 	}
 }
 void myfunc2(void)
 {
+
+		debug("B");
 	for(;;)
 	{
 		debug("B");
-		schedule();
+		/*schedule();*/
 	}
 
 }
@@ -37,6 +40,7 @@ registers_t *kinit(mboot_info_t *mboot, uint32_t mboot_magic)
 	idt_init();
 	tss_init();
 	scheduler_init();
+	timer_init();
 
 	register_int_handler(INT_PF, page_fault_handler);
 	register_int_handler(INT_SCHEDULE, switch_kernel_thread);
