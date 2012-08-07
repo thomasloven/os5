@@ -12,19 +12,19 @@ LDFLAGS := -T $(BUILDDIR)/$(SUBDIR)/include/Link.ld
 all: $(TARGET)
 
 $(TARGET): $(SOURCES)
-	@echo "   ln     " $(TARGET)
+	@echo "   \033[32mln\033[0m     " $(TARGET)
 	@$(LD) $(LDFLAGS) -o $(TARGET) $(SOURCES)
 
 %.o: %.c
-	@echo "   gcc    " $<
+	@echo "  \033[33m gcc\033[0m    " $<
 	@$(CC) $(CCFLAGS) -c $< -o $@
 
 %.o : %.s
-	@echo "   nasm   " $<
+	@echo "   \033[33mnasm\033[0m   " $<
 	@$(AS) $(ASFLAGS) $< -o $@
 
 %.s: %.asm
-	@echo "   gcc     " $<
+	@echo "   \033[31mgcc\033[0m     " $<
 	@$(CPP) -E $(CPPFLAGS) -o $@ -x assembler-with-cpp $<
 
 clean:

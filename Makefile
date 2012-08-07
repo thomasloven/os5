@@ -32,22 +32,22 @@ d: all floppy demul
 all: $(DIRS)
     
 $(DIRS): force
-	@echo "  MAKE    " $@
+	@echo "  \033[35mMAKE\033[0m    " $@
 	@cd $@; $(MAKE) $(MFLAGS)
 
 clean:
-	@for DIR in $(DIRS); do echo "  CLEAN   " $$DIR; cd $(BUILDDIR)/$$DIR; make clean; done;
+	@for DIR in $(DIRS); do echo "  \033[35mCLEAN\033[0m   " $$DIR; cd $(BUILDDIR)/$$DIR; make clean; done;
 
 floppy: force
-	@echo "  UPDATING IMAGE"
+	@echo "  \033[35mUPDATING IMAGE\033[0m"
 	@build/update_image.sh
 
 emul: force
-	@echo "  STARTING EMULATOR"
+	@echo "  \033[35mSTARTING EMULATOR\033[0m"
 	@build/emul.sh
 
 demul: force
-	@echo "  STARTING EMULATOR (DEBUGGER)"
+	@echo "  \033[35mSTARTING EMULATOR (\033[33mDEBUGGER\033[33m)\033[0m"
 	@build/demul.sh
 
 force:
