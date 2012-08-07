@@ -31,27 +31,27 @@ typedef union
 	{
 		uint8_t stack[THREAD_STACK_SIZE];
 		uint8_t stack_bottom;
-	};
+	}stack;
 	struct
 	{
 		uint8_t stackspace[THREAD_STACK_SPACE];
 		thread_t tcb;
-	};
+	}tcb;
 } thread_info_t;
 
 thread_info_t *current_thread_info();
 
-#define current ((thread_t *)(&current_thread_info()->tcb))
+#define current ((thread_t *)(&current_thread_info()->tcb.tcb))
 #define stack_from_thinfo(info) ((uint32_t)&info->stack_bottom)
 #define tcb_from_thinfo(info) ((thread_t *)(info->tcb))
 #define thinfo_from_tcb(tcb) ((thread_info_t *)((uint32_t)(tcb)-THREAD_STACK_SPACE))
 #define stack_from_tcb(tcb) (&tcb->tid)
 
-thread_t *new_thread(void *func, uint8_t user);
+thread_t *new_thread(void (*func)(void), uint8_t user);
 registers_t *switch_kernel_thread(registers_t *r);
 
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)
-#define schedule() asm volatile("int $" TOSTRING(INT_SCHEDULE))
+#define schedule() __asm__ volatile("int $" TOSTRING(INT_SCHEDULE))
 
 #endif

@@ -26,7 +26,7 @@
 #else
 
 #define vmm_flush_tlb(page) \
-	asm volatile ("invlpg (%0)" : : "a" (page & PAGE_MASK))
+	__asm__ volatile ("invlpg (%0)" : : "a" (page & PAGE_MASK))
 
 #define assert_higher(var) \
 	(var = (var > KERNEL_OFFSET)?(var):(var + KERNEL_OFFSET))

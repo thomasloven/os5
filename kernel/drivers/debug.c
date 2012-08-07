@@ -109,7 +109,7 @@ void kdbg_printf(char *str, ...)
 		kdbg_scroll();
 		str++;
 	}
-	va_end();
+	va_end(args);
 
 }
 
@@ -123,7 +123,6 @@ int kdbg_num2str(uint32_t num, uint32_t base, char *buf)
 	}
 
 	uint32_t i=0, j=0;
-	char c;
 
 	while(num > 0)
 	{

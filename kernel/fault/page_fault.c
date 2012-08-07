@@ -3,13 +3,15 @@
 #include <vmm.h>
 #include <k_debug.h>
 #include <thread.h>
+#include <arch.h>
 
 registers_t *page_fault_handler(registers_t *r)
 {
 	uint32_t fault_address;
-	asm volatile("mov %%cr2, %0" : "=r" (fault_address));
+	__asm__ volatile("mov %%cr2, %0" : "=r" (fault_address));
 	if(!(r->cs & 0x3))
 	{
+		disable_interrupts();
 		debug("Page fault in kernel!");
 		debug("\n At: %x", fault_address);
 		print_registers(r);
@@ -24,6 +26,7 @@ registers_t *page_fault_handler(registers_t *r)
 
 		} else {
 
+			disable_interrupts();
 			debug("Page fault hapened!");
 			debug("\n At: %x", fault_address);
 			debug("\n From thread: %x", current->tid);

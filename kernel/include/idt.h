@@ -96,6 +96,7 @@ typedef struct tss_struct
 	uint16_t trap, iomap;
 }__attribute__((packed)) tss_t;
 
+typedef void (*isr_t)(void);
 typedef registers_t *(*int_handler_t)(registers_t *);
 
 void idt_init();

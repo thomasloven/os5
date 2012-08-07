@@ -5,15 +5,17 @@ DIRS := kernel
 TARGET := i386-elf
 
 AS := nasm
-CC := i386-elf-gcc
-CPP := i386-elf-gcc -E
+#CC := i386-elf-gcc
+#CPP := i386-elf-gcc -E
 LD := i386-elf-ld
 
 ASFLAGS := -f elf
-CCFLAGS := -nostdlib -nostdinc -fno-builtin -fno-exceptions -m32
-CCFLAGS += -fomit-frame-pointer -fno-asynchronous-unwind-tables 
-CCFLAGS += -fno-unwind-tables -I$(BUILDDIR)/library/include
+CCFLAGS := -Wall -Wextra -pedantic -m32 -O0 -std=c99 -finline-functions
+CCFLAGS += -fno-stack-protector -nostdinc -ffreestanding -Wno-unused-function
+CCFLAGS += -Wno-unused-parameter -g -Wno-gnu
+CCFLAGS += -I$(BUILDDIR)/library/include
 CPPFLAGS := $(CCFLAGS)
+CCFLAGS += -ccc-host-triple i386-pc-linux-gnu
 LDFLAGS := -T $(BUILDDIR)/library/include/Link.ld
 
 export BUILDDIR AS CC CPP LD ASFLAGS CCFLAGS CPPFLAGS LDFLAGS

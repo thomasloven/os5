@@ -10,20 +10,20 @@ int_handler_t int_handlers[NUM_INTERRUPTS];
 struct idt_pointer idt_p;
 extern gdt_entry_t gdt[6];
 
-extern void isr0(void), isr1(void), isr2(void), isr3(void), isr4(void), isr5(void), isr6(void), isr7(void), isr8(void), isr9(void), isr10(void), isr11(void), isr12(void), isr13(void), isr14(void), isr15(void), isr16(void), isr17(void), isr18(void), isr19(void), isr20(void), isr21(void), isr22(void), isr23(void), isr24(void), isr25(void), isr26(void), isr27(void), isr28(void), isr29(void), isr30(void), isr31(void), isr32(void), isr33(void), isr34(void), isr35(void), isr36(void), isr37(void), isr38(void), isr39(void), isr40(void), isr41(void), isr42(void), isr43(void), isr44(void), isr45(void), isr46(void), isr47(void), isr128(void), isr130(void), isr255(void);
+extern isr_t isr0, isr1, isr2, isr3, isr4, isr5, isr6, isr7, isr8, isr9, isr10, isr11, isr12, isr13, isr14, isr15, isr16, isr17, isr18, isr19, isr20, isr21, isr22, isr23, isr24, isr25, isr26, isr27, isr28, isr29, isr30, isr31, isr32, isr33, isr34, isr35, isr36, isr37, isr38, isr39, isr40, isr41, isr42, isr43, isr44, isr45, isr46, isr47, isr128, isr130, isr255;
 
-void *idt_raw[] = 
+isr_t *idt_raw[] = 
 {
-	isr0,	isr1,	isr2,	isr3,	isr4,
-	isr5,	isr6,	isr7,	isr8,	isr9, //9
-	isr10,	isr11,	isr12,	isr13,	isr14,
-	isr15,	isr16,	isr17,	isr18,	isr19, //19
-	isr20,	isr21,	isr22,	isr23,	isr24,
-	isr25,	isr26,	isr27,	isr28,	isr29, //29
-	isr30,	isr31,	isr32,	isr33,	isr34,
-	isr35,	isr36,	isr37,	isr38,	isr39, //39
-	isr40,	isr41,	isr42,	isr43,	isr44,
-	isr45,	isr46,	isr47,	0,	0, //49
+	&isr0,	&isr1,	&isr2,	&isr3,	&isr4,
+	&isr5,	&isr6,	&isr7,	&isr8,	&isr9, //9
+	&isr10,	&isr11,	&isr12,	&isr13,	&isr14,
+	&isr15,	&isr16,	&isr17,	&isr18,	&isr19, //19
+	&isr20,	&isr21,	&isr22,	&isr23,	&isr24,
+	&isr25,	&isr26,	&isr27,	&isr28,	&isr29, //29
+	&isr30,	&isr31,	&isr32,	&isr33,	&isr34,
+	&isr35,	&isr36,	&isr37,	&isr38,	&isr39, //39
+	&isr40,	&isr41,	&isr42,	&isr43,	&isr44,
+	&isr45,	&isr46,	&isr47,	0,	0, //49
 	0,	0,	0,	0,	0,
 	0,	0,	0,	0,	0, //59
 	0,	0,	0,	0,	0,
@@ -39,8 +39,8 @@ void *idt_raw[] =
 	0,	0,	0,	0,	0,
 	0,	0,	0,	0,	0, //119
 	0,	0,	0,	0,	0,
-	0,	0,	0,	isr128,	0, //129
-	isr130,	0,	0,	0,	0,
+	0,	0,	0,	&isr128,	0, //129
+	&isr130,	0,	0,	0,	0,
 	0,	0,	0,	0,	0, //139
 	0,	0,	0,	0,	0,
 	0,	0,	0,	0,	0, //149
@@ -65,7 +65,7 @@ void *idt_raw[] =
 	0,	0,	0,	0,	0,
 	0,	0,	0,	0,	0, //249
 	0,	0,	0,	0,	0,
-	isr255
+	&isr255
 };
 
 void idt_set(uint32_t num, uint32_t base, uint32_t segment, uint8_t flags)

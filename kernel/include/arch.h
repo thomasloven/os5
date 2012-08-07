@@ -4,24 +4,24 @@
 #ifndef __ASSEMBLER__
 
 #define outb(port, val) \
-	asm volatile ("outb %%al, %0" : : "dN" ((uint16_t)port), "a" ((uint16_t)val))
+	__asm__ volatile ("outb %%al, %0" : : "dN" ((uint16_t)port), "a" ((uint16_t)val))
 
 #define outw(port, val) \
-	asm volatile ("outw %1, %0" : : "dN" ((uint16_t)port), "a" ((uint16_t)val))
+	__asm__ volatile ("outw %1, %0" : : "dN" ((uint16_t)port), "a" ((uint16_t)val))
 
 #define inb(port) ({ \
 	uint8_t __ret; \
-	asm volatile ("inb %1, %0" : "=a" (__ret) : "dN" ((uint16_t)port)); \
+	__asm__ volatile ("inb %1, %0" : "=a" (__ret) : "dN" ((uint16_t)port)); \
 	__ret; })
 
 #define inw(port) ({ \
 	uint16_t __ret; \
-	asm volatile ("inw %1, %0" : "=a" (__ret) : "dN" ((uint16_t)port)); \
+	__asm__ volatile ("inw %1, %0" : "=a" (__ret) : "dN" ((uint16_t)port)); \
 	__ret; })
 
-#define enable_interrupts() asm("sti")
+#define enable_interrupts() __asm__("sti")
 
-#define disable_interrupts() asm("cli");
+#define disable_interrupts() __asm__("cli");
 
 typedef struct
 {

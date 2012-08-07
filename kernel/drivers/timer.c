@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <idt.h>
 #include <k_debug.h>
+#include <thread.h>
 
 uint32_t ticks;
 
@@ -21,7 +22,9 @@ registers_t *timer_tick(registers_t *r)
 {
 	ticks ++;
 	if(ticks %10 == 0)
+	{
 		schedule();
 		debug("\n %x", current->tid);
+	}
 	return r;
 }
