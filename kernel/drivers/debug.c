@@ -24,6 +24,12 @@ void kdbg_setpos(uint32_t x, uint32_t y)
 	scrn_y = y;
 }
 
+void kdbg_getpos(uint32_t *x, uint32_t *y)
+{
+	x[0] = scrn_x;
+	y[0] = scrn_y;
+}
+
 void kdbg_scroll()
 {
 	while (scrn_y > SCRN_H-1)

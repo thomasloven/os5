@@ -24,7 +24,6 @@ registers_t *timer_tick(registers_t *r)
 	if(ticks %10 == 0)
 	{
 		schedule();
-		debug("\n %x", current->tid);
 	}
 	return r;
 }
