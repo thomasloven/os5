@@ -43,7 +43,7 @@ void _clock(void)
 			
 		uint32_t x,y;
 		kdbg_getpos(&x,&y);
-		kdbg_setpos(0,1);
+		kdbg_setpos(70,0);
 		debug("[%d:%d:%d]",h,m,s);
 		kdbg_setpos(x,y);
 	}
@@ -54,6 +54,9 @@ registers_t *kinit(mboot_info_t *mboot, uint32_t mboot_magic)
 {
 
 	kdbg_init();
+	assert(mboot_magic == MBOOT_MAGIC2);
+
+	kernel_elf_init(mboot);
 	pmm_init(mboot);
 	idt_init();
 	tss_init();
@@ -67,12 +70,7 @@ registers_t *kinit(mboot_info_t *mboot, uint32_t mboot_magic)
 	new_thread(&_clock,0);
 
 	idle->r.eflags = EFL_INT;
-
 	set_kernel_stack(stack_from_tcb(idle));
-
-	kernel_elf_init(mboot);
-	
-	print_stack_trace();
 
 	return switch_kernel_thread(0);
 }
