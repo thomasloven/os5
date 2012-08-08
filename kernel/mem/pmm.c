@@ -62,8 +62,7 @@ void pmm_init(mboot_info_t *mboot)
 	pmm_pos = (mboot->mem_upper + PAGE_SIZE) & PAGE_MASK;
 	pmm_running = FALSE;
 
-	assert_higher(mboot->mmap_addr);
-	uint32_t i = mboot->mmap_addr;
+	uint32_t i = assert_higher(mboot->mmap_addr);
 	while (i < mboot->mmap_addr + mboot->mmap_length)
 	{
 		mboot_mmap_entry_t *me = (mboot_mmap_entry_t *)i;

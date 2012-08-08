@@ -1,18 +1,20 @@
 #include <arch.h>
 #include <idt.h>
 
-[global idt_flush]
+[global idt_flush:function idt_flush.end-idt_flush]
 idt_flush:
 	mov eax, [esp+4]
 	lidt [eax]
 	ret
+.end:
 
-[global tss_flush]
+[global tss_flush:function tss_flush.end-tss_flush]
 tss_flush:
 	mov eax, [esp+4]
 	ltr ax
 .flush:
 	ret
+.end
 
 INTNOERR 0
 INTNOERR 1
@@ -69,6 +71,7 @@ INTNOERR 130
 
 [extern idt_handler]
 
+[global int_stub:function int_stub.end-int_stub]
 int_stub:
 	pusha
 	xor ecx, ecx
@@ -80,8 +83,9 @@ int_stub:
 	push esp
 	call idt_handler
 	mov esp, eax
+.end
 
-[global int_return]
+[global int_return:function int_return.end-int_return]
 int_return:
 	pop eax
 	mov ds, ax
@@ -93,4 +97,5 @@ int_return:
 	add esp, 8
 
 	iret
+.end
 

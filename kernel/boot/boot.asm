@@ -63,7 +63,7 @@ MultiBootHeader:
 	dd MBOOT_HEADER_CHECKSUM
 
 ; Kernel start point
-[global start]
+[global start:function start.end-start]
 start:
 	cli
 
@@ -93,7 +93,7 @@ start:
 
 	; Load a stack for booting
 	mov esp, BootStack
-	mov ebp, BootStack
+	mov ebp, 0x0
 
 	; eax contains the magic number from GRUB 0x2BADB002
 	push eax
@@ -109,3 +109,4 @@ mov esp, eax
 [extern int_return]
 jmp int_return
 jmp $
+.end

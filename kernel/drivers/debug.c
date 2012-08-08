@@ -4,6 +4,7 @@
 #include <stdarg.h>
 #include <common.h>
 #include <ctype.h>
+#include <elf.h>
 
 uint16_t *vidmem = (uint16_t *)VIDMEM;
 
@@ -149,3 +150,19 @@ int kdbg_num2str(uint32_t num, uint32_t base, char *buf)
 	return i+j+1;
 }
 
+void print_stack_trace()
+{
+	uint32_t *ebp, *eip;
+
+	debug("\n");
+	__asm__ volatile("mov %%ebp, %0" : "=r" (ebp));
+	while(ebp)
+	{
+		eip = ebp + 1;
+		if(*eip != 0)
+		{
+		debug("  [%x] %s\n", *eip, kernel_lookup_symbol(*eip));
+		}
+		ebp = (uint32_t *)*ebp;
+	}
+}

@@ -28,8 +28,8 @@
 #define vmm_flush_tlb(page) \
 	__asm__ volatile ("invlpg (%0)" : : "a" (page & PAGE_MASK))
 
-#define assert_higher(var) \
-	(var = (var > KERNEL_OFFSET)?(var):(var + KERNEL_OFFSET))
+#define assert_higher(val)  \
+	((uint32_t)(val) > KERNEL_OFFSET)?(val):(__typeof__((val)))((uint32_t)(val)+ KERNEL_OFFSET)
 
 uintptr_t vmm_page_get(uintptr_t page);
 void vmm_page_set(uintptr_t page, uintptr_t value);

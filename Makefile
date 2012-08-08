@@ -15,7 +15,7 @@ CCFLAGS += -fno-stack-protector -nostdinc -ffreestanding -Wno-unused-function
 CCFLAGS += -Wno-unused-parameter -g -Wno-gnu
 CCFLAGS += -I$(BUILDDIR)/library/include
 CPPFLAGS := $(CCFLAGS)
-CCFLAGS += -ccc-host-triple i386-pc-linux-gnu
+CCFLAGS += -ccc-host-triple i386-pc-linux-gnu -mno-sse -mno-mmx
 LDFLAGS := -T $(BUILDDIR)/library/include/Link.ld
 
 export BUILDDIR AS CC CPP LD ASFLAGS CCFLAGS CPPFLAGS LDFLAGS

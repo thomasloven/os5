@@ -11,6 +11,8 @@
 #include <thread.h>
 #include <scheduler.h>
 #include <timer.h>
+#include <elf.h>
+#include <strings.h>
 
 void _idle(void)
 {
@@ -68,6 +70,9 @@ registers_t *kinit(mboot_info_t *mboot, uint32_t mboot_magic)
 
 	set_kernel_stack(stack_from_tcb(idle));
 
+	kernel_elf_init(mboot);
+	
+	print_stack_trace();
 
 	return switch_kernel_thread(0);
 }

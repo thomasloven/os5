@@ -40,6 +40,8 @@ void kdbg_printf(char *str, ...);
 int kdbg_num2str(uint32_t num, uint32_t base, char *buf);
 void kdbg_setclr(uint32_t style);
 
+void print_stack_trace();
+
 #ifndef NDEBUG
 
 #define debug kdbg_printf
