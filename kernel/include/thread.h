@@ -27,22 +27,14 @@ typedef struct thread_struct
 
 typedef union
 {
-	struct
-	{
-		uint8_t stack[THREAD_STACK_SIZE];
-		uint8_t stack_bottom;
-	}stack;
-	struct
-	{
-		uint8_t stackspace[THREAD_STACK_SPACE];
-		thread_t tcb;
-	}tcb;
+	uint8_t stackspace[THREAD_STACK_SPACE];
+	thread_t tcb;
 } thread_info_t;
 
 thread_info_t *current_thread_info();
 
-#define current ((thread_t *)(&current_thread_info()->tcb.tcb))
-#define stack_from_thinfo(info) ((uint32_t)&info->stack_bottom)
+#define current ((thread_t *)(&current_thread_info()->tcb))
+#define stack_from_thinfo(info) ((uint32_t)&info->tcb.tid)
 #define tcb_from_thinfo(info) ((thread_t *)(info->tcb))
 #define thinfo_from_tcb(tcb) ((thread_info_t *)((uint32_t)(tcb)-THREAD_STACK_SPACE))
 #define stack_from_tcb(tcb) (&tcb->tid)

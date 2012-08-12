@@ -26,16 +26,13 @@ thread_t *alloc_thread()
 	thread_info_t *th_info = kvalloc(sizeof(thread_info_t));
 	memset(&th_info->tcb, 0, sizeof(thread_t));
 
-	th_info->tcb.tcb.tid = next_tid++;
+	th_info->tcb.tid = next_tid++;
 
-	return &th_info->tcb.tcb;
+	return &th_info->tcb;
 }
 
 thread_t *new_thread(void (*func)(void), uint8_t user)
 {
-
-	/*next_tid = 1;*/
-
 	thread_t *init = alloc_thread();
 
 	init->r.eip = (uint32_t)func;
@@ -73,5 +70,4 @@ registers_t *switch_kernel_thread(registers_t *r)
 
 	return next->kernel_thread;
 }
-
 
