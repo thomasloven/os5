@@ -14,8 +14,8 @@ void *kcalloc(uint32_t size);
 void *kvalloc(uint32_t size);
 void kfree(void *a);
 
-#define chunk_head(a) ((chunk_t *)((uint32_t)a-sizeof(chunk_t)))
-#define chunk_data(c) ((void *)((uint32_t)c + sizeof(chunk_t)))
+#define chunk_head(a) ((chunk_t *)((uintptr_t)a-sizeof(chunk_t)))
+#define chunk_data(c) ((void *)((uintptr_t)c + sizeof(chunk_t)))
 
 #endif
 

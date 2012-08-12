@@ -15,7 +15,8 @@
 #define PAGE_WRITE 0x2
 #define PAGE_USER 0x4
 
-#define vmm_page_val(page, flags) ((page & PAGE_MASK) | (flags & PAGE_FLAG_MASK))
+#define vmm_page_val(page, flags) \
+	((page & PAGE_MASK) | (flags & PAGE_FLAG_MASK))
 #define vmm_table_idx(page) (page >> 12)
 #define vmm_dir_idx(page) (page >> 22)
 
@@ -29,7 +30,8 @@
 	__asm__ volatile ("invlpg (%0)" : : "a" (page & PAGE_MASK))
 
 #define assert_higher(val)  \
-	((uint32_t)(val) > KERNEL_OFFSET)?(val):(__typeof__((val)))((uint32_t)(val)+ KERNEL_OFFSET)
+	((uintptr_t)(val) > KERNEL_OFFSET)?(val):\
+		(__typeof__((val)))((uintptr_t)(val)+ KERNEL_OFFSET)
 
 uintptr_t vmm_page_get(uintptr_t page);
 void vmm_page_set(uintptr_t page, uintptr_t value);

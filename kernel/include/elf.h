@@ -67,7 +67,7 @@ typedef struct
 {
 	elf_symbol *symtab;
 	uint32_t symtab_size;
-	uint8_t *strtab;
+	elf_symbol *strtab;
 	uint32_t strtab_size;
 }__attribute__((packed)) elf_t;
 

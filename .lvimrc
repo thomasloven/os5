@@ -14,5 +14,5 @@ call rainbow_parenthsis#LoadChevrons()
 call rainbow_parenthsis#Activate()
 
 let g:syntastic_c_include_dirs = [ 'library/include', 'kernel/include' ]
-let g:syntastic_c_compiler = 'clang -fsyntax-only -Wall -Wextra -pedantic'
+let g:syntastic_c_compiler = 'clang -fsyntax-only -Wall -Wextra -Wno-gnu -pedantic -Wno-gnu -nostdinc -ffreestanding -finline-functions -m32'
 

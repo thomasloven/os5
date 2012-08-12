@@ -152,7 +152,7 @@ int kdbg_num2str(uint32_t num, uint32_t base, char *buf)
 
 void print_stack_trace()
 {
-	uint32_t *ebp, *eip;
+	uintptr_t *ebp, *eip;
 
 	debug("\n");
 	__asm__ volatile("mov %%ebp, %0" : "=r" (ebp));
@@ -163,6 +163,6 @@ void print_stack_trace()
 		{
 		debug("  [%x] %s\n", *eip, kernel_lookup_symbol(*eip));
 		}
-		ebp = (uint32_t *)*ebp;
+		ebp = (uintptr_t *)*ebp;
 	}
 }

@@ -17,11 +17,13 @@ typedef struct thread_struct
 	registers_t *kernel_thread;
 } thread_t;
 
-// Changing this will require chaning kvalloc and all calls to it and current_thread_info()
+// Changing this will require chaning kvalloc and all calls to it and
+//	current_thread_info()
 #define MAX_THREAD_STACK_SIZE PAGE_SIZE
 #define MIN_THREAD_STACK_SIZE (sizeof(uint32_t) * 100)
 
-#define THREAD_STACK_SIZE (MAX_THREAD_STACK_SIZE - sizeof(thread_t) + sizeof(registers_t))
+#define THREAD_STACK_SIZE (MAX_THREAD_STACK_SIZE - sizeof(thread_t) \
+	+ sizeof(registers_t))
 #define THREAD_STACK_SPACE (THREAD_STACK_SIZE - sizeof(registers_t))
 
 
@@ -34,9 +36,10 @@ typedef union
 thread_info_t *current_thread_info();
 
 #define current ((thread_t *)(&current_thread_info()->tcb))
-#define stack_from_thinfo(info) ((uint32_t)&info->tcb.tid)
+#define stack_from_thinfo(info) ((uintptr_t)&info->tcb.tid)
 #define tcb_from_thinfo(info) ((thread_t *)(info->tcb))
-#define thinfo_from_tcb(tcb) ((thread_info_t *)((uint32_t)(tcb)-THREAD_STACK_SPACE))
+#define thinfo_from_tcb(tcb) \
+	((thread_info_t *)((uintptr_t)(tcb)-THREAD_STACK_SPACE))
 #define stack_from_tcb(tcb) (&tcb->tid)
 
 thread_t *new_thread(void (*func)(void), uint8_t user);

@@ -10,7 +10,12 @@ int_handler_t int_handlers[NUM_INTERRUPTS];
 struct idt_pointer idt_p;
 extern gdt_entry_t gdt[6];
 
-extern isr_t isr0, isr1, isr2, isr3, isr4, isr5, isr6, isr7, isr8, isr9, isr10, isr11, isr12, isr13, isr14, isr15, isr16, isr17, isr18, isr19, isr20, isr21, isr22, isr23, isr24, isr25, isr26, isr27, isr28, isr29, isr30, isr31, isr32, isr33, isr34, isr35, isr36, isr37, isr38, isr39, isr40, isr41, isr42, isr43, isr44, isr45, isr46, isr47, isr128, isr130, isr255;
+extern isr_t isr0,
+	isr1, isr2, isr3, isr4, isr5, isr6, isr7, isr8, isr9, isr10,
+	isr11, isr12, isr13, isr14, isr15, isr16, isr17, isr18, isr19, isr20,
+	isr21, isr22, isr23, isr24, isr25, isr26, isr27, isr28, isr29, isr30,
+	isr31, isr32, isr33, isr34, isr35, isr36, isr37, isr38, isr39, isr40,
+	isr41, isr42, isr43, isr44, isr45, isr46, isr47, isr128, isr130, isr255;
 
 isr_t *idt_raw[] = 
 {
@@ -93,7 +98,7 @@ void idt_init()
 	outb(SPIC_DATA_PORT, 0x0);
 
 	idt_p.size = (sizeof(idt_entry_t)*NUM_INTERRUPTS) - 1;
-	idt_p.offset = (uint32_t)&idt;
+	idt_p.offset = (uintptr_t)&idt;
 
 	memset(idt,0,sizeof(idt_entry_t)*NUM_INTERRUPTS);
 	memset(int_handlers,0,sizeof(int_handler_t)*NUM_INTERRUPTS);
@@ -103,14 +108,15 @@ void idt_init()
 	{
 		if(idt_raw[i])
 		{
-			idt_set(i, (uint32_t)idt_raw[i], SEG_KERNEL_CODE, IDT_PRESENT | IDT_INT_GATE);
+			idt_set(i, (uintptr_t)idt_raw[i], SEG_KERNEL_CODE, \
+				IDT_PRESENT | IDT_INT_GATE);
 		}
 	}
 
 	idt[128].flags |=  IDT_DPL_3;
 	idt[255].flags |= IDT_DPL_3;
 
-	idt_flush((uint32_t)&idt_p);
+	idt_flush((uintptr_t)&idt_p);
 }
 
 registers_t *idt_handler(registers_t *r)
@@ -138,7 +144,8 @@ registers_t *idt_handler(registers_t *r)
 	} else {
 		if(!ISIRQ(r->int_no))
 		{
-			debug("\nUnhanded interrupt received, %x, %x", r->int_no, INT2IRQ(r->int_no));
+			debug("\nUnhanded interrupt received, %x, %x", \
+				r->int_no, INT2IRQ(r->int_no));
 			debug("\n Tid: %x", current->tid);
 			print_registers(r);
 			enable_interrupts();
@@ -158,7 +165,7 @@ int_handler_t register_int_handler(uint32_t num, int_handler_t handler)
 
 void tss_init()
 {
-	uint32_t base = (uint32_t)&global_tss;
+	uint32_t base = (uintptr_t)&global_tss;
 	uint32_t limit = sizeof(tss_t);
 
 	set_gdt_base(gdt[GDT_TSS], base);

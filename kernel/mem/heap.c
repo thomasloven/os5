@@ -13,7 +13,8 @@ void expand_heap(uintptr_t start, uint32_t size)
 {
 	while(start + size > heap_top)
 	{
-		vmm_page_set(heap_top, vmm_page_val(pmm_alloc_page(), PAGE_PRESENT | PAGE_WRITE));
+		vmm_page_set(heap_top, \
+			vmm_page_val(pmm_alloc_page(), PAGE_PRESENT | PAGE_WRITE));
 		memset(heap_top, 0, PAGE_SIZE);
 		heap_top += PAGE_SIZE;
 		assert(heap_top < KERNEL_HEAP_END);
@@ -77,7 +78,8 @@ void glue_chunk(chunk_t *c)
 
 void kfree(void *a)
 {
-	assert((uint32_t)a >= KERNEL_HEAP_START && (uint32_t)a < KERNEL_HEAP_END);
+	assert((uintptr_t)a >= KERNEL_HEAP_START && \
+		(uintptr_t)a < KERNEL_HEAP_END);
 
 	chunk_head(a)->allocated = FALSE;
 	glue_chunk(chunk_head(a));
@@ -103,7 +105,7 @@ void *kmalloc(uint32_t size)
 
 	if(prev_chunk)
 	{
-		cur_chunk = (chunk_t *)((uint32_t)prev_chunk + prev_chunk->size);
+		cur_chunk = (chunk_t *)((uintptr_t)prev_chunk + prev_chunk->size);
 	} else {
 		heap_first = cur_chunk = (chunk_t *)KERNEL_HEAP_START;
 	}
@@ -129,7 +131,7 @@ void *kcalloc(uint32_t size)
 void *kvalloc(uint32_t size)
 {
 	void *pos = kmalloc(size + PAGE_SIZE);
-	split_chunk(chunk_head(pos), PAGE_SIZE - ((uint32_t) pos % PAGE_SIZE));
+	split_chunk(chunk_head(pos), PAGE_SIZE - ((uintptr_t)pos % PAGE_SIZE));
 
 	chunk_t *new = chunk_head(pos)->next;
 	split_chunk(new, size + sizeof(chunk_t));

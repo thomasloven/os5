@@ -4,10 +4,12 @@
 #ifndef __ASSEMBLER__
 
 #define outb(port, val) \
-	__asm__ volatile ("outb %%al, %0" : : "dN" ((uint16_t)port), "a" ((uint16_t)val))
+	__asm__ volatile ("outb %%al, %0" : : "dN" ((uint16_t)port), \
+		"a" ((uint16_t)val))
 
 #define outw(port, val) \
-	__asm__ volatile ("outw %1, %0" : : "dN" ((uint16_t)port), "a" ((uint16_t)val))
+	__asm__ volatile ("outw %1, %0" : : "dN" ((uint16_t)port), \
+		"a" ((uint16_t)val))
 
 #define inb(port) ({ \
 	uint8_t __ret; \
@@ -35,11 +37,16 @@ uint32_t eflags, useresp, ss;
 } registers_t;
 
 #define print_registers(r) \
-	debug("\n\neax:%x ebx:%x ecx:%x edx:%x", (r)->eax, (r)->ebx, (r)->ecx, (r)->edx); \
-	debug("\nedi:%x esi:%x ebp:%x esp:%x", (r)->edi, (r)->esi, (r)->ebp, (r)->esp); \
-	debug("\neip:%x\ncs:%x ds:%x ss:%x", (r)->eip, (r)->cs, (r)->ds, (r)->ss); \
-	debug("\nuse(r)esp:%x\neflags%x %b", (r)->useresp, (r)->eflags, (r)->eflags); \
-	debug("\nint_no:%x, err_code:%x %b", (r)->int_no, (r)->err_code, (r)->err_code);
+	debug("\n\neax:%x ebx:%x ecx:%x edx:%x", \
+		(r)->eax, (r)->ebx, (r)->ecx, (r)->edx); \
+	debug("\nedi:%x esi:%x ebp:%x esp:%x", \
+		(r)->edi, (r)->esi, (r)->ebp, (r)->esp); \
+	debug("\neip:%x\ncs:%x ds:%x ss:%x", \
+		(r)->eip, (r)->cs, (r)->ds, (r)->ss); \
+	debug("\nuseresp:%x\neflags%x %b", \
+		(r)->useresp, (r)->eflags, (r)->eflags); \
+	debug("\nint_no:%x, err_code:%x %b", \
+		(r)->int_no, (r)->err_code, (r)->err_code);
 
 #endif
 

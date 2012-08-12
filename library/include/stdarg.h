@@ -18,7 +18,8 @@
 		(AP += __va_rounded_size(TYPE), \
 		*((TYPE *)(AP-__va_rounded_size(TYPE))))
 	#define __va_rounded_size(TYPE) \
-		(((sizeof(TYPE)+sizeof(uint32_t)-1)/sizeof(uint32_t))*sizeof(uint32_t))
+		(((sizeof(TYPE)+sizeof(uint32_t)-1)/ \
+			sizeof(uint32_t))*sizeof(uint32_t))
 	#define VA_SIZE(TYPE) \
 		((sizeof(TYPE) + sizeof(STACKITEM)-1) & ~(sizeof(STACKITEM)-1))
 	#define STACKITEM int

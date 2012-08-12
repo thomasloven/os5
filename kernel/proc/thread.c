@@ -8,8 +8,10 @@
 #include <memory.h>
 #include <scheduler.h>
 
-// If this line throws an error, the size of the kernel thread stack has grown too small. Please change MIN_THREAD_STACK_SIZE or thread_t in thread.h
-// Or rather yet, change how the stack is allocated so that it works for all sizes...
+// If this line throws an error, the size of the kernel thread stack 
+// has grown too small. Please change MIN_THREAD_STACK_SIZE or thread_t 
+// in thread.h. Or rather yet, change how the stack is allocated so that 
+// it works for all sizes...
 uint32_t size_checker[1-2*!(THREAD_STACK_SPACE > MIN_THREAD_STACK_SIZE)];
 
 uint32_t next_tid=1;

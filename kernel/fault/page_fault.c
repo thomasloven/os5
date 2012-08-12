@@ -19,10 +19,14 @@ registers_t *page_fault_handler(registers_t *r)
 		for(;;);
 	} else {
 
-		if((fault_address <=USER_STACK_TOP) && (fault_address >=USER_STACK_BOTTOM))
+		if((fault_address <=USER_STACK_TOP) && \
+			(fault_address >=USER_STACK_BOTTOM))
 		{
-			// If the page fault was in the stack area of a thread, allocate a page nd return.
-			vmm_page_set(fault_address & PAGE_MASK, vmm_page_val(pmm_alloc_page(), PAGE_PRESENT | PAGE_WRITE | PAGE_USER));
+			// If the page fault was in the stack area of a thread, 
+			//	allocate a page nd return.
+			vmm_page_set(fault_address & PAGE_MASK, \
+				vmm_page_val(pmm_alloc_page(), \
+				PAGE_PRESENT | PAGE_WRITE | PAGE_USER));
 			return r;
 
 		} else {

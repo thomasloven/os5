@@ -24,8 +24,10 @@ void vmm_page_touch(uintptr_t page, uint32_t flags)
 	if(!(page_directory[vmm_dir_idx(page)] & PAGE_PRESENT))
 	{
 		page_directory[vmm_dir_idx(page)] = pmm_alloc_page() | flags;
-		vmm_flush_tlb((uintptr_t)&page_tables[vmm_table_idx(page)] & PAGE_MASK);
-		memset((uintptr_t)&page_tables[vmm_table_idx(page)] & PAGE_MASK, 0, PAGE_SIZE);
+		vmm_flush_tlb((uintptr_t)&page_tables[vmm_table_idx(page)] & \
+			PAGE_MASK);
+		memset((uintptr_t)&page_tables[vmm_table_idx(page)] & PAGE_MASK, \
+			0, PAGE_SIZE);
 	}
 }
 
