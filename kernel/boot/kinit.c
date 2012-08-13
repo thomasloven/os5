@@ -66,11 +66,8 @@ registers_t *kinit(mboot_info_t *mboot, uint32_t mboot_magic)
 	register_int_handler(INT_PF, page_fault_handler);
 	register_int_handler(INT_SCHEDULE, switch_kernel_thread);
 
-	thread_t *idle = new_thread(&_idle,0);
+	threads_init(&_idle);
 	new_thread(&_clock,0);
-
-	idle->r.eflags = EFL_INT;
-	set_kernel_stack(stack_from_tcb(idle));
 
 	return switch_kernel_thread(0);
 }

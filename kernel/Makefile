@@ -13,7 +13,7 @@ all: $(TARGET)
 
 $(TARGET): $(SOURCES)
 	@echo "   \033[32mln\033[0m     " $(TARGET)
-	@$(LD) $(LDFLAGS) -o $(TARGET) $(SOURCES)
+	@$(LD) $(LDFLAGS) -o $(TARGET) $(SOURCES) $(LIBC)
 
 %.o: %.c
 	@echo "  \033[33m gcc\033[0m    " $<

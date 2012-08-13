@@ -121,6 +121,7 @@ void idt_init()
 
 registers_t *idt_handler(registers_t *r)
 {
+	current->interrupt_level = current->interrupt_level + 1;
 	if(ISIRQ(r->int_no))
 	{
 		if(INT2IRQ(r->int_no) > 8)
@@ -135,11 +136,13 @@ registers_t *idt_handler(registers_t *r)
 	{
 		enable_interrupts();
 		registers_t *ret = int_handlers[r->int_no](r);
-		if ((ret->cs & 0x3) == 0x3)
+
+		if (current->interrupt_level == 1)
 		{
 			set_kernel_stack(stack_from_tcb(current));
-		}
 			ret->eflags |= EFL_INT;
+		}
+			current->interrupt_level = current->interrupt_level - 1;
 		return ret;
 	} else {
 		if(!ISIRQ(r->int_no))

@@ -15,6 +15,7 @@ typedef struct thread_struct
 	uint32_t state;
 	list_t tasks;
 	registers_t *kernel_thread;
+	uint32_t interrupt_level;
 } thread_t;
 
 // Changing this will require chaning kvalloc and all calls to it and
@@ -44,6 +45,7 @@ thread_info_t *current_thread_info();
 
 thread_t *new_thread(void (*func)(void), uint8_t user);
 registers_t *switch_kernel_thread(registers_t *r);
+void threads_init(void (*func)(void));
 
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)

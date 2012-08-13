@@ -5,6 +5,7 @@
 #include <common.h>
 #include <ctype.h>
 #include <elf.h>
+#include <strings.h>
 
 uint16_t *vidmem = (uint16_t *)VIDMEM;
 
@@ -69,24 +70,24 @@ void kdbg_printf(char *str, ...)
 			{
 				case 'b':
 					num = va_arg(args, uint32_t);
-					kdbg_num2str(num, 2, buf);
+					num2str(num, 2, buf);
 					kdbg_printf(buf);
 					kdbg_printf("b");
 					break;
 				case 'o':
 					num = va_arg(args, uint32_t);
-					kdbg_num2str(num, 8, buf);
+					num2str(num, 8, buf);
 					kdbg_printf("0");
 					kdbg_printf(buf);
 					break;
 				case 'd':
 					num = va_arg(args, uint32_t);
-					kdbg_num2str(num, 10, buf);
+					num2str(num, 10, buf);
 					kdbg_printf(buf);
 					break;
 				case 'x':
 					num = va_arg(args, uint32_t);
-					kdbg_num2str(num, 16, buf);
+					num2str(num, 16, buf);
 					kdbg_printf("0x");
 					kdbg_printf(buf);
 					break;
@@ -118,36 +119,6 @@ void kdbg_printf(char *str, ...)
 	}
 	va_end(args);
 
-}
-
-int kdbg_num2str(uint32_t num, uint32_t base, char *buf)
-{
-	if(num == 0)
-	{
-		buf[0] = '0';
-		buf[1] = '\0';
-		return 0;
-	}
-
-	uint32_t i=0, j=0;
-
-	while(num > 0)
-	{
-		if(num%base < 10)
-			buf[i++] = (char)((uint32_t)'0' + num%base);
-		else
-			buf[i++] = (char)((uint32_t)'A' + num%base-10);
-		num /= base;
-	}
-
-	for(i--, j=0; j<i; j++,i--)
-	{
-		swap(buf[i],buf[j]);
-	}
-
-	buf[i+j+1] = '\0';
-
-	return i+j+1;
 }
 
 void print_stack_trace()

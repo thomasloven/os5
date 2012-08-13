@@ -1,24 +1,32 @@
 BUILDDIR := $(PWD)
+LIBDIR := $(BUILDDIR)/library
 
 PATH := /usr/local/cross/bin:$(PATH)
-DIRS := kernel
+DIRS := library kernel
 TARGET := i386-elf
 
 AS := nasm
-#CC := i386-elf-gcc
-#CPP := i386-elf-gcc -E
 LD := i386-elf-ld
+AR := i386-elf-ar
 
 ASFLAGS := -f elf
+
 CCFLAGS := -Wall -Wextra -pedantic -m32 -O0 -std=c99 -finline-functions
 CCFLAGS += -fno-stack-protector -nostdinc -ffreestanding -Wno-unused-function
 CCFLAGS += -Wno-unused-parameter -g -Wno-gnu
 CCFLAGS += -I$(BUILDDIR)/library/include
-CPPFLAGS := $(CCFLAGS)
-CCFLAGS += -ccc-host-triple i386-pc-linux-gnu -mno-sse -mno-mmx
-LDFLAGS := -T $(BUILDDIR)/library/include/Link.ld
 
-export BUILDDIR AS CC CPP LD ASFLAGS CCFLAGS CPPFLAGS LDFLAGS
+CPPFLAGS := $(CCFLAGS)
+
+CCFLAGS += -ccc-host-triple i386-pc-linux-gnu -mno-sse -mno-mmx
+
+LDFLAGS := -T $(LIBDIR)/include/Link.ld
+
+ARFLAGS := -rc
+
+LIBC := $(LIBDIR)/libc.a
+
+export BUILDDIR LIBDIR AS LD AR ASFLAGS CCFLAGS CPPFLAGS LDFLAGS ARFLAGS LIBC
 
 .SILENT:
 
