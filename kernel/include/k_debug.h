@@ -1,5 +1,6 @@
 #pragma once
 #include <stdint.h>
+#include <arch.h>
 
 #define VIDMEM	0xC00B8000
 
@@ -39,7 +40,7 @@ void kdbg_printf(char *str, ...);
 
 void kdbg_setclr(uint32_t style);
 
-void print_stack_trace();
+void print_stack_trace(registers_t *r);
 
 #ifndef NDEBUG
 

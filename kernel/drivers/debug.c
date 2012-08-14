@@ -6,6 +6,7 @@
 #include <ctype.h>
 #include <elf.h>
 #include <strings.h>
+#include <arch.h>
 
 uint16_t *vidmem = (uint16_t *)VIDMEM;
 
@@ -121,12 +122,19 @@ void kdbg_printf(char *str, ...)
 
 }
 
-void print_stack_trace()
+void print_stack_trace(registers_t *r)
 {
 	uintptr_t *ebp, *eip;
 
 	debug("\n");
-	__asm__ volatile("mov %%ebp, %0" : "=r" (ebp));
+	if(r)
+	{
+		ebp = (uintptr_t *)r->ebp;
+		eip = (uintptr_t *)&r->eip;
+		debug("  [%x] %s\n", *eip, kernel_lookup_symbol(*eip));
+	} else {
+		__asm__ volatile("mov %%ebp, %0" : "=r" (ebp));
+	}
 	while(ebp)
 	{
 		eip = ebp + 1;
