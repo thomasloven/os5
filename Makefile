@@ -2,7 +2,7 @@ BUILDDIR := $(PWD)
 LIBDIR := $(BUILDDIR)/library
 
 PATH := /usr/local/cross/bin:$(PATH)
-DIRS := library kernel
+DIRS := library kernel init
 TARGET := i386-elf
 
 AS := nasm
@@ -20,7 +20,6 @@ CPPFLAGS := $(CCFLAGS)
 
 CCFLAGS += -ccc-host-triple i386-pc-linux-gnu -mno-sse -mno-mmx
 
-LDFLAGS := -T $(LIBDIR)/include/Link.ld
 
 ARFLAGS := -rc
 

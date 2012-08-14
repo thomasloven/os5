@@ -13,8 +13,9 @@
 #include <timer.h>
 #include <elf.h>
 #include <strings.h>
+#include <process.h>
 
-void _idle(void)
+void _idle()
 {
 		debug("A");
 	for(;;)
@@ -22,7 +23,7 @@ void _idle(void)
 		__asm__ ("sti; hlt");
 	}
 }
-void _clock(void)
+void _clock()
 {
 
 	uint16_t data[128];
@@ -66,8 +67,22 @@ registers_t *kinit(mboot_info_t *mboot, uint32_t mboot_magic)
 	register_int_handler(INT_PF, page_fault_handler);
 	register_int_handler(INT_SCHEDULE, switch_kernel_thread);
 
-	threads_init(&_idle);
-	new_thread(&_clock,0);
+	threads_init((void *)&_idle);
+	new_thread((void *)&_clock,0);
+
+	mboot_mod_t *modules = (mboot_mod_t *)(assert_higher(mboot->mods_addr));
+
+
+	process_t *proc = kcalloc(sizeof(process_t));
+	debug("Loading elf from %x %x \n",modules[0].mod_start, mboot->mods_count);
+	load_elf((elf_header *)(assert_higher(modules[0].mod_start)), &proc->elf);
+
+	thread_t *init = new_thread((void *)proc->elf.entry,1);
+	debug("\n Init thread %x", init);
+	init->proc = proc;
+	debug("\n proc %x ", init->proc);
+	
+
 
 	return switch_kernel_thread(0);
 }

@@ -3,3 +3,4 @@ timeout 1
 title	os5
 	root (fd0)
 	kernel /kernel
+	module /init

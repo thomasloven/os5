@@ -69,11 +69,14 @@ typedef struct
 	uint32_t symtab_size;
 	elf_symbol *strtab;
 	uint32_t strtab_size;
+	uintptr_t entry;
 }__attribute__((packed)) elf_t;
 
 elf_t kernel_elf;
 
 void  kernel_elf_init(mboot_info_t *mboot);
 char *kernel_lookup_symbol(uint32_t addr);
+void load_elf(elf_header *image, elf_t *elf);
+char *elf_lookup_symbol(elf_t *elf, uint32_t addr);
 
 #endif

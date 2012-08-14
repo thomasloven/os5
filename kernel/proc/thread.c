@@ -33,7 +33,7 @@ thread_t *alloc_thread()
 	return &th_info->tcb;
 }
 
-void threads_init(void (*func)(void))
+void threads_init(void *func)
 {
 	thread_t *idle = new_thread(func,0);
 
@@ -42,7 +42,7 @@ void threads_init(void (*func)(void))
 	set_kernel_stack(stack_from_tcb(idle));
 }
 
-thread_t *new_thread(void (*func)(void), uint8_t user)
+thread_t *new_thread(void *func, uint8_t user)
 {
 	thread_t *th = alloc_thread();
 
@@ -51,6 +51,7 @@ thread_t *new_thread(void (*func)(void), uint8_t user)
 	{
 		th->r.useresp = USER_STACK_TOP;
 		th->r.ebp = th->r.useresp;
+		th->r.ebp = 0;
 
 		th->r.cs = SEG_USER_CODE | 0x3;
 		th->r.ds = SEG_USER_DATA | 0x3;

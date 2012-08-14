@@ -5,6 +5,7 @@
 #include <pmm.h>
 #include <lists.h>
 #include <idt.h>
+#include <process.h>
 
 #ifndef __ASSEMBLER__
 
@@ -16,6 +17,8 @@ typedef struct thread_struct
 	list_t tasks;
 	registers_t *kernel_thread;
 	uint32_t interrupt_level;
+	struct process_struct *proc;
+	list_t process_threads;
 } thread_t;
 
 // Changing this will require chaning kvalloc and all calls to it and
@@ -28,7 +31,7 @@ typedef struct thread_struct
 #define THREAD_STACK_SPACE (THREAD_STACK_SIZE - sizeof(registers_t))
 
 
-typedef union
+typedef struct thread_info_st
 {
 	uint8_t stackspace[THREAD_STACK_SPACE];
 	thread_t tcb;
@@ -41,11 +44,11 @@ thread_info_t *current_thread_info();
 #define tcb_from_thinfo(info) ((thread_t *)(info->tcb))
 #define thinfo_from_tcb(tcb) \
 	((thread_info_t *)((uintptr_t)(tcb)-THREAD_STACK_SPACE))
-#define stack_from_tcb(tcb) (&tcb->tid)
+#define stack_from_tcb(tcb) (&(tcb)->tid)
 
-thread_t *new_thread(void (*func)(void), uint8_t user);
+thread_t *new_thread(void *func, uint8_t user);
 registers_t *switch_kernel_thread(registers_t *r);
-void threads_init(void (*func)(void));
+void threads_init(void *func);
 
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)

@@ -19,6 +19,7 @@ while [ ! -d $mpoint/boot ]; do
 done
 echo "   Copying"
 cp kernel/kernel $mpoint
+cp init/init $mpoint
 cp build/grub.conf $mpoint/boot/grub/grub.conf
 cp build/menu.lst $mpoint/boot/grub/menu.lst
 echo "   Copied"
