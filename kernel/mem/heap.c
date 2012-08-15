@@ -6,11 +6,17 @@
 #include <memory.h>
 #include <k_debug.h>
 
+// It would be nice if this could be coupled with heap management in
+// the c library somehow.
+//
+// Worth thinking about...
+
 uintptr_t heap_top = KERNEL_HEAP_START;
 chunk_t *heap_first = 0;
 
 void expand_heap(uintptr_t start, uint32_t size)
 {
+	// Increase heap space (sbrk)
 	while(start + size > heap_top)
 	{
 		vmm_page_set(heap_top, \
@@ -23,6 +29,7 @@ void expand_heap(uintptr_t start, uint32_t size)
 
 void contract_heap(chunk_t *c)
 {
+	// Decrease heap space
 	assert(!c->next);
 
 	if(c == heap_first)
@@ -40,6 +47,7 @@ void contract_heap(chunk_t *c)
 
 void split_chunk(chunk_t *c, uint32_t size)
 {
+	// Split a too large chunk into smaler ones, if possible
 	if((c->size - size) > sizeof(chunk_t))
 	{
 		chunk_t *new = (chunk_t *)((uintptr_t)c + size);
@@ -55,6 +63,8 @@ void split_chunk(chunk_t *c, uint32_t size)
 
 void glue_chunk(chunk_t *c)
 {
+	// Put two nearboring chungs together into one
+	// Look out for null pointers
 	if(c->next)
 		if(!c->next->allocated)
 		{
@@ -87,6 +97,8 @@ void kfree(void *a)
 
 void *kmalloc(uint32_t size)
 {
+	// Hand out the first chunk that is free and
+	// large enough. Very wastefull, in some cases.
 	size += sizeof(chunk_t);
 	chunk_t *cur_chunk = heap_first;
 	chunk_t *prev_chunk = 0;
@@ -123,6 +135,7 @@ void *kmalloc(uint32_t size)
 
 void *kcalloc(uint32_t size)
 {
+	// Alloc and zero
 	void *c = kmalloc(size);
 	memset(c, 0, size);
 	return c;
@@ -130,6 +143,8 @@ void *kcalloc(uint32_t size)
 
 void *kvalloc(uint32_t size)
 {
+	// Allign to page boundary
+	// This should be fixed to allow alligning to any boundary
 	void *pos = kmalloc(size + PAGE_SIZE);
 	split_chunk(chunk_head(pos), PAGE_SIZE - ((uintptr_t)pos % PAGE_SIZE));
 

@@ -16,6 +16,7 @@
 #include <process.h>
 #include <k_syscalls.h>
 
+// Temporary idle task. Runs when nothing else does.
 void _idle()
 {
 		debug("A");
@@ -24,6 +25,8 @@ void _idle()
 		__asm__ ("sti; hlt");
 	}
 }
+
+// Print a clock in upper right corner
 void _clock()
 {
 
