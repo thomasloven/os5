@@ -1,13 +1,11 @@
-void set(int *addr, int value)
-{
-	addr[0] = value;
-}
+#include <syscalls.h>
+
+
 
 int main()
 {
-	int *addr = (int *)0xABCDEF;
-	int abc = 123;
-	set(addr, abc);
+	_syscall_putch('h');
+	_syscall_putch('i');
 	return 0;
 }
 

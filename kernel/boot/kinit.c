@@ -14,6 +14,7 @@
 #include <elf.h>
 #include <strings.h>
 #include <process.h>
+#include <k_syscalls.h>
 
 void _idle()
 {
@@ -69,6 +70,8 @@ registers_t *kinit(mboot_info_t *mboot, uint32_t mboot_magic)
 
 	threads_init((void *)&_idle);
 	new_thread((void *)&_clock,0);
+	syscalls_init();
+	KREG_SYSCALL(putch, SYSCALL_PUTCH);
 
 	mboot_mod_t *modules = (mboot_mod_t *)(assert_higher(mboot->mods_addr));
 

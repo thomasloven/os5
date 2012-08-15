@@ -95,6 +95,10 @@ void kdbg_printf(char *str, ...)
 				case 's':
 					kdbg_printf(va_arg(args, char *));
 					break;
+				case 'c':
+					kdbg_putch((char)va_arg(args, uint32_t), text_style);
+					scrn_x++;
+					break;
 				default:
 					str--;
 					kdbg_putch(*str, text_style);
