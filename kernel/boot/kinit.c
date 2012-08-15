@@ -84,6 +84,8 @@ registers_t *kinit(mboot_info_t *mboot, uint32_t mboot_magic)
 	debug("\n Init thread %x", init);
 	init->proc = proc;
 	debug("\n proc %x ", init->proc);
+
+	vmm_clone_pd();
 	
 
 
