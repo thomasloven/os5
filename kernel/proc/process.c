@@ -3,6 +3,8 @@
 #include <vmm.h>
 #include <thread.h>
 #include <memory.h>
+#include <scheduler.h>
+#include <k_debug.h>
 
 uint32_t next_pid = 1;
 
@@ -11,45 +13,66 @@ process_t *new_process()
 	process_t *p = (process_t *)kcalloc(sizeof(process_t));
 	p->pid = next_pid++;
 
+	init_list(p->threads);
+
 	return p;
 }
 
-process_t *fork_process(thread_t *th)
+void free_process()
 {
-	process_t *parent = current->proc;
-	process_t *child = new_process();
 
+}
+
+void process_make_child(process_t *parent, process_t *child)
+{
 	child->parent = parent;
 	child->older_sibling = parent->child;
-	if(child->older_sibling) child->older_sibling->younger_sibling = child;
+	if(child->older_sibling)
+		child->older_sibling->younger_sibling = child;
 	parent->child = child;
+}
+
+process_t *fork_process(process_t *parent, registers_t *r)
+{
+	process_t *child = new_process();
+
+	process_make_child(parent, child);
 
 	init_list(child->threads);
 
-	if(th)
-	{
-		// Clone thread th as main thread
-	} else {
-		// Clone first thread as main thread
-	}
+	thread_t *new_th = alloc_thread();
+	uint32_t tid = new_th->tid;
+	memcopy(thinfo_from_tcb(new_th), thinfo_from_tcb(current), sizeof(thread_info_t));
+
+	new_th->tid = tid;
+	init_list(new_th->proc_threads);
+	init_list(new_th->tasks);
+
+	bind_thread(new_th, child);
+
+	new_th->kernel_thread = (registers_t *)((uintptr_t)new_th - ((uintptr_t)current-(uintptr_t)r));
 
 	memcopy(&child->elf, &parent->elf, sizeof(elf_t));
 	child->pd = vmm_clone_pd();
 
+	r->eax = child->pid;
+	new_th->kernel_thread->eax = 0;
+
+	scheduler_insert(new_th);
+
 	return child;
 }
 
-process_t *process_init(thread_t *th)
+process_t *process_init(void *func)
 {
 	process_t *init = new_process();
 
-	init_list(init->threads);
-
-	append_to_list(init->threads, th->proc_threads);
+	thread_t *th = new_thread(0,0);
+	bind_thread(th, init);
+	th->r.eip = (uint32_t)func;
 
 	init->pd = vmm_clone_pd();
-
-	th->proc = init;
+	scheduler_insert(th);
 
 	return init;
 }

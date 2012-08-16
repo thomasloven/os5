@@ -46,7 +46,12 @@ thread_info_t *current_thread_info();
 	((thread_info_t *)((uintptr_t)(tcb)-THREAD_STACK_SPACE))
 #define stack_from_tcb(tcb) (&(tcb)->tid)
 
-thread_t *new_thread(void *func, uint8_t user);
+thread_t *alloc_thread();
+thread_t *new_thread(uint8_t user, uint32_t userstack);
+void free_thread(thread_t *th);
+void bind_thread(thread_t *th, struct process_struct *p);
+void unbind_thread(thread_t *th);
+thread_t *add_thread(void *func, uint8_t user);
 registers_t *switch_kernel_thread(registers_t *r);
 thread_t *threads_init(void *func);
 

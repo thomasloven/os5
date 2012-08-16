@@ -21,13 +21,19 @@ mboot_mod_t *modules;
 void _idle()
 {
 		debug("A");
+		if(_syscall_fork())
+		{
+			debug("Fork returnet to parent");
+		} else {
 	process_t *proc = kcalloc(sizeof(process_t));
 	debug("Loading elf from %x \n",modules[0].mod_start);
 	load_elf((elf_header *)(assert_higher(modules[0].mod_start)), &proc->elf);
+	}
+	debug("\n pid:%x", _syscall_getpid());
 
-	thread_t *init = new_thread((void *)proc->elf.entry,1);
-	debug("\n Init thread %x", init);
-	debug("\n proc %x ", init->proc);
+	/*thread_t *init = new_thread((void *)proc->elf.entry,1);*/
+	/*debug("\n Init thread %x", init);*/
+	/*debug("\n proc %x ", init->proc);*/
 
 	for(;;)
 	{
@@ -80,14 +86,15 @@ registers_t *kinit(mboot_info_t *mboot, uint32_t mboot_magic)
 
 	syscalls_init();
 	KREG_SYSCALL(putch, SYSCALL_PUTCH);
+	KREG_SYSCALL(getpid, SYSCALL_GETPID);
+	KREG_SYSCALL(fork, SYSCALL_FORK);
 
 	
-	thread_t *init_thread = threads_init((void *)&_idle);
+	/*thread_t *init_thread = threads_init((void *)&_idle);*/
 	/*new_thread((void *)&_clock,0);*/
 
-	process_t *init_proc = process_init(init_thread);
-
-	debug("\n %x %x \n", init_thread->proc, init_proc);
+	/*process_t *init_proc = process_init(init_thread);*/
+	process_init((void *)&_idle);
 
 	modules = (mboot_mod_t *)(assert_higher(mboot->mods_addr));
 

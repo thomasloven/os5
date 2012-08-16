@@ -21,11 +21,11 @@ typedef struct process_struct
 	list_head_t threads;
 	elf_t elf;
 	uintptr_t pd;
-}process_t;
+} process_t;
 
 
-process_t *process_init(struct thread_struct *th);
-process_t *fork_process(struct thread_struct *th);
+process_t *process_init(void *func);
+process_t *fork_process(process_t *parent, registers_t *r);
 void switch_process(process_t *p);
 
 #endif

@@ -27,42 +27,24 @@ thread_info_t *current_thread_info()
 thread_t *alloc_thread()
 {
 	thread_info_t *th_info = kvalloc(sizeof(thread_info_t));
-	memset(&th_info->tcb, 0, sizeof(thread_t));
+	thread_t *th = &th_info->tcb;
+	memset(th, 0, sizeof(thread_t));
 
-	th_info->tcb.tid = next_tid++;
+	th->tid = next_tid++;
 
-	init_list(th_info->tcb.proc_threads);
-	init_list(th_info->tcb.tasks);
+	init_list(th->proc_threads);
+	init_list(th->tasks);
 
-	return &th_info->tcb;
+	return th;
 }
 
-thread_t *threads_init(void *func)
-{
-	thread_t *idle = alloc_thread();
-	idle->r.eip = (uint32_t)func;
-
-	idle->r.cs = SEG_KERNEL_CODE;
-	idle->r.ds = SEG_KERNEL_DATA;
-	idle->r.ss = SEG_KERNEL_DATA;
-
-	idle->r.eflags = EFL_INT;
-
-	set_kernel_stack(stack_from_tcb(idle));
-
-	scheduler_insert(idle);
-	idle->kernel_thread = &idle->r;
-	return idle;
-}
-
-thread_t *new_thread(void *func, uint8_t user)
+thread_t *new_thread(uint8_t user, uint32_t userstack)
 {
 	thread_t *th = alloc_thread();
 
-	th->r.eip = (uint32_t)func;
 	if(user)
 	{
-		th->r.useresp = USER_STACK_TOP;
+		th->r.useresp = (userstack)?userstack:USER_STACK_TOP;
 		th->r.ebp = th->r.useresp;
 		th->r.ebp = 0;
 
@@ -75,13 +57,45 @@ thread_t *new_thread(void *func, uint8_t user)
 		th->r.ss = SEG_KERNEL_DATA;
 	}
 
-	scheduler_insert(th);
-
 	th->kernel_thread = &th->r;
 
-	debug("\n Current %x", current->proc);
-	th->proc = current->proc;
-	append_to_list(th->proc->threads,th->proc_threads);
+	return th;
+}
+
+void free_thread(thread_t *th)
+{
+	scheduler_remove(th);
+	unbind_thread(th);
+	kfree(thinfo_from_tcb(th));
+}
+
+void bind_thread(thread_t *th, process_t *p)
+{
+	th->proc = p;
+	append_to_list(p->threads, th->proc_threads);
+}
+
+void unbind_thread(thread_t *th)
+{
+	remove_from_list(th->proc_threads);
+	th->proc = 0;
+}
+
+void thread_execute(thread_t *th, void *func)
+{
+	th->r.eip = (uint32_t) func;
+}
+
+thread_t *add_thread(void *func, uint8_t user)
+{
+	// Adds a thread to the current process
+	thread_t *th = new_thread(user, 0);
+
+	th->r.eip = (uint32_t)func;
+
+	scheduler_insert(th);
+
+	bind_thread(th, current->proc);
 
 	return th;
 }
