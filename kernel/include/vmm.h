@@ -42,5 +42,6 @@
 uintptr_t vmm_page_get(uintptr_t page);
 void vmm_page_set(uintptr_t page, uintptr_t value);
 uintptr_t vmm_clone_pd();
+void vmm_set_pd(uintptr_t pd);
 
 #endif

@@ -7,6 +7,7 @@
 #include <heap.h>
 #include <memory.h>
 #include <scheduler.h>
+#include <lists.h>
 
 // If this line throws an error, the size of the kernel thread stack 
 // has grown too small. Please change MIN_THREAD_STACK_SIZE or thread_t 
@@ -30,16 +31,28 @@ thread_t *alloc_thread()
 
 	th_info->tcb.tid = next_tid++;
 
+	init_list(th_info->tcb.proc_threads);
+	init_list(th_info->tcb.tasks);
+
 	return &th_info->tcb;
 }
 
-void threads_init(void *func)
+thread_t *threads_init(void *func)
 {
-	thread_t *idle = new_thread(func,0);
+	thread_t *idle = alloc_thread();
+	idle->r.eip = (uint32_t)func;
+
+	idle->r.cs = SEG_KERNEL_CODE;
+	idle->r.ds = SEG_KERNEL_DATA;
+	idle->r.ss = SEG_KERNEL_DATA;
 
 	idle->r.eflags = EFL_INT;
 
 	set_kernel_stack(stack_from_tcb(idle));
+
+	scheduler_insert(idle);
+	idle->kernel_thread = &idle->r;
+	return idle;
 }
 
 thread_t *new_thread(void *func, uint8_t user)
@@ -66,6 +79,10 @@ thread_t *new_thread(void *func, uint8_t user)
 
 	th->kernel_thread = &th->r;
 
+	debug("\n Current %x", current->proc);
+	th->proc = current->proc;
+	append_to_list(th->proc->threads,th->proc_threads);
+
 	return th;
 }
 
@@ -79,6 +96,7 @@ registers_t *switch_kernel_thread(registers_t *r)
 
 	thread_t *next = scheduler_next();
 	scheduler_remove(next);
+	switch_process(next->proc);
 
 	return next->kernel_thread;
 }

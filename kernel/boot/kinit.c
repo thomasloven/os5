@@ -16,9 +16,19 @@
 #include <process.h>
 #include <k_syscalls.h>
 
+mboot_mod_t *modules;
+
 void _idle()
 {
 		debug("A");
+	process_t *proc = kcalloc(sizeof(process_t));
+	debug("Loading elf from %x \n",modules[0].mod_start);
+	load_elf((elf_header *)(assert_higher(modules[0].mod_start)), &proc->elf);
+
+	thread_t *init = new_thread((void *)proc->elf.entry,1);
+	debug("\n Init thread %x", init);
+	debug("\n proc %x ", init->proc);
+
 	for(;;)
 	{
 		__asm__ ("sti; hlt");
@@ -68,25 +78,18 @@ registers_t *kinit(mboot_info_t *mboot, uint32_t mboot_magic)
 	register_int_handler(INT_PF, page_fault_handler);
 	register_int_handler(INT_SCHEDULE, switch_kernel_thread);
 
-	threads_init((void *)&_idle);
-	new_thread((void *)&_clock,0);
 	syscalls_init();
 	KREG_SYSCALL(putch, SYSCALL_PUTCH);
 
-	mboot_mod_t *modules = (mboot_mod_t *)(assert_higher(mboot->mods_addr));
-
-
-	process_t *proc = kcalloc(sizeof(process_t));
-	debug("Loading elf from %x %x \n",modules[0].mod_start, mboot->mods_count);
-	load_elf((elf_header *)(assert_higher(modules[0].mod_start)), &proc->elf);
-
-	thread_t *init = new_thread((void *)proc->elf.entry,1);
-	debug("\n Init thread %x", init);
-	init->proc = proc;
-	debug("\n proc %x ", init->proc);
-
-	vmm_clone_pd();
 	
+	thread_t *init_thread = threads_init((void *)&_idle);
+	/*new_thread((void *)&_clock,0);*/
+
+	process_t *init_proc = process_init(init_thread);
+
+	debug("\n %x %x \n", init_thread->proc, init_proc);
+
+	modules = (mboot_mod_t *)(assert_higher(mboot->mods_addr));
 
 
 	return switch_kernel_thread(0);

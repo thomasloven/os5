@@ -136,7 +136,7 @@ uintptr_t vmm_clone_pd()
 		if(page_directory[table])
 		{
 			expage_directory[table] = \
-				vmm_page_val(pmm_alloc_page(), PAGE_PRESENT | PAGE_WRITE);
+				vmm_page_val(pmm_alloc_page(), PAGE_PRESENT | PAGE_USER | PAGE_WRITE);
 			vmm_clear_page(expage_directory[table] & PAGE_MASK);
 			uint32_t page;
 			for(page = 0; page < VMM_PAGES_PER_TABLE; page++)
@@ -160,5 +160,16 @@ uintptr_t vmm_clone_pd()
 	expage_directory[vmm_dir_idx(VMM_EXPAGE_DIR)] = 0;
 	vmm_exdir_set(0);
 	return pd;
+}
+
+void vmm_set_pd(uintptr_t pd)
+{
+	// Copy kernel space in case something changed
+	vmm_exdir_set(pd);
+	memcopy(&expage_directory[vmm_dir_idx(KERNEL_OFFSET)], \
+		&page_directory[vmm_dir_idx(KERNEL_OFFSET)], \
+		(VMM_PAGES_PER_TABLE - 2 - vmm_dir_idx(KERNEL_OFFSET))*sizeof(uintptr_t));
+	vmm_exdir_set(0);
+	__asm__ volatile("mov %0, %%cr3" : : "r" (pd));
 }
 
