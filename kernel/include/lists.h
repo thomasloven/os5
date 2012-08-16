@@ -11,7 +11,7 @@ typedef struct list_struct
 typedef list_t list_head_t;
 
 #define for_each_in_list(head, item) \
-	for((item) = (head)->next; ((item) = (item)->next) != (head); )
+	for((item) = (head)->next; (item) != (head); (item) = (item)->next)
 #define offsetof(type, member) \
 	((size_t) ( (char *)&((type *)0)->member - (char *)0))
 #define list_entry(ptr, type, member) ({\
@@ -31,5 +31,8 @@ typedef list_t list_head_t;
 #define remove_from_list(item) \
 	(item).prev->next = (item).next; \
 	(item).next->prev = (item).prev
+
+#define list_empty(head) \
+	(((head).next == &(head))&&((head).prev == &(head)))
 
 #endif

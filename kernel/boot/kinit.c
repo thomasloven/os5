@@ -23,8 +23,9 @@ void _idle()
 		debug("A");
 		if(_syscall_fork())
 		{
-			debug("Fork returnet to parent");
+			debug("Fork returned to parent");
 		} else {
+			kill_process();
 	process_t *proc = kcalloc(sizeof(process_t));
 	debug("Loading elf from %x \n",modules[0].mod_start);
 	load_elf((elf_header *)(assert_higher(modules[0].mod_start)), &proc->elf);

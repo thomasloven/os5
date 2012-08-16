@@ -21,6 +21,10 @@ typedef struct thread_struct
 	list_t proc_threads;
 } thread_t;
 
+#define TH_STATE_RUNNING	0x1
+#define TH_STATE_WAITING	0x2
+#define TH_STATE_FINISHED	0x3
+
 // Changing this will require chaning kvalloc and all calls to it and
 //	current_thread_info()
 #define MAX_THREAD_STACK_SIZE PAGE_SIZE

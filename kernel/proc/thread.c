@@ -109,6 +109,14 @@ registers_t *switch_kernel_thread(registers_t *r)
 	}
 
 	thread_t *next = scheduler_next();
+	while(next->state == TH_STATE_FINISHED)
+	{
+		process_t *p = next->proc;
+		free_thread(next);
+		if(list_empty(p->threads))
+			free_process(p);
+		next = scheduler_next();
+	}
 	scheduler_remove(next);
 	switch_process(next->proc);
 
