@@ -9,6 +9,7 @@
 #define ELF_ST_TYPE(i) ((i)&0xF)
 #define ELF_ST_INFO(b,t) (((b)<<4)+((t)&0xF))
 
+
 typedef struct
 {
 	uint8_t elf_ident[16];
@@ -72,9 +73,12 @@ typedef struct
 	uintptr_t entry;
 }__attribute__((packed)) elf_t;
 
+// Data about the kernel executable
 elf_t kernel_elf;
 
+// kernel_elf_init - set up kernel executable info structure
 void  kernel_elf_init(mboot_info_t *mboot);
+// kernel_lookup_symbol - gets the name of the symbol surrounding an address
 char *kernel_lookup_symbol(uint32_t addr);
 void load_elf(elf_header *image, elf_t *elf);
 char *elf_lookup_symbol(elf_t *elf, uint32_t addr);

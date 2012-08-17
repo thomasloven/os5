@@ -3,6 +3,11 @@
 
 #ifndef __ASSEMBLER__
 
+// Functions for physical ports
+// outb(port, val) - send byte val to port port
+// outw(port, val) - send word val to port port
+// inb(port) - read one byte from port port
+// inw(port) - read one word from port port
 #define outb(port, val) \
 	__asm__ volatile ("outb %%al, %0" : : "dN" ((uint16_t)port), \
 		"a" ((uint16_t)val))
@@ -21,10 +26,12 @@
 	__asm__ volatile ("inw %1, %0" : "=a" (__ret) : "dN" ((uint16_t)port)); \
 	__ret; })
 
-#define enable_interrupts() __asm__("sti")
 
+// Functions for turning interrupts on and off in the kernel.
+#define enable_interrupts() __asm__("sti")
 #define disable_interrupts() __asm__("cli");
 
+// Storage space for registers as pushed to stack during interrupts
 typedef struct
 {
 uint32_t ds;
@@ -51,6 +58,8 @@ uint32_t eflags, useresp, ss;
 #endif
 
 #ifdef __ASSEMBLER__
+// Set all segment registers to the same value
+// SetSegments val reg - set all segment registers to val using register reg
 
 %macro SetSegments 2
 	mov e%2, %1
