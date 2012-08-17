@@ -49,7 +49,6 @@ thread_t *new_thread(uint8_t user, uint32_t userstack)
 	if(user)
 	{
 		th->r.useresp = (userstack)?userstack:USER_STACK_TOP;
-		th->r.ebp = th->r.useresp;
 		th->r.ebp = 0;
 
 		th->r.cs = SEG_USER_CODE | 0x3;

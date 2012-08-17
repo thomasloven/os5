@@ -1,9 +1,12 @@
 #pragma once
 
+#include <stdint.h>
+
 #define SYSCALL_YIELD 0x01
 #define SYSCALL_PUTCH	0x02
 #define SYSCALL_FORK	0x03
 #define SYSCALL_GETPID	0x04
+#define SYSCALL_EXECV	0x05
 
 #define DECL_SYSCALL0(name) \
 	int _syscall_##name()
@@ -46,3 +49,4 @@
 DECL_SYSCALL1(putch, char);
 DECL_SYSCALL0(fork);
 DECL_SYSCALL0(getpid);
+DECL_SYSCALL3(execv, uintptr_t, char **, char **);

@@ -15,6 +15,7 @@
 #include <strings.h>
 #include <process.h>
 #include <k_syscalls.h>
+#include <syscalls.h>
 
 mboot_mod_t *modules;
 
@@ -25,10 +26,9 @@ void _idle()
 		{
 			debug("Fork returned to parent");
 		} else {
-			kill_process();
-	process_t *proc = kcalloc(sizeof(process_t));
 	debug("Loading elf from %x \n",modules[0].mod_start);
-	load_elf((elf_header *)(assert_higher(modules[0].mod_start)), &proc->elf);
+	/*load_elf((elf_header *)(assert_higher(modules[0].mod_start)), &proc->elf);*/
+	_syscall_execv(assert_higher(modules[0].mod_start),0,0);
 	}
 	debug("\n pid:%x", _syscall_getpid());
 
@@ -91,6 +91,7 @@ registers_t *kinit(mboot_info_t *mboot, uint32_t mboot_magic)
 	KREG_SYSCALL(putch, SYSCALL_PUTCH);
 	KREG_SYSCALL(getpid, SYSCALL_GETPID);
 	KREG_SYSCALL(fork, SYSCALL_FORK);
+	KREG_SYSCALL(execv, SYSCALL_EXECV);
 
 	
 	/*thread_t *init_thread = threads_init((void *)&_idle);*/
