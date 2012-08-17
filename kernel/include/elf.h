@@ -70,6 +70,8 @@ typedef struct
 	elf_symbol *strtab;
 	uint32_t strtab_size;
 	uintptr_t entry;
+	uintptr_t start;
+	uintptr_t end;
 }__attribute__((packed)) elf_t;
 
 elf_t kernel_elf;

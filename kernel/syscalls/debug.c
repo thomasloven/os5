@@ -8,3 +8,10 @@ KDEF_SYSCALL(putch, r)
 
 	return r;
 }
+
+KDEF_SYSCALL(printf, r)
+{
+	debug((char *)r->ebx);
+
+	return r;
+}

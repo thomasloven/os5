@@ -23,6 +23,7 @@ void syscalls_init();
 syscall_t register_syscall(uint32_t num, syscall_t handler);
 
 KDECL_SYSCALL(putch);
+KDECL_SYSCALL(printf);
 KDECL_SYSCALL(getpid);
 KDECL_SYSCALL(fork);
 KDECL_SYSCALL(execv);

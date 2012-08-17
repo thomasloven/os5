@@ -54,13 +54,11 @@ void load_elf_segment(elf_header *image, elf_phead *phead)
 {
 	// Load elf program segment into memory
 	uint8_t *img = (uint8_t *)image;
-	uint32_t first_page = ((phead->p_vaddr) & PAGE_MASK);
-	uint32_t num_pages = ((phead->p_memsz + PAGE_SIZE) & PAGE_MASK)/PAGE_SIZE;
-	if(num_pages == 0) return;
+	if(phead->p_memsz == 0) return;
 	uint32_t i;
-	for(i = 0; i < num_pages; i++)
+	for (i = 0; i < phead->p_memsz; i += PAGE_SIZE)
 	{
-		vmm_page_set(first_page + i*PAGE_SIZE, \
+		vmm_page_set(phead->p_vaddr + i, \
 			vmm_page_val(pmm_alloc_page(), PAGE_PRESENT | PAGE_WRITE | PAGE_USER));
 	}
 	memcopy(phead->p_vaddr, &img[phead->p_offset], phead->p_filesz);
@@ -71,11 +69,17 @@ void load_elf(elf_header *image, elf_t *elf)
 {
 	// Load an elf program into memory
 	elf_phead *program_head = (elf_phead *)((uintptr_t)image + image->elf_phoff);
+	elf->start = 0xFFFFFFFF;
+	elf->end = 0;
 	uint32_t i;
 	for(i = 0; i < image->elf_phnum; i++)
 	{
 		if(program_head[i].p_type == 0x1)
 		{
+			if(program_head[i].p_vaddr < elf->start)
+				elf->start = program_head[i].p_vaddr;
+			if(program_head[i].p_vaddr + program_head[i].p_memsz > elf->end)
+				elf->end = program_head[i].p_vaddr + program_head[i].p_memsz;
 			load_elf_segment(image, &program_head[i]);
 		}
 	}

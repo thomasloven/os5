@@ -89,6 +89,7 @@ registers_t *kinit(mboot_info_t *mboot, uint32_t mboot_magic)
 
 	syscalls_init();
 	KREG_SYSCALL(putch, SYSCALL_PUTCH);
+	KREG_SYSCALL(printf, SYSCALL_PRINTF);
 	KREG_SYSCALL(getpid, SYSCALL_GETPID);
 	KREG_SYSCALL(fork, SYSCALL_FORK);
 	KREG_SYSCALL(execv, SYSCALL_EXECV);

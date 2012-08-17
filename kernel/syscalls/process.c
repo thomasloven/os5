@@ -25,15 +25,20 @@ KDEF_SYSCALL(getpid, r)
 KDEF_SYSCALL(execv, r)
 {
 	elf_header *user_image = (elf_header *) r->ebx;
-	/*
+
 	char **user_argv = (char **)r->ecx;
 	char **user_env = (char **)r->edx;
 	
 	int i=0, j=0, k;
-	while(user_argv[i])
-		i++;
-	while(user_env[j])
-		j++;
+	if(user_argv)
+	{
+		while(user_argv[i])
+			i++;
+		while(user_env[j])
+			j++;
+	} else {
+		i = j = 0;
+	}
 
 	char **argv = (char **)kmalloc(sizeof(char *)*i);
 	char **env = (char **)kmalloc(sizeof(char *)*j);
@@ -50,7 +55,6 @@ KDEF_SYSCALL(execv, r)
 		env[k] = (char *)kmalloc(size);
 		memcopy(env[k],user_env[k], size);
 	}
-	*/
 
 
 	elf_header *image = (elf_header *)kmalloc(0x1000);
@@ -70,7 +74,43 @@ KDEF_SYSCALL(execv, r)
 
 	current->kernel_thread = &current->r;
 
+	debug("\n Elf %x - %x", elf->start, elf->end);
 	// Put arguments and env on the stack here
+
+	uint32_t size = sizeof(char *)*i;
+	uint32_t arg_pos = elf->end;
+	if(!vmm_page_get(arg_pos + size) & PAGE_PRESENT)
+	{
+		vmm_page_set(arg_pos + size, vmm_page_val(pmm_alloc_page(), PAGE_PRESENT | PAGE_USER | PAGE_WRITE));
+	}
+	user_argv = (char **)arg_pos;
+	arg_pos += size;
+	for (k= 0; k < i; k++)
+	{
+		uint32_t size = (strlen(argv[k])+1)*sizeof(char);
+		if(!vmm_page_get(arg_pos + size) & PAGE_PRESENT)
+		{
+			vmm_page_set(arg_pos + size, vmm_page_val(pmm_alloc_page(), PAGE_PRESENT | PAGE_USER | PAGE_WRITE));
+		}
+		user_argv[k] = (char *)arg_pos;
+		memcopy(user_argv[k], argv[k], size);
+		kfree(argv[k]);
+		arg_pos += size;
+	}
+	kfree(argv);
+
+	vmm_page_set(USER_STACK_TOP - PAGE_SIZE, vmm_page_val(pmm_alloc_page(), PAGE_PRESENT | PAGE_USER | PAGE_WRITE));
+	uintptr_t stack = USER_STACK_TOP;
+
+	stack -= sizeof(uint32_t);
+	*((uintptr_t *)stack) = (uintptr_t)user_argv; // argv
+	stack -= sizeof(uint32_t);
+	*((uintptr_t *)stack) = i; // argc
+	stack -= sizeof(uint32_t);
+	*((uintptr_t *)stack) = 0x0; // Faux return address
+	debug("Stack:%x",stack);
+	current->r.useresp = stack;
+
 
 	return &current->r;
 }

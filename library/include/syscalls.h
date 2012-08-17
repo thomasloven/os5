@@ -7,6 +7,7 @@
 #define SYSCALL_FORK	0x03
 #define SYSCALL_GETPID	0x04
 #define SYSCALL_EXECV	0x05
+#define SYSCALL_PRINTF	0x06
 
 #define DECL_SYSCALL0(name) \
 	int _syscall_##name()
@@ -47,6 +48,8 @@
 	}
 
 DECL_SYSCALL1(putch, char);
+DECL_SYSCALL1(printf, char *);
 DECL_SYSCALL0(fork);
 DECL_SYSCALL0(getpid);
 DECL_SYSCALL3(execv, uintptr_t, char **, char **);
+

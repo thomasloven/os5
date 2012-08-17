@@ -2,6 +2,7 @@
 #include <stdint.h>
 
 DEF_SYSCALL1(putch, SYSCALL_PUTCH, char)
+DEF_SYSCALL1(printf, SYSCALL_PRINTF, char *)
 
 DEF_SYSCALL0(fork, SYSCALL_FORK)
 DEF_SYSCALL0(getpid, SYSCALL_GETPID)
