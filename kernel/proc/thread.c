@@ -19,6 +19,7 @@ uint32_t next_tid=1;
 
 thread_info_t *current_thread_info()
 {
+	// Find the current thread structure from stack pointer
 	thread_info_t *ti;
 	ti = (thread_info_t *)((uint32_t)&ti & PAGE_MASK);
 	return ti;
@@ -26,6 +27,7 @@ thread_info_t *current_thread_info()
 
 thread_t *alloc_thread()
 {
+	// Create a new thread
 	thread_info_t *th_info = kvalloc(sizeof(thread_info_t));
 	thread_t *th = &th_info->tcb;
 	memset(th, 0, sizeof(thread_t));
@@ -40,6 +42,8 @@ thread_t *alloc_thread()
 
 thread_t *new_thread(uint8_t user, uint32_t userstack)
 {
+	// Create a new kernel or usermode thread
+	// with entry point at func
 	thread_t *th = alloc_thread();
 
 	if(user)
@@ -102,6 +106,8 @@ thread_t *add_thread(void *func, uint8_t user)
 
 registers_t *switch_kernel_thread(registers_t *r)
 {
+	// Syscall for switching threads in the kernel
+	// Callable only from kernel mode
 	if(r)
 	{
 		current->kernel_thread = r;

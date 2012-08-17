@@ -23,6 +23,7 @@ void kdbg_init()
 
 void kdbg_setpos(uint32_t x, uint32_t y)
 {
+	// Does not set cursor position
 	scrn_x = x;
 	scrn_y = y;
 }
@@ -35,6 +36,7 @@ void kdbg_getpos(uint32_t *x, uint32_t *y)
 
 void kdbg_scroll()
 {
+	// Scroll screen untill last line is clear
 	while (scrn_y > SCRN_H-1)
 	{
 		uint32_t i;
@@ -69,33 +71,33 @@ void kdbg_printf(char *str, ...)
 			str++;
 			switch(*str)
 			{
-				case 'b':
+				case 'b': // Binary
 					num = va_arg(args, uint32_t);
 					num2str(num, 2, buf);
 					kdbg_printf(buf);
 					kdbg_printf("b");
 					break;
-				case 'o':
+				case 'o': // Octal
 					num = va_arg(args, uint32_t);
 					num2str(num, 8, buf);
 					kdbg_printf("0");
 					kdbg_printf(buf);
 					break;
-				case 'd':
+				case 'd': // Decimal
 					num = va_arg(args, uint32_t);
 					num2str(num, 10, buf);
 					kdbg_printf(buf);
 					break;
-				case 'x':
+				case 'x': // Hexadecimal
 					num = va_arg(args, uint32_t);
 					num2str(num, 16, buf);
 					kdbg_printf("0x");
 					kdbg_printf(buf);
 					break;
-				case 's':
+				case 's': // String
 					kdbg_printf(va_arg(args, char *));
 					break;
-				case 'c':
+				case 'c': // Character
 					kdbg_putch((char)va_arg(args, uint32_t), text_style);
 					scrn_x++;
 					break;
@@ -128,6 +130,8 @@ void kdbg_printf(char *str, ...)
 
 void print_stack_trace(registers_t *r)
 {
+	// Prints a stack trace starting from supplied registers
+	// or current ebp
 	uintptr_t *ebp, *eip;
 
 	debug("\n");

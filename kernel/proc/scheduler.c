@@ -22,6 +22,7 @@ thread_t *scheduler_next()
 		return list_entry(run_queue.next, thread_t, tasks);
 	else
 	{
+		// Idle if there are no runnable threads
 		for(;;);
 	}
 }

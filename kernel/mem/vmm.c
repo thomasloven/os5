@@ -11,6 +11,7 @@ uintptr_t *expage_tables = (uintptr_t *)VMM_EXPAGE_TABLES;
 
 uintptr_t vmm_page_get(uintptr_t page)
 {
+	// Get the page table entry, if it exists
 	page &= PAGE_MASK;
 
 	if(page_directory[vmm_dir_idx(page)] & PAGE_PRESENT)
@@ -21,6 +22,7 @@ uintptr_t vmm_page_get(uintptr_t page)
 
 void vmm_page_touch(uintptr_t page, uint32_t flags)
 {
+	// Make sure a page table exists for the passed page
 	page &= PAGE_MASK;
 	flags &= PAGE_FLAG_MASK;
 
@@ -36,6 +38,7 @@ void vmm_page_touch(uintptr_t page, uint32_t flags)
 
 void vmm_page_set(uintptr_t page, uintptr_t value)
 {
+	// Set page table entry
 	page &= PAGE_MASK;
 
 	vmm_page_touch(page, value & PAGE_FLAG_MASK);
@@ -46,6 +49,7 @@ void vmm_page_set(uintptr_t page, uintptr_t value)
 
 void vmm_exdir_set(uintptr_t dir)
 {
+	// Load an external page directory
 	if(dir)
 		page_directory[vmm_dir_idx(VMM_EXPAGE_DIR)] = \
 			dir | PAGE_PRESENT | PAGE_WRITE;
@@ -55,6 +59,7 @@ void vmm_exdir_set(uintptr_t dir)
 
 uintptr_t vmm_expage_get(uintptr_t page)
 {
+	// Get page table entry for external pagedir
 	page &= PAGE_MASK;
 
 	if(expage_directory[vmm_dir_idx(page)] & PAGE_PRESENT)
@@ -65,6 +70,7 @@ uintptr_t vmm_expage_get(uintptr_t page)
 
 void vmm_expage_touch(uintptr_t page, uint32_t flags)
 {
+	// Make sure a page table exists for external pagedir
 	page &= PAGE_MASK;
 	flags &= PAGE_FLAG_MASK;
 
@@ -80,6 +86,7 @@ void vmm_expage_touch(uintptr_t page, uint32_t flags)
 
 void vmm_expage_set(uintptr_t page, uintptr_t value)
 {
+	// Set page table entry for external pagedir
 	page &= PAGE_MASK;
 
 	vmm_expage_touch(page, value & PAGE_FLAG_MASK);
@@ -88,13 +95,16 @@ void vmm_expage_set(uintptr_t page, uintptr_t value)
 
 uintptr_t vmm_new_pd()
 {
+	// Get a new page directory
 	uintptr_t pd = pmm_alloc_page();
 
 	vmm_page_set(VMM_TEMP1, vmm_page_val(pd, PAGE_PRESENT | PAGE_WRITE));
 	vmm_flush_tlb(VMM_TEMP1);
 
+	// Zero it
 	memset(VMM_TEMP1, 0, PAGE_SIZE);
 
+	// Make it recursive
 	uint32_t *pdir = (uint32_t *) VMM_TEMP1;
 	pdir[VMM_PAGES_PER_TABLE -1] = vmm_page_val(pd, PAGE_PRESENT | PAGE_WRITE);
 
@@ -106,6 +116,7 @@ uintptr_t vmm_new_pd()
 
 void vmm_clear_page(uintptr_t page)
 {
+	// zero out a physical page
 	page &= PAGE_MASK;
 
 	vmm_page_set(VMM_TEMP1, vmm_page_val(page, PAGE_PRESENT | PAGE_WRITE));
@@ -115,6 +126,7 @@ void vmm_clear_page(uintptr_t page)
 
 void vmm_copy_page(uintptr_t dst, uintptr_t src)
 {
+	// Copy a physical page
 	dst &= PAGE_MASK;
 	src &= PAGE_MASK;
 
@@ -127,20 +139,26 @@ void vmm_copy_page(uintptr_t dst, uintptr_t src)
 
 uintptr_t vmm_clone_pd()
 {
+	// Make a copy of the current pagedir
+
 	uintptr_t pd = vmm_new_pd();
 	vmm_exdir_set(pd);
 
 	uint32_t table;
 	for(table = 0; table < vmm_dir_idx(KERNEL_OFFSET); table++)
 	{
+		// User space
 		if(page_directory[table])
 		{
+			// Copy page table
 			expage_directory[table] = \
 				vmm_page_val(pmm_alloc_page(), PAGE_PRESENT | PAGE_USER | PAGE_WRITE);
 			vmm_clear_page(expage_directory[table] & PAGE_MASK);
 			uint32_t page;
 			for(page = 0; page < VMM_PAGES_PER_TABLE; page++)
 			{
+				// Copy each page in the table
+				// Sooner or later I should implement copy on write
 				uint32_t entry = table * VMM_PAGES_PER_TABLE + page;
 				if(page_tables[entry])
 				{
@@ -153,6 +171,10 @@ uintptr_t vmm_clone_pd()
 		}
 	}
 
+	// Don't copy kernel space, just link it.
+	//
+	// Right now changes in kernel space are not synced.
+	// High priority on that one.
 	for(table = vmm_dir_idx(KERNEL_OFFSET); table < VMM_PAGES_PER_TABLE -2; table++)
 	{
 		expage_directory[table] = page_directory[table];

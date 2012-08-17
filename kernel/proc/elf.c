@@ -7,6 +7,7 @@
 
 void kernel_elf_init(mboot_info_t *mboot)
 {
+	// Load elf data from multiboot
 	elf_section_head *sections = \
 		assert_higher((elf_section_head *)mboot->symbol_addr);
 
@@ -31,6 +32,7 @@ void kernel_elf_init(mboot_info_t *mboot)
 
 char *kernel_lookup_symbol(uint32_t addr)
 {
+	// Lookup address in the symbol table of the kernel
 	uint32_t i;
 
 	for(i=0; i < (kernel_elf.symtab_size/sizeof(elf_symbol)); i++)
@@ -50,6 +52,7 @@ char *kernel_lookup_symbol(uint32_t addr)
 
 void load_elf_segment(elf_header *image, elf_phead *phead)
 {
+	// Load elf program segment into memory
 	uint8_t *img = (uint8_t *)image;
 	uint32_t first_page = ((phead->p_vaddr) & PAGE_MASK);
 	uint32_t num_pages = ((phead->p_memsz + PAGE_SIZE) & PAGE_MASK)/PAGE_SIZE;
@@ -66,6 +69,7 @@ void load_elf_segment(elf_header *image, elf_phead *phead)
 
 void load_elf(elf_header *image, elf_t *elf)
 {
+	// Load an elf program into memory
 	elf_phead *program_head = (elf_phead *)((uintptr_t)image + image->elf_phoff);
 	uint32_t i;
 	for(i = 0; i < image->elf_phnum; i++)
@@ -76,6 +80,7 @@ void load_elf(elf_header *image, elf_t *elf)
 		}
 	}
 
+	// Load aditional data into elf data structure
 	elf_section_head *sections = (elf_section_head *)((uintptr_t)image + image->elf_shoff);
 
 	uintptr_t stringtab = (uintptr_t)((uintptr_t)image + sections[image->elf_shstrndx].offset);
@@ -106,6 +111,7 @@ void load_elf(elf_header *image, elf_t *elf)
 
 char *elf_lookup_symbol(elf_t *elf, uint32_t addr)
 {
+	// Look up an address in an elf symbol table
 	uint32_t i;
 
 	for(i=0; i < (elf->symtab_size/sizeof(elf_symbol)); i++)
@@ -122,3 +128,4 @@ char *elf_lookup_symbol(elf_t *elf, uint32_t addr)
 	}
 	return 0;
 }
+

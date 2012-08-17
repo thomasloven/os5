@@ -9,6 +9,8 @@
 
 void print_user_stack(registers_t *r, elf_t *elf)
 {
+	// Go through every stack entry and print anything
+	// that might be a return address
 	uintptr_t *esp = (uintptr_t *)r->useresp;
 	while(esp < (uintptr_t *)0xC0000000)
 	{
@@ -24,6 +26,7 @@ registers_t *page_fault_handler(registers_t *r)
 	__asm__ volatile("mov %%cr2, %0" : "=r" (fault_address));
 	if(!(r->cs & 0x3))
 	{
+		// If the kernel page faulted, we're in trouble
 		disable_interrupts();
 		debug("Page fault in kernel!");
 		debug("\n At: %x", fault_address);

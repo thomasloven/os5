@@ -41,6 +41,8 @@ void _idle()
 		__asm__ ("sti; hlt");
 	}
 }
+
+// Print a clock in upper right corner
 void _clock()
 {
 

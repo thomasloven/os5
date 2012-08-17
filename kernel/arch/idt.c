@@ -8,8 +8,11 @@
 idt_entry_t idt[NUM_INTERRUPTS];
 int_handler_t int_handlers[NUM_INTERRUPTS];
 struct idt_pointer idt_p;
+
+// Defined in boot/boot.asm
 extern gdt_entry_t gdt[6];
 
+// Defined in arch/int.asm
 extern isr_t isr0,
 	isr1, isr2, isr3, isr4, isr5, isr6, isr7, isr8, isr9, isr10,
 	isr11, isr12, isr13, isr14, isr15, isr16, isr17, isr18, isr19, isr20,
@@ -85,6 +88,7 @@ void idt_set(uint32_t num, uint32_t base, uint32_t segment, uint8_t flags)
 
 void idt_init()
 {
+	// Reconfigure the PIC
 	outb(MPIC_CMD_PORT, 0x11);
 	outb(SPIC_CMD_PORT, 0x11);
 	outb(MPIC_DATA_PORT, 0x20);
@@ -97,12 +101,15 @@ void idt_init()
 	outb(MPIC_DATA_PORT, 0x0);
 	outb(SPIC_DATA_PORT, 0x0);
 
+	// Set up IDT pointer
 	idt_p.size = (sizeof(idt_entry_t)*NUM_INTERRUPTS) - 1;
 	idt_p.offset = (uintptr_t)&idt;
 
+	// Clear IDT and int handler table
 	memset(idt,0,sizeof(idt_entry_t)*NUM_INTERRUPTS);
 	memset(int_handlers,0,sizeof(int_handler_t)*NUM_INTERRUPTS);
 
+	// Set up int handler table
 	uint32_t i;
 	for(i = 0; i < NUM_INTERRUPTS; i++)
 	{
@@ -112,8 +119,9 @@ void idt_init()
 				IDT_PRESENT | IDT_INT_GATE);
 		}
 	}
-
-	idt[128].flags |=  IDT_DPL_3;
+	
+	// Syscalls should be callable from userspace
+	idt[128].flags |= IDT_DPL_3;
 	idt[255].flags |= IDT_DPL_3;
 
 	idt_flush((uintptr_t)&idt_p);
@@ -123,10 +131,12 @@ registers_t *idt_handler(registers_t *r)
 {
 	if(ISIRQ(r->int_no))
 	{
+		// Reset interrupt controller
 		if(INT2IRQ(r->int_no) > 8)
 			outb(SPIC_CMD_PORT, PIC_EOI);
 		outb(MPIC_CMD_PORT, PIC_EOI);
 
+		// Temporary, works one per boot
 		if(INT2IRQ(r->int_no) != 0)
 			debug("!");
 	} 
@@ -138,6 +148,7 @@ registers_t *idt_handler(registers_t *r)
 
 		if ((r->cs & 0x3) == 0x3)
 		{
+			// If returning to user mode, set up stack and enable interrupts
 			set_kernel_stack(stack_from_tcb((thread_t *)r));
 			r->eflags |= EFL_INT;
 		}
@@ -166,6 +177,8 @@ int_handler_t register_int_handler(uint32_t num, int_handler_t handler)
 
 void tss_init()
 {
+	// This is how base and limit is calculated
+	// according to the Intel manuals
 	uint32_t base = (uintptr_t)&global_tss;
 	uint32_t limit = sizeof(tss_t);
 
