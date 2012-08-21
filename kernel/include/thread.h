@@ -19,6 +19,7 @@ typedef struct thread_struct
 	uint32_t interrupt_level;
 	struct process_struct *proc;
 	list_t proc_threads;
+	list_head_t waiting;
 } thread_t;
 
 #define TH_STATE_RUNNING	0x1
@@ -62,5 +63,9 @@ thread_t *threads_init(void *func);
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)
 #define schedule() __asm__ volatile("int $" TOSTRING(INT_SCHEDULE))
+#define schedule2() ({ \
+	uint32_t _ret; \
+	__asm__ volatile("int $" TOSTRING(INT_SCHEDULE) : "=a" (_ret)); \
+	_ret; })
 
 #endif

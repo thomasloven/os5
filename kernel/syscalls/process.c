@@ -9,6 +9,7 @@
 #include <strings.h>
 #include <idt.h>
 #include <vmm.h>
+#include <scheduler.h>
 
 KDEF_SYSCALL(fork, r)
 {
@@ -19,6 +20,49 @@ KDEF_SYSCALL(fork, r)
 KDEF_SYSCALL(getpid, r)
 {
 	r->eax = current->proc->pid;
+	return r;
+}
+
+KDEF_SYSCALL(exit, r)
+{
+	current->proc->exit_status = r->ebx;
+	if(!list_empty(current->proc->waiting))
+	{
+		scheduler_wake(current->proc, current->proc->exit_status);
+
+	} else {
+	}
+
+	// Won't return when finished
+	kill_process();
+
+	return r;
+}
+
+KDEF_SYSCALL(waitpid, r)
+{
+	uint32_t pid = r->ebx;
+	process_t *proc = get_process_by_pid(pid);
+	uint32_t retval;
+	if(proc->state == PROC_STATE_FINISHED)
+	{
+		retval = proc->exit_status;
+	} else {
+		while(proc->state != PROC_STATE_FINISHED)
+		{
+			scheduler_sleep(current,proc);
+			current->state = TH_STATE_WAITING;
+			retval = schedule2();
+		}
+	}
+
+	if(get_process_by_pid(pid))
+	{
+		free_process(proc);
+	}
+
+	r->eax = retval;
+
 	return r;
 }
 
@@ -102,15 +146,12 @@ KDEF_SYSCALL(execv, r)
 	vmm_page_set(USER_STACK_TOP - PAGE_SIZE, vmm_page_val(pmm_alloc_page(), PAGE_PRESENT | PAGE_USER | PAGE_WRITE));
 	uintptr_t stack = USER_STACK_TOP;
 
-	stack -= sizeof(uint32_t);
-	*((uintptr_t *)stack) = (uintptr_t)user_argv; // argv
-	stack -= sizeof(uint32_t);
-	*((uintptr_t *)stack) = i; // argc
-	stack -= sizeof(uint32_t);
-	*((uintptr_t *)stack) = 0x0; // Faux return address
-	debug("Stack:%x",stack);
+	PUSH(stack, uintptr_t, (uintptr_t)user_argv);
+	PUSH(stack, uint32_t, i);
+	PUSH(stack, uint32_t, 0x0);
 	current->r.useresp = stack;
 
 
 	return &current->r;
 }
+

@@ -30,7 +30,9 @@ typedef list_t list_head_t;
 
 #define remove_from_list(item) \
 	(item).prev->next = (item).next; \
-	(item).next->prev = (item).prev
+	(item).next->prev = (item).prev; \
+	(item).next = &(item); \
+	(item).prev = &(item)
 
 #define list_empty(head) \
 	(((head).next == &(head))&&((head).prev == &(head)))

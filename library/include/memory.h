@@ -14,4 +14,13 @@
 	uint32_t len_ = (len); \
 	for(;len_;len_--) *dst_++ = val ;})
 
+#define PUSH(stack, type, item) \
+	stack -= sizeof(type); \
+	*((type *) stack) = item;
+
+#define POP(stack, type) ({ \
+	(type *)tmp = (type *)stack; \
+	stack += sizeof(type); \
+	tmp[0]; })
+
 #endif

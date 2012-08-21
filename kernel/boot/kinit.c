@@ -21,12 +21,21 @@ mboot_mod_t *modules;
 
 void _idle()
 {
+		enable_interrupts();
 		debug("A");
-		if(_syscall_fork())
+		uint32_t ch = _syscall_fork();
+
+		if(ch)
 		{
-			debug("Fork returned to parent");
+		debug("forked");
+			uint32_t ret = _syscall_waitpid(ch);
+			/*uint32_t ret = 5;*/
+			debug("Fork returned to parent %x", ret);
+			for(;;);
+			//schedule();
 		} else {
 	debug("Loading elf from %x \n",modules[0].mod_start);
+	_syscall_exit(0x123);
 	/*load_elf((elf_header *)(assert_higher(modules[0].mod_start)), &proc->elf);*/
 	_syscall_execv(assert_higher(modules[0].mod_start),0,0);
 	}
@@ -93,6 +102,8 @@ registers_t *kinit(mboot_info_t *mboot, uint32_t mboot_magic)
 	KREG_SYSCALL(getpid, SYSCALL_GETPID);
 	KREG_SYSCALL(fork, SYSCALL_FORK);
 	KREG_SYSCALL(execv, SYSCALL_EXECV);
+	KREG_SYSCALL(exit, SYSCALL_EXIT);
+	KREG_SYSCALL(waitpid, SYSCALL_WAITPID);
 
 	
 	/*thread_t *init_thread = threads_init((void *)&_idle);*/

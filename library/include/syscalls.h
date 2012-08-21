@@ -8,6 +8,8 @@
 #define SYSCALL_GETPID	0x04
 #define SYSCALL_EXECV	0x05
 #define SYSCALL_PRINTF	0x06
+#define SYSCALL_EXIT 0x07
+#define SYSCALL_WAITPID 0x08
 
 #define DECL_SYSCALL0(name) \
 	int _syscall_##name()
@@ -52,4 +54,6 @@ DECL_SYSCALL1(printf, char *);
 DECL_SYSCALL0(fork);
 DECL_SYSCALL0(getpid);
 DECL_SYSCALL3(execv, uintptr_t, char **, char **);
+DECL_SYSCALL1(exit, uint32_t);
+DECL_SYSCALL1(waitpid, uint32_t);
 

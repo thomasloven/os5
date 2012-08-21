@@ -10,6 +10,7 @@
 uint32_t next_pid = 1;
 
 process_t *init_proc;
+list_head_t pid_hash_table[1<<PID_HASH_BITS];
 
 process_t *new_process()
 {
@@ -17,6 +18,11 @@ process_t *new_process()
 	p->pid = next_pid++;
 
 	init_list(p->threads);
+	init_list(p->waiting);
+	init_list(p->pid_list);
+
+	append_to_list(pid_hash_table[pid_hash(p->pid)], p->pid_list);
+	debug("\n proc %x at %x", p->pid, p);
 
 	return p;
 }
@@ -84,6 +90,13 @@ process_t *fork_process(process_t *parent, registers_t *r)
 	r->eax = child->pid;
 	new_th->kernel_thread->eax = 0;
 
+	if((r->cs & 0x3) != 0x3)
+	{
+		//SHOULD MOVE POINTERS ON STACK HERE
+		//move_stack(new_th->kernel_thread, new_th, new_th->kernel_thread -r);
+		new_th->kernel_thread->ebp += new_th->kernel_thread -r;
+	}
+
 	scheduler_insert(new_th);
 
 	return child;
@@ -91,6 +104,13 @@ process_t *fork_process(process_t *parent, registers_t *r)
 
 process_t *process_init(void *func)
 {
+
+	int i;
+	for(i = 0; i < 1<<PID_HASH_BITS; i++)
+	{
+		init_list(pid_hash_table[i]);
+	}
+
 	init_proc = new_process();
 
 	thread_t *th = new_thread(0,0);
@@ -98,6 +118,7 @@ process_t *process_init(void *func)
 	th->r.eip = (uint32_t)func;
 
 	init_proc->pd = vmm_clone_pd();
+	th->state = TH_STATE_RUNNING;
 	scheduler_insert(th);
 
 	return init_proc;
@@ -108,3 +129,15 @@ void switch_process(process_t *p)
 	vmm_set_pd(p->pd);
 }
 
+process_t *get_process_by_pid(uint32_t pid)
+{
+	list_head_t *head = &pid_hash_table[pid_hash(pid)];
+	list_t *item;
+	for_each_in_list(head, item)
+	{
+		process_t *proc = list_entry(item, process_t, pid_list);
+			if(proc->pid == pid)
+			return proc;
+	}
+	return 0;
+}

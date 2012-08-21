@@ -2,7 +2,7 @@
 
 #ifndef __ASSEMBLER__
 
-#define BREAK asm volatile ("xchg %bx, %bx;");
+#define BREAK __asm__ volatile ("xchg %bx, %bx;");
 
 #endif
 #ifdef __ASSEMBLER__

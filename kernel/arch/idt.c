@@ -129,6 +129,7 @@ void idt_init()
 
 registers_t *idt_handler(registers_t *r)
 {
+	disable_interrupts();
 	if(ISIRQ(r->int_no))
 	{
 		// Reset interrupt controller
@@ -143,7 +144,7 @@ registers_t *idt_handler(registers_t *r)
 
 	if(int_handlers[r->int_no])
 	{
-		enable_interrupts();
+		/*enable_interrupts();*/
 		r = int_handlers[r->int_no](r);
 
 		if ((r->cs & 0x3) == 0x3)

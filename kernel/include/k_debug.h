@@ -52,6 +52,7 @@ void print_stack_trace(registers_t *r);
 
 #define panic(n) \
 	({ debug(n); \
+	disable_interrupts(); \
 	for(;;);})
 #else
 

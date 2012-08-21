@@ -36,6 +36,7 @@ thread_t *alloc_thread()
 
 	init_list(th->proc_threads);
 	init_list(th->tasks);
+	init_list(th->waiting);
 
 	return th;
 }
@@ -110,7 +111,8 @@ registers_t *switch_kernel_thread(registers_t *r)
 	if(r)
 	{
 		current->kernel_thread = r;
-		scheduler_insert(current);
+		if((current->state != TH_STATE_WAITING))
+			scheduler_insert(current);
 	}
 
 	thread_t *next = scheduler_next();
@@ -128,3 +130,14 @@ registers_t *switch_kernel_thread(registers_t *r)
 	return next->kernel_thread;
 }
 
+// DOESN'T WORK!
+void move_stack(uintptr_t start, uintptr_t end, uintptr_t offset)
+{
+	uint32_t *pos = (uint32_t *)start;
+	while((uintptr_t)pos < end)
+	{
+		if((*pos > (uint32_t)pos) && (*pos < end))
+			*pos = *pos + offset;
+		pos++;
+	}
+}
