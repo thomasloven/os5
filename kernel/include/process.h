@@ -37,7 +37,7 @@ typedef struct process_struct
 
 process_t *process_init(void *func);
 void free_process(process_t *p);
-void kill_process();
+void end_process();
 process_t *fork_process(process_t *parent, registers_t *r);
 void switch_process(process_t *p);
 process_t *get_process_by_pid(uint32_t pid);

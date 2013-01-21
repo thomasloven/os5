@@ -33,37 +33,18 @@ void scheduler_init()
 	init_list(run_queue);
 }
 
-void scheduler_sleep_thread(thread_t *th, thread_t *on)
+void scheduler_sleep(thread_t *th, list_head_t *on)
 {
 	scheduler_remove(th);
-	append_to_list(on->waiting, th->tasks);
+	append_to_list(*on, th->tasks);
 }
 
-void scheduler_wake_thread(thread_t *th, uint32_t value)
+void scheduler_wake(list_head_t *list, uint32_t value)
 {
 	list_t *item;
-	while(!list_empty(th->waiting))
+	while(!list_empty(*list))
 	{
-		item = th->waiting.next;
-		thread_t *wake = list_entry(item, thread_t, tasks);
-		remove_from_list(wake->tasks);
-		scheduler_insert(wake);
-		th->r.eax = value;
-	}
-}
-
-void scheduler_sleep(thread_t *th, process_t *on)
-{
-	scheduler_remove(th);
-	append_to_list(on->waiting, th->tasks);
-}
-
-void scheduler_wake(process_t *p, uint32_t value)
-{
-	list_t *item;
-	while(!list_empty(p->waiting))
-	{
-		item = p->waiting.next;
+		item = list->next;
 		thread_t *wake = list_entry(item, thread_t, tasks);
 		wake->state = TH_STATE_RUNNING;
 		remove_from_list(wake->tasks);

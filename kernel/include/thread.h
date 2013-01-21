@@ -59,13 +59,9 @@ void unbind_thread(thread_t *th);
 thread_t *add_thread(void *func, uint8_t user);
 registers_t *switch_kernel_thread(registers_t *r);
 thread_t *threads_init(void *func);
+uint32_t schedule();
 
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)
-#define schedule() __asm__ volatile("int $" TOSTRING(INT_SCHEDULE))
-#define schedule2() ({ \
-	uint32_t _ret; \
-	__asm__ volatile("int $" TOSTRING(INT_SCHEDULE) : "=a" (_ret)); \
-	_ret; })
 
 #endif

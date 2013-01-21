@@ -1,7 +1,7 @@
 megs: 64
 
-romimage: file = /usr/share/bochs/BIOS-bochs-latest
-vgaromimage: file = /usr/share/bochs/VGABIOS-lgpl-latest
+romimage: file = /usr/local/share/bochs/BIOS-bochs-latest
+vgaromimage: file = /usr/local/share/bochs/VGABIOS-lgpl-latest
 
 floppya: 1_44=build/floppy.img, status=inserted
 boot: a

@@ -14,9 +14,7 @@ void scheduler_remove(thread_t *th);
 thread_t *scheduler_next();
 void scheduler_init();
 
-void scheduler_sleep(thread_t *th, process_t *on);
-void scheduler_wake(process_t *p, uint32_t value);
-void scheduler_wake_thread(thread_t *th, uint32_t value);
-void scheduler_sleep_thread(thread_t *th, thread_t *on);
+void scheduler_sleep(thread_t *th, list_head_t  *on);
+void scheduler_wake(list_head_t *list, uint32_t value);
 
 #endif

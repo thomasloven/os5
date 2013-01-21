@@ -32,7 +32,7 @@ void free_process(process_t *p)
 	kfree(p);
 }
 
-void kill_process()
+void end_process()
 {
 	process_t *p = current->proc;
 	list_t *threaditem;

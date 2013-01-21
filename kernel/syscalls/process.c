@@ -28,32 +28,35 @@ KDEF_SYSCALL(exit, r)
 	current->proc->exit_status = r->ebx;
 	if(!list_empty(current->proc->waiting))
 	{
-		scheduler_wake(current->proc, current->proc->exit_status);
-
+		scheduler_wake(&current->proc->waiting, current->proc->exit_status);
 	} else {
 	}
-
 	// Won't return when finished
-	kill_process();
+	end_process();
 
 	return r;
 }
 
 KDEF_SYSCALL(waitpid, r)
 {
-	uint32_t pid = r->ebx;
-	process_t *proc = get_process_by_pid(pid);
-	uint32_t retval;
-	if(proc->state == PROC_STATE_FINISHED)
+	uint32_t retval, pid = r->ebx;
+	process_t *proc;
+
+	if((proc = get_process_by_pid(pid)) && \
+		(proc->state != PROC_STATE_FINISHED))
 	{
-		retval = proc->exit_status;
-	} else {
-		while(proc->state != PROC_STATE_FINISHED)
+		while((proc = get_process_by_pid(pid)) && \
+			(proc->state != PROC_STATE_FINISHED))
 		{
-			scheduler_sleep(current,proc);
+			scheduler_sleep(current,&proc->waiting);
 			current->state = TH_STATE_WAITING;
-			retval = schedule2();
+			retval = schedule();
 		}
+	} else {
+		if(proc)
+			retval = proc->exit_status;
+		else
+			retval = -1;
 	}
 
 	if(get_process_by_pid(pid))

@@ -130,6 +130,13 @@ registers_t *switch_kernel_thread(registers_t *r)
 	return next->kernel_thread;
 }
 
+uint32_t schedule()
+{
+	uint32_t ret;
+	__asm__ volatile("int $" TOSTRING(INT_SCHEDULE) : "=a" (ret));
+	return ret;
+}
+
 // DOESN'T WORK!
 void move_stack(uintptr_t start, uintptr_t end, uintptr_t offset)
 {
