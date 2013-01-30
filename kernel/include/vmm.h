@@ -22,8 +22,8 @@
 #define VMM_PAGES_PER_TABLE 1024
 
 #define PF_PRESENT 0x1
-#define PF_READ 0x1
-#define PF_KERNEL 0x4
+#define PF_READ 0x2
+#define PF_USER 0x4
 
 #define vmm_page_val(page, flags) \
 	((page & PAGE_MASK) | (flags & PAGE_FLAG_MASK))
