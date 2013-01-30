@@ -59,6 +59,7 @@ registers_t *kinit(mboot_info_t *mboot, uint32_t mboot_magic)
 
 	kernel_elf_init(mboot);
 	pmm_init(mboot);
+	vmm_init();
 	idt_init();
 	tss_init();
 	scheduler_init();
