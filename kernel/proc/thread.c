@@ -28,6 +28,9 @@ thread_t *alloc_thread()
 
 	th_info->tcb.tid = next_tid++;
 
+	init_list(th_info->tcb.tasks);
+	init_list(th_info->tcb.process_threads);
+
 	return &th_info->tcb;
 }
 

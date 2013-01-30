@@ -14,6 +14,7 @@ typedef struct thread_struct
 	uint32_t tid;
 	uint32_t state;
 	list_t tasks;
+	list_t process_threads;
 	registers_t *kernel_thread;
 } thread_t;
 
