@@ -22,10 +22,11 @@ export BUILDDIR AS CC CPP LD ASFLAGS CCFLAGS CPPFLAGS LDFLAGS
 
 .SILENT:
 
-.PHONY: $(DIRS) floppy emul
-.default: all floppy emul
+.PHONY: $(DIRS) floppy emul demul qemul
+#.default: all floppy emul
+.default: all qemul
 
-nd: all floppy emul
+nd: all qemul
 
 d: all floppy demul
 
@@ -49,6 +50,10 @@ emul: force
 demul: force
 	@echo "  \033[35mSTARTING EMULATOR (\033[33mDEBUGGER\033[33m)\033[0m"
 	@build/demul.sh
+
+qemul: force
+	@echo "  \033[35mSTARTING EMULATOR\033[0m"
+	@build/qemul.sh
 
 force:
 	true
