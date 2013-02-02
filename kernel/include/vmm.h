@@ -62,6 +62,8 @@ void vmm_expage_set(uintptr_t page, uintptr_t value);
 void vmm_clear_page(uintptr_t page);
 void vmm_copy_page(uintptr_t src, uintptr_t dst);
 
+page_dir_t vmm_clone_pd();
+
 void vmm_init();
 
 #endif

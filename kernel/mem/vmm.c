@@ -236,6 +236,6 @@ void vmm_init()
 {
 	__asm__ volatile("mov %%cr3, %0" : "=r" (kernel_pd));
 
-	/*vmm_pd_set(vmm_clone_pd());*/
+	vmm_pd_set(vmm_clone_pd());
 }
 

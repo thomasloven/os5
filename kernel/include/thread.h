@@ -8,6 +8,8 @@
 
 #ifndef __ASSEMBLER__
 
+struct process_struct;
+
 typedef struct thread_struct
 {
 	registers_t r;
@@ -16,6 +18,7 @@ typedef struct thread_struct
 	list_t tasks;
 	list_t process_threads;
 	registers_t *kernel_thread;
+	struct process_struct *proc;
 } thread_t;
 
 // Changing this will require chaning kvalloc and all calls to it and current_thread_info()
