@@ -98,6 +98,8 @@ page_dir_t vmm_exdir_set(page_dir_t pd)
 	else
 		page_directory[vmm_dir_idx(VMM_EXPAGE_DIR)] = 0;
 
+	vmm_flush_tlb(VMM_EXPAGE_DIR);
+
 	return old;
 }
 
@@ -163,7 +165,7 @@ void vmm_expage_set(uintptr_t page, uintptr_t value)
 	page &= PAGE_MASK;
 
 	vmm_expage_touch(page, value & PAGE_FLAG_MASK);
-	page_tables[vmm_table_idx(page)] = value;
+	expage_tables[vmm_table_idx(page)] = value;
 	vmm_flush_tlb(page);
 }
 
@@ -234,6 +236,6 @@ void vmm_init()
 {
 	__asm__ volatile("mov %%cr3, %0" : "=r" (kernel_pd));
 
-	vmm_pd_set(vmm_clone_pd());
+	/*vmm_pd_set(vmm_clone_pd());*/
 }
 

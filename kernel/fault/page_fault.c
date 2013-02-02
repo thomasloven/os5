@@ -31,7 +31,7 @@ registers_t *page_fault_handler(registers_t *r)
 		debug("Page fault in kernel!");
 		debug("\n At: %x", fault_address);
 		print_registers(r);
-		print_stack_trace();
+		/*print_stack_trace();*/
 		for(;;);
 
 	} else {

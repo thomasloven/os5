@@ -5,6 +5,7 @@
 #include <thread.h>
 #include <lists.h>
 #include <vmm.h>
+#include <procmm.h>
 
 uint32_t next_pid = 1;
 
@@ -26,18 +27,27 @@ process_t *alloc_process()
 
 }
 
+void switch_process(process_t *proc)
+{
+	vmm_pd_set(proc->pd);
+}
 
-void process_init(void (*func)(void))
+
+process_t *process_init(void (*func)(void))
 {
 
 	init_list(process_list);
 
 	process_t *proc = alloc_process();
+	proc->pd = vmm_clone_pd();
 
 	thread_t *th = new_thread(func,0);
 	append_to_list(proc->threads, th->process_threads);
+	th->proc = proc;
 
 	th->r.eflags = EFL_INT;
 	set_kernel_stack(stack_from_tcb(th));
 
+
+	return proc;
 }

@@ -14,6 +14,7 @@
 #include <elf.h>
 #include <strings.h>
 #include <process.h>
+#include <procmm.h>
 
 void _idle(void)
 {
@@ -68,7 +69,8 @@ registers_t *kinit(mboot_info_t *mboot, uint32_t mboot_magic)
 	register_int_handler(INT_PF, page_fault_handler);
 	register_int_handler(INT_SCHEDULE, switch_kernel_thread);
 
-	process_init(&_idle);
+	process_t *p = process_init(&_idle);
+	switch_process(p);
 	//new_thread(&_clock,0);
 
 

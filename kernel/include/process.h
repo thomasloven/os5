@@ -8,6 +8,18 @@
 
 struct thread_struct;
 
+
+typedef struct process_mem_struct
+{
+	uintptr_t code_start;
+	uintptr_t code_end;
+	uintptr_t arg_start;
+	uintptr_t arg_end;
+	uintptr_t env_start;
+	uintptr_t env_end;
+	list_head_t mem;
+} process_mem_t;
+
 typedef struct process_struct
 {
 	uint32_t pid;
@@ -20,12 +32,16 @@ typedef struct process_struct
 	list_head_t threads;
 	list_head_t proc_list;
 	uintptr_t pd;
+
+	process_mem_t mm;
 } process_t;
 
 #define PROC_STATE_RUNNING 0x1
 #define PROC_STATE_WAITING 0x2
 #define PROC_STATE_FINISHED 0x3
 
-void process_init(void (*func)(void));
+void switch_process(process_t *proc);
+process_t *process_init(void (*func)(void));
+
 
 #endif
