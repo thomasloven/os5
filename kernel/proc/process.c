@@ -23,6 +23,8 @@ process_t *alloc_process()
 
 	append_to_list(process_list, p->proc_list);
 
+	init_procmm(p);
+
 	return p;
 
 }

@@ -5,26 +5,16 @@
 
 #ifndef __ASSEMBLER__
 
-typedef struct process_mem_struct
-{
-	struct process_struct *p;
-	uintptr_t code_start;
-	uintptr_t code_end;
-	uintptr_t arg_start;
-	uintptr_t arg_end;
-	uintptr_t env_start;
-	uintptr_t env_end;
-	list_head_t mem;
-} process_mem_t;
 
 typedef struct mem_area_struct
 {
 	uintptr_t start;
 	uintptr_t end;
 	uint32_t flags;
-	uint32_t users;
+	uint32_t type;
 	list_t mem;
-	uint32_t maxsize;
+	list_t copies;
+	process_t *owner;
 } mem_area_t;
 
 #define MM_FLAG_READ (1<<0)
@@ -35,16 +25,23 @@ typedef struct mem_area_struct
 #define MM_FLAG_GROWSDOWN (1<<5)
 #define MM_FLAG_AUTOGROW (1<<6)
 
-process_mem_t *new_mem(process_t *p);
+#define MM_TYPE_CODE 1
+#define MM_TYPE_ARG 4
+#define MM_TYPE_ENV 5
+#define MM_TYPE_STACK 6
 
-mem_area_t *new_area(uint32_t size, uint32_t flags);
-void free_area(mem_area_t *area);
-mem_area_t *procmm_find_above(uintptr_t address);
-mem_area_t *procmm_find_below(uintptr_t address);
-mem_area_t *procmm_find_containint(uintptr_t address);
+void init_procmm(process_t *p);
 
-uint32_t grow_area(mem_area_t *area, uint32_t size);
+mem_area_t *new_area(process_t *p, uintptr_t start, uintptr_t end, uint32_t flags, uint32_t type);
 
-mem_area_t *split_area(mem_area_t *area, uintptr_t address);
+mem_area_t *split_area(mem_area_t *ma, uintptr_t start, uintptr_t end);
+mem_area_t *glue_area(mem_area_t *ma);
+
+mem_area_t *find_including(process_t *p, uintptr_t addr);
+mem_area_t *find_above(process_t *p, uintptr_t addr);
+
+void share_area(process_t *copy, mem_area_t *ma);
+
+void print_areas(process_t *p);
 
 #endif

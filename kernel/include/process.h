@@ -44,4 +44,5 @@ void switch_process(process_t *proc);
 process_t *process_init(void (*func)(void));
 
 
+process_t *alloc_process();
 #endif
