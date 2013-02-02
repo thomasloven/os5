@@ -17,6 +17,9 @@ typedef list_t list_head_t;
 	const __typeof__( ((type *)0)->member ) *__mptr = (ptr); \
 	(type *)( (char *)__mptr - offsetof(type,member));})
 
+#define list_empty(head) \
+	((head).next == &(head))
+
 #define init_list(head) \
 	head.next = &(head);\
 	head.prev = &(head)
@@ -32,5 +35,18 @@ typedef list_t list_head_t;
 	(item).next->prev = (item).prev; \
 	(item).next = &(item); \
 	(item).prev = &(item)
+
+#define list_insert_to_left(right, item) \
+	(item).prev = (right).prev; \
+	(item).next = &(right); \
+	(right).prev->next = &(item); \
+	(right).prev = &(item)
+
+#define list_insert_to_right(left, item) \
+	(item).prev = &(left); \
+	(item).next = (left).next; \
+	(left).next->prev = &(item); \
+	(left).next = &(item)
+
 
 #endif
