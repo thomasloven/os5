@@ -16,3 +16,5 @@ call rainbow_parenthsis#Activate()
 let g:syntastic_c_include_dirs = [ 'library/include', 'kernel/include' ]
 let g:syntastic_c_compiler = 'clang -fsyntax-only -Wall -Wextra -pedantic'
 
+set wildignore=*.o
+
