@@ -29,7 +29,7 @@ typedef struct thread_struct
 #define THREAD_STACK_SPACE (THREAD_STACK_SIZE - sizeof(registers_t))
 
 
-typedef union
+typedef struct thread_info_struct
 {
 	uint8_t stackspace[THREAD_STACK_SPACE];
 	thread_t tcb;
@@ -45,6 +45,7 @@ thread_info_t *current_thread_info();
 
 thread_t *new_thread(void (*func)(void), uint8_t user);
 registers_t *switch_kernel_thread(registers_t *r);
+thread_t *clone_thread(thread_t *th);
 
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)
