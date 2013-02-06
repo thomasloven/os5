@@ -16,6 +16,7 @@ CCFLAGS += -Wno-unused-parameter -g -Wno-gnu
 CCFLAGS += -I$(BUILDDIR)/library/include
 CPPFLAGS := $(CCFLAGS)
 CCFLAGS += -ccc-host-triple i386-pc-linux-gnu -mno-sse -mno-mmx
+CCFLAGS += -ggdb
 LDFLAGS := -T $(BUILDDIR)/library/include/Link.ld
 
 export BUILDDIR AS CC CPP LD ASFLAGS CCFLAGS CPPFLAGS LDFLAGS
