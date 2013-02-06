@@ -1,13 +1,12 @@
 BUILDDIR := $(PWD)
 
-PATH := /usr/local/cross/bin:$(PATH)
+#PATH := /usr/local/cross/bin:$(PATH)
 DIRS := kernel
 TARGET := i386-elf
 
 AS := nasm
-#CC := i386-elf-gcc
-#CPP := i386-elf-gcc -E
 LD := i386-elf-ld
+CC := clang
 
 ASFLAGS := -f elf
 CCFLAGS := -Wall -Wextra -pedantic -m32 -O0 -std=c99 -finline-functions
@@ -15,7 +14,7 @@ CCFLAGS += -fno-stack-protector -nostdinc -ffreestanding -Wno-unused-function
 CCFLAGS += -Wno-unused-parameter -g -Wno-gnu
 CCFLAGS += -I$(BUILDDIR)/library/include
 CPPFLAGS := $(CCFLAGS)
-CCFLAGS += -ccc-host-triple i386-pc-linux-gnu -mno-sse -mno-mmx
+CCFLAGS += -target i386-pc-linux -mno-sse -mno-mmx
 CCFLAGS += -ggdb
 LDFLAGS := -T $(BUILDDIR)/library/include/Link.ld
 
