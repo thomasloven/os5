@@ -19,7 +19,7 @@ if tmux info | grep $TTY ; then
 		else
 			echo "Go again"
 			counter=$counter-1
-			sleep 0.1
+			sleep 1
 		fi
 	done
 	tmux kill-pane -a
