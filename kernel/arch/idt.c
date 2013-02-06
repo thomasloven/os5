@@ -78,6 +78,44 @@ void idt_set(uint32_t num, uint32_t base, uint32_t segment, uint8_t flags)
 	idt[num].flags = flags;
 }
 
+void mask_int(unsigned char int_no)
+{
+	uint16_t port;
+	uint8_t mask;
+
+	if(int_no < 8)
+	{
+		port = MPIC_DATA_PORT;
+	}
+	else
+	{
+		port = SPIC_DATA_PORT;
+		int_no -= 8;
+	}
+
+	mask = inb(port) | (1 << int_no);
+	outb(port, mask);
+}
+	
+void unmask_int(unsigned char int_no)
+{
+	uint16_t port;
+	uint8_t mask;
+
+	if(int_no < 8)
+	{
+		port = MPIC_DATA_PORT;
+	}
+	else
+	{
+		port = SPIC_DATA_PORT;
+		int_no -= 8;
+	}
+
+	mask = inb(port) & ~(1 << int_no);
+	outb(port, mask);
+}
+
 void idt_init()
 {
 	outb(MPIC_CMD_PORT, 0x11);
@@ -127,6 +165,7 @@ registers_t *idt_handler(registers_t *r)
 
 	if(int_handlers[r->int_no])
 	{
+		/*mask_int(INT2IRQ(r->int_no));*/
 		enable_interrupts();
 		registers_t *ret = int_handlers[r->int_no](r);
 		if ((ret->cs & 0x3) == 0x3)
@@ -134,6 +173,7 @@ registers_t *idt_handler(registers_t *r)
 			set_kernel_stack(stack_from_tcb(current));
 		}
 			ret->eflags |= EFL_INT;
+		/*unmask_int(INT2IRQ(r->int_no));*/
 		return ret;
 	} else {
 		if(!ISIRQ(r->int_no))
