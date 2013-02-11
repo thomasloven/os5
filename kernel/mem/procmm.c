@@ -62,7 +62,7 @@ mem_area_t *new_area(process_t *p, uintptr_t start,
 	i = start;
 	while (i < end)
 	{
-		// vmm_expage_set(i, vmm_page_val(pmm_alloc_page(), vmm_flags));
+		 vmm_expage_set(i, vmm_page_val(pmm_alloc_page(), vmm_flags));
 		i += PAGE_SIZE;
 	}
 	vmm_exdir_set(old);
@@ -234,10 +234,26 @@ mem_area_t *find_above(process_t *p, uintptr_t addr)
 
 void share_area(process_t *copy, mem_area_t *ma)
 {
+	ma->flags |= MM_FLAG_SHARED;
+	if(ma->flags & MM_FLAG_WRITE)
+	{
+		ma->flags &= ~(MM_FLAG_WRITE);
+		ma->flags |= MM_FLAG_COW;
 
+		page_dir_t old = vmm_exdir_set(ma->owner->pd);
+		uintptr_t i = ma->start;
+		while (i < ma->end)
+		{
+			uintptr_t pt_val = vmm_expage_get(i);
+			pt_val &= ~(PAGE_WRITE);
+			 vmm_expage_set(i, pt_val);
+			i += PAGE_SIZE;
+		}
+		vmm_exdir_set(old);
+
+	}
 	mem_area_t *new = new_area(copy, ma->start, ma->end, ma->flags, ma->type);
 	append_to_list(ma->copies, new->copies);
-
 }
 
 
@@ -251,5 +267,4 @@ void print_areas(process_t *p)
 		area = list_entry(area_list, mem_area_t, mem);
 		debug("\n %x-%x", area->start, area->end);
 	}
-
 }

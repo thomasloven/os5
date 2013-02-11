@@ -43,13 +43,32 @@ process_t *process_init(void (*func)(void))
 	process_t *proc = alloc_process();
 	proc->pd = vmm_clone_pd();
 
-	thread_t *th = new_thread(func,0);
+	thread_t *th = new_thread(func,1);
 	append_to_list(proc->threads, th->process_threads);
 	th->proc = proc;
 
 	th->r.eflags = EFL_INT;
 	set_kernel_stack(stack_from_tcb(th));
 
+	return proc;
+}
+
+process_t *fork_process()
+{
+	process_t *proc = alloc_process();
+	proc->pd = vmm_clone_pd();
+
+	thread_t *th = clone_thread(current);
+	append_to_list(proc->threads, th->process_threads);
+	th->proc = proc;
+
+	// Fix the family
+	proc->parent = current->proc;
+	proc->older_sibling = proc->parent->child;
+	if(proc->older_sibling)
+		proc->older_sibling->younger_sibling = proc;
+	proc->parent->child = proc;
 
 	return proc;
 }
+

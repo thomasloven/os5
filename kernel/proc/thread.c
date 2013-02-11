@@ -60,6 +60,22 @@ thread_t *new_thread(void (*func)(void), uint8_t user)
 	return init;
 }
 
+thread_t *clone_thread(thread_t *th)
+{
+	thread_t *new = alloc_thread();
+
+	memcopy(th, new, sizeof(thread_t));
+	if(th->kernel_thread)
+	{
+		uintptr_t offset = (uintptr_t)th - (uintptr_t)th->kernel_thread;
+		new->kernel_thread = (registers_t *)(th - offset);
+	}
+
+	init_list(new->tasks);
+
+	return new;
+}
+
 registers_t *switch_kernel_thread(registers_t *r)
 {
 	if(r)
