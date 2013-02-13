@@ -4,9 +4,9 @@
 #ifndef __ASSEMBLER__
 typedef struct heap_header_struct
 {
-	struct heap_header_struct *prev, *next;
-	uint32_t allocated : 1;
-	uint32_t size : 31;
+  struct heap_header_struct *prev, *next;
+  uint32_t allocated : 1;
+  uint32_t size : 31;
 } chunk_t;
 
 void *kmalloc(uint32_t size);

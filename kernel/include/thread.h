@@ -12,13 +12,13 @@ struct process_struct;
 
 typedef struct thread_struct
 {
-	registers_t r;
-	uint32_t tid;
-	uint32_t state;
-	list_t tasks;
-	list_t process_threads;
-	registers_t *kernel_thread;
-	struct process_struct *proc;
+  registers_t r;
+  uint32_t tid;
+  uint32_t state;
+  list_t tasks;
+  list_t process_threads;
+  registers_t *kernel_thread;
+  struct process_struct *proc;
 } thread_t;
 
 // Changing this will require chaning kvalloc and all calls to it and current_thread_info()
@@ -31,8 +31,8 @@ typedef struct thread_struct
 
 typedef struct thread_info_struct
 {
-	uint8_t stackspace[THREAD_STACK_SPACE];
-	thread_t tcb;
+  uint8_t stackspace[THREAD_STACK_SPACE];
+  thread_t tcb;
 } thread_info_t;
 
 thread_info_t *current_thread_info();

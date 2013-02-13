@@ -11,29 +11,29 @@ struct thread_struct;
 
 typedef struct process_mem_struct
 {
-	uintptr_t code_start;
-	uintptr_t code_end;
-	uintptr_t arg_start;
-	uintptr_t arg_end;
-	uintptr_t env_start;
-	uintptr_t env_end;
-	list_head_t mem;
+  uintptr_t code_start;
+  uintptr_t code_end;
+  uintptr_t arg_start;
+  uintptr_t arg_end;
+  uintptr_t env_start;
+  uintptr_t env_end;
+  list_head_t mem;
 } process_mem_t;
 
 typedef struct process_struct
 {
-	uint32_t pid;
-	uint32_t state;
-	struct process_struct *parent;
-	struct process_struct *child;
-	struct process_struct *older_sibling;
-	struct process_struct *younger_sibling;
+  uint32_t pid;
+  uint32_t state;
+  struct process_struct *parent;
+  struct process_struct *child;
+  struct process_struct *older_sibling;
+  struct process_struct *younger_sibling;
 
-	list_head_t threads;
-	list_head_t proc_list;
-	uintptr_t pd;
+  list_head_t threads;
+  list_head_t proc_list;
+  uintptr_t pd;
 
-	process_mem_t mm;
+  process_mem_t mm;
 } process_t;
 
 #define PROC_STATE_RUNNING 0x1

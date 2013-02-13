@@ -8,13 +8,13 @@
 
 typedef struct mem_area_struct
 {
-	uintptr_t start;
-	uintptr_t end;
-	uint32_t flags;
-	uint32_t type;
-	list_t mem;
-	list_t copies;
-	process_t *owner;
+  uintptr_t start;
+  uintptr_t end;
+  uint32_t flags;
+  uint32_t type;
+  list_t mem;
+  list_t copies;
+  process_t *owner;
 } mem_area_t;
 
 #define MM_FLAG_READ (1<<0)

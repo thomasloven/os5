@@ -5,8 +5,8 @@
 
 typedef struct
 {
-	struct thread_struct *prev;
-	struct thread_struct  *next;
+  struct thread_struct *prev;
+  struct thread_struct  *next;
 } thread_list_t;
 
 void scheduler_insert(thread_t *th);

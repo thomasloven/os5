@@ -1,21 +1,21 @@
 #!/bin/bash
 
 if [ "`uname -s`" = "Darwin" ]; then
-	mydev='build/floppy.img'
-	mpoint='floppy'
-	mcmd='fuse-ext2'
-	mcmd2='-o force'
+  mydev='build/floppy.img'
+  mpoint='floppy'
+  mcmd='fuse-ext2'
+  mcmd2='-o force'
 fi
 
 cp build/floppy2.img build/floppy.img
 if [ ! -d "$mpoint" ]; then
-	mkdir $mpoint
+  mkdir $mpoint
 fi
 $mcmd $mydev $mpoint $mcmd2 >/dev/null
 
 while [ ! -d $mpoint/boot ]; do
-	echo "Waiting..."
-	sleep 1
+  echo "Waiting..."
+  sleep 1
 done
 echo "   Copying"
 cp kernel/kernel $mpoint

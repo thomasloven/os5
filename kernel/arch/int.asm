@@ -3,17 +3,17 @@
 
 [global idt_flush:function idt_flush.end-idt_flush]
 idt_flush:
-	mov eax, [esp+4]
-	lidt [eax]
-	ret
+  mov eax, [esp+4]
+  lidt [eax]
+  ret
 .end:
 
 [global tss_flush:function tss_flush.end-tss_flush]
 tss_flush:
-	mov eax, [esp+4]
-	ltr ax
+  mov eax, [esp+4]
+  ltr ax
 .flush:
-	ret
+  ret
 .end
 
 INTNOERR 0
@@ -73,29 +73,29 @@ INTNOERR 130
 
 [global int_stub:function int_stub.end-int_stub]
 int_stub:
-	pusha
-	xor ecx, ecx
-	mov cx, ds
-	push ecx
+  pusha
+  xor ecx, ecx
+  mov cx, ds
+  push ecx
 
-	SetSegments 0x10, cx
+  SetSegments 0x10, cx
 
-	push esp
-	call idt_handler
-	mov esp, eax
+  push esp
+  call idt_handler
+  mov esp, eax
 .end
 
 [global int_return:function int_return.end-int_return]
 int_return:
-	pop eax
-	mov ds, ax
-	mov es, ax
-	mov fs, ax
-	mov gs, ax
+  pop eax
+  mov ds, ax
+  mov es, ax
+  mov fs, ax
+  mov gs, ax
 
-	popa
-	add esp, 8
+  popa
+  add esp, 8
 
-	iret
+  iret
 .end
 
