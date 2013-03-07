@@ -8,8 +8,8 @@
 uint8_t pmm_running;
 uintptr_t pmm_pos;
 
-uintptr_t pmm_page_stack_max = PMM_PAGE_STACK;
-uintptr_t pmm_page_stack_ptr = PMM_PAGE_STACK;
+uintptr_t *pmm_page_stack_max = (uintptr_t *)PMM_PAGE_STACK;
+uintptr_t *pmm_page_stack_ptr = (uintptr_t *)PMM_PAGE_STACK;
 
 uintptr_t pmm_alloc_page()
 {
@@ -19,40 +19,37 @@ uintptr_t pmm_alloc_page()
     return pmm_pos - PAGE_SIZE;
   }
 
-  if ( pmm_page_stack_ptr == PMM_PAGE_STACK)
+  if ( pmm_page_stack_ptr == (uintptr_t *)PMM_PAGE_STACK)
   {
     panic("Out of memory!");
   }
 
-  pmm_page_stack_ptr = pmm_page_stack_ptr - sizeof(uintptr_t *);
+  pmm_page_stack_ptr--;
 
-  if(pmm_page_stack_ptr <= (pmm_page_stack_max - PAGE_SIZE))
+  if(pmm_page_stack_ptr < (pmm_page_stack_max - PMM_STACK_ENTRIES_PER_PAGE))
   {
-    pmm_page_stack_max = pmm_page_stack_max - PAGE_SIZE;
-    uintptr_t ret = vmm_page_get(pmm_page_stack_max - PAGE_SIZE) & PAGE_MASK;
+    pmm_page_stack_max = pmm_page_stack_max - PMM_STACK_ENTRIES_PER_PAGE;
+    uintptr_t ret = vmm_page_get((uintptr_t)pmm_page_stack_max) & PAGE_MASK;
     
     vmm_page_set(ret, 0);
     return ret;
   }
-  uintptr_t *stack = (uintptr_t *)pmm_page_stack_ptr;
-  return *stack;
+  return *pmm_page_stack_ptr;
 }
 
 void pmm_free_page(uintptr_t page)
 {
   page &= PAGE_MASK;
 
-  if(page < pmm_pos)
+  if(page < pmm_pos + PAGE_SIZE) // Two pages are required for initial setup
     return;
 
   if(pmm_page_stack_ptr >= pmm_page_stack_max)
   {
-    vmm_page_set(pmm_page_stack_max, vmm_page_val(page, PAGE_PRESENT | PAGE_WRITE));
-    pmm_page_stack_max = pmm_page_stack_max + PAGE_SIZE;
+    vmm_page_set((uintptr_t)pmm_page_stack_max, vmm_page_val(page, PAGE_PRESENT | PAGE_WRITE));
+    pmm_page_stack_max = pmm_page_stack_max + PMM_STACK_ENTRIES_PER_PAGE;
   } else {
-    uintptr_t *stack = (uintptr_t *)pmm_page_stack_ptr;
-    *stack = page;
-    pmm_page_stack_ptr = pmm_page_stack_ptr + sizeof(uintptr_t *);
+    *pmm_page_stack_ptr++ = page;
   }
   pmm_running = TRUE;
 }
@@ -62,10 +59,10 @@ void pmm_init(mboot_info_t *mboot)
   pmm_pos = (mboot->mem_upper + PAGE_SIZE) & PAGE_MASK;
   pmm_running = FALSE;
 
-  uint32_t i = assert_higher(mboot->mmap_addr);
-  while (i < mboot->mmap_addr + mboot->mmap_length)
+  mboot_mmap_entry_t *me = (mboot_mmap_entry_t *)(assert_higher(mboot->mmap_addr));
+  uintptr_t mmap_end = assert_higher(mboot->mmap_addr) + mboot->mmap_length;
+  while ((uintptr_t)me < mmap_end)
   {
-    mboot_mmap_entry_t *me = (mboot_mmap_entry_t *)i;
     if(me->type == MBOOT_MEM_FLAG_FREE)
     {
       uint32_t j;
@@ -74,6 +71,6 @@ void pmm_init(mboot_info_t *mboot)
         pmm_free_page(j);
       }
     }
-    i += me->size + sizeof(uint32_t);
+    me = (mboot_mmap_entry_t *)((uint32_t)me + me->size + sizeof(uint32_t));
   }
 }

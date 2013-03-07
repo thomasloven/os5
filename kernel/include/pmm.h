@@ -5,6 +5,7 @@
 #define PAGE_MASK 0xFFFFF000
 #define PAGE_FLAG_MASK 0xFFF
 #define PAGE_SIZE 0x1000
+#define PMM_STACK_ENTRIES_PER_PAGE 0x400
 
 #ifndef __ASSEMBLER__
 

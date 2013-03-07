@@ -3,7 +3,9 @@
 #include <stdint.h>
 #include <memory.h>
 #include <k_debug.h>
+#include <ctype.h>
 
+uint8_t vmm_running = 0;
 
 uintptr_t *page_directory = (uintptr_t *)VMM_PAGE_DIR;
 uintptr_t *page_tables = (uintptr_t *)VMM_PAGE_TABLES;
@@ -59,7 +61,7 @@ void vmm_page_touch(uintptr_t page, uint32_t flags)
   if(!(page_directory[vmm_dir_idx(page)] & PAGE_PRESENT))
   {
     page_directory[vmm_dir_idx(page)] = pmm_alloc_page() | flags;
-    if(page >= KERNEL_OFFSET)
+    if(page >= KERNEL_OFFSET && vmm_running)
     {
       // Add a copy of the page table to the kernel page directory
       page_dir_t old_exdir = vmm_exdir_set(kernel_pd);
@@ -237,5 +239,6 @@ void vmm_init()
   __asm__ volatile("mov %%cr3, %0" : "=r" (kernel_pd));
 
   vmm_pd_set(vmm_clone_pd());
+  vmm_running = TRUE;
 }
 
