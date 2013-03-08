@@ -24,6 +24,7 @@ typedef struct mem_area_struct
 #define MM_FLAG_COW (1<<4)
 #define MM_FLAG_GROWSDOWN (1<<5)
 #define MM_FLAG_AUTOGROW (1<<6)
+#define MM_FLAG_ADDONUSE (1<<7)
 
 #define MM_TYPE_CODE 1
 #define MM_TYPE_ARG 4
@@ -44,4 +45,5 @@ void share_area(process_t *copy, mem_area_t *ma);
 
 void print_areas(process_t *p);
 
+uint32_t procmm_handle_page_fault(uintptr_t address, uint32_t flags);
 #endif

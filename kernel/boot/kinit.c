@@ -18,7 +18,7 @@
 
 void _idle(void)
 {
-    /*debug("A");*/
+    debug("C");
   for(;;)
   {
     __asm__ ("sti; hlt");
@@ -77,24 +77,16 @@ registers_t *kinit(mboot_info_t *mboot, uint32_t mboot_magic)
   register_int_handler(INT_PF, page_fault_handler);
   register_int_handler(INT_SCHEDULE, switch_kernel_thread);
 
-  process_t *p = process_init((void*)0x1000);
-  /*process_t *p = process_init(&_idle);*/
-
-
+  process_t *p = process_init((void(*)(void))0x1000);
   switch_process(p);
-  //
-  /*p2->pd = p->pd;*/
-  //
+
   new_area(p, 0x1000, 0x5000, MM_FLAG_WRITE, MM_TYPE_CODE);
-  new_area(p, 0xBFFFF000, 0xC0000000, MM_FLAG_WRITE | MM_FLAG_GROWSDOWN, MM_TYPE_STACK);
+  new_area(p, 0xC0000000, 0xC0000000, MM_FLAG_WRITE | MM_FLAG_GROWSDOWN | MM_FLAG_ADDONUSE, MM_TYPE_STACK);
   memcopy(0x1000, &usermode_proc, 0x1000);
   print_areas(p);
 
-
   new_thread(&_clock,0);
-  /*new_thread(&_idle,0);*/
-
-
+  new_thread(&_idle,0);
 
   return switch_kernel_thread(0);
 }

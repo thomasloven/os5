@@ -36,28 +36,28 @@ thread_t *alloc_thread()
 
 thread_t *new_thread(void (*func)(void), uint8_t user)
 {
-  thread_t *init = alloc_thread();
+  thread_t *th = alloc_thread();
 
-  init->r.eip = (uint32_t)func;
+  th->r.eip = (uint32_t)func;
   if(user)
   {
-    init->r.useresp = USER_STACK_TOP;
-    init->r.ebp = init->r.useresp;
+    th->r.useresp = USER_STACK_TOP;
+    th->r.ebp = th->r.useresp;
 
-    init->r.cs = SEG_USER_CODE | 0x3;
-    init->r.ds = SEG_USER_DATA | 0x3;
-    init->r.ss = SEG_USER_DATA | 0x3;
+    th->r.cs = SEG_USER_CODE | 0x3;
+    th->r.ds = SEG_USER_DATA | 0x3;
+    th->r.ss = SEG_USER_DATA | 0x3;
   } else {
-    init->r.cs = SEG_KERNEL_CODE;
-    init->r.ds = SEG_KERNEL_DATA;
-    init->r.ss = SEG_KERNEL_DATA;
+    th->r.cs = SEG_KERNEL_CODE;
+    th->r.ds = SEG_KERNEL_DATA;
+    th->r.ss = SEG_KERNEL_DATA;
   }
 
-  scheduler_insert(init);
+  scheduler_insert(th);
 
-  init->kernel_thread = &init->r;
+  th->kernel_thread = &th->r;
 
-  return init;
+  return th;
 }
 
 thread_t *clone_thread(thread_t *th)

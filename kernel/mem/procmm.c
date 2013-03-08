@@ -9,11 +9,13 @@
 
 #include <k_debug.h>
 
+process_t *init_process;
 void init_procmm(process_t *p)
 {
   // Init memory areas for a process
   memset(&p->mm, 0, sizeof(process_mem_t));
   init_list(p->mm.mem);
+  init_process = p;
 }
 
 mem_area_t *alloc_area(uintptr_t start, uintptr_t end, 
@@ -58,14 +60,17 @@ mem_area_t *new_area(process_t *p, uintptr_t start,
     vmm_flags |= PAGE_WRITE;
 
   // Add to memory space
-  page_dir_t old = vmm_exdir_set(p->pd);
-  i = start;
-  while (i < end)
+  if(!(flags & MM_FLAG_ADDONUSE))
   {
-     vmm_expage_set(i, vmm_page_val(pmm_alloc_page(), vmm_flags));
-    i += PAGE_SIZE;
+    page_dir_t old = vmm_exdir_set(p->pd);
+    i = start;
+    while (i < end)
+    {
+      vmm_expage_set(i, vmm_page_val(pmm_alloc_page(), vmm_flags));
+      i += PAGE_SIZE;
+    }
+    vmm_exdir_set(old);
   }
-  vmm_exdir_set(old);
 
   // Sorted insertion into list
   list_t *l = p->mm.mem.next;
@@ -170,7 +175,7 @@ mem_area_t *glue_area(mem_area_t *ma)
   for_each_in_list(&ma->owner->mm.mem, area_list)
   {
     mem_area_t *area = list_entry(area_list, mem_area_t, mem);
-    if(area->end == ma->start) // Glue to the left
+    if(area != ma && area->end == ma->start) // Glue to the left
     {
       if((area->flags == ma->flags) && (area->type == ma->type))
       {
@@ -185,7 +190,7 @@ mem_area_t *glue_area(mem_area_t *ma)
   for_each_in_list(&ma->owner->mm.mem, area_list)
   {
     mem_area_t *area = list_entry(area_list, mem_area_t, mem);
-    if(area->start == ma->end) // Glue to the right
+    if(area != ma && area->start == ma->end) // Glue to the right
     {
       if((area->flags == ma->flags) && (area->type == ma->type))
       {
@@ -222,7 +227,7 @@ mem_area_t *find_above(process_t *p, uintptr_t addr)
   if(area)
     return area;
   list_t *area_list = p->mm.mem.prev;
-  while(area_list != &p->mm.mem)
+  while(area_list != p->mm.mem.next)
   {
     area = list_entry(area_list->prev, mem_area_t, mem);
     if(area->end < addr)
@@ -267,4 +272,83 @@ void print_areas(process_t *p)
     area = list_entry(area_list, mem_area_t, mem);
     debug("\n %x-%x", area->start, area->end);
   }
+}
+
+uint32_t procmm_handle_page_fault(uintptr_t address, uint32_t flags)
+{
+  mem_area_t *inside = find_including(current->proc, address);
+
+  if(inside)
+  {
+    if(inside->flags & MM_FLAG_COW)
+    {
+      if((flags & PF_PRESENT) && !(flags & PF_WRITE))
+      {
+        // Split out page from area and copy the page
+        inside = split_area(inside, (address & PAGE_MASK), (address & PAGE_MASK) + PAGE_SIZE);
+        uintptr_t pval = vmm_page_get(address);
+        if(list_empty(inside->copies))
+        {
+          // This is the only copy
+          // Unset CopyOnWrite flag
+          inside->flags = inside->flags & ~MM_FLAG_COW;
+          // Enable write on area
+          vmm_page_set(address & PAGE_MASK, pval | PAGE_WRITE);
+        } else {
+
+          // Copy page
+          vmm_page_set(VMM_TEMP1, pval);
+          vmm_page_set(address & PAGE_MASK, vmm_page_val(pmm_alloc_page(), pval & PAGE_FLAG_MASK | PAGE_WRITE));
+          memcopy(address, VMM_TEMP1, PAGE_SIZE);
+          vmm_page_set(VMM_TEMP1, 0);
+
+          // Unset CopyOnWrite flag
+          inside->flags = inside->flags & ~MM_FLAG_COW;
+          
+          // Remove from list of copies
+          remove_from_list(inside->copies);
+          return 0;
+        }
+      }
+    }
+    if(inside->flags & MM_FLAG_ADDONUSE)
+    {
+      if(!(flags & PF_PRESENT))
+      {
+        // The address is in an area, but no page is present in space
+        // so just add it.
+        uint32_t vmm_flags = PAGE_PRESENT | PAGE_USER;
+        if(inside->flags & MM_FLAG_WRITE) // Write enabled
+          vmm_flags |= PAGE_WRITE;
+        vmm_page_set(address & PAGE_MASK, vmm_page_val(pmm_alloc_page(), vmm_flags));
+        return 0;
+      }
+    }
+  } else {
+    mem_area_t *above = find_above(current->proc, address);
+
+    if(above)
+    {
+      if((above->start - address) >= PAGE_SIZE)
+      {
+        return 1;
+      }
+      if(!(above->flags & MM_FLAG_GROWSDOWN))
+      {
+        return 1;
+      }
+      if(address <= current->proc->mm.stack_limit)
+      {
+        return 2;
+      }
+
+      // Expand stack
+      new_area(current->proc, address & PAGE_MASK, above->start, above->flags, above->type);
+      return 0;
+    }
+      
+  }
+
+  return 1;
+
 }
