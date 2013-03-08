@@ -1,59 +1,50 @@
-BUILDDIR := $(PWD)
+BUILDROOT := $(PWD)
+BUILDDIR := $(BUILDROOT)/build
+LIBDIR := $(BUILDROOT)/library
 
-#PATH := /usr/local/cross/bin:$(PATH)
 DIRS := kernel
-TARGET := i386-elf
 
 AS := nasm
-LD := i386-elf-ld
+CPP := clang -E
 CC := clang
+LD := i386-elf-ld
+DEP := clang -MM
 
 ASFLAGS := -f elf
-CCFLAGS := -Wall -Wextra -pedantic -m32 -O0 -std=c99 -finline-functions
-CCFLAGS += -fno-stack-protector -nostdinc -ffreestanding -Wno-unused-function
-CCFLAGS += -Wno-unused-parameter -g -Wno-gnu
-CCFLAGS += -I$(BUILDDIR)/library/include
-CPPFLAGS := $(CCFLAGS)
-CCFLAGS += -target i386-pc-linux -mno-sse -mno-mmx
-CCFLAGS += -ggdb
-LDFLAGS := -T $(BUILDDIR)/library/include/Link.ld
 
-export BUILDDIR AS CC CPP LD ASFLAGS CCFLAGS CPPFLAGS LDFLAGS
+CPPFLAGS := -Wall -Wextra -pedantic -m32 -O0 -std=c99 -finline-functions
+CPPFLAGS += -fno-stack-protector -nostdinc -ffreestanding -Wno-unused-function
+CPPFLAGS += -Wno-unused-parameter -g -Wno-gnu
+CPPFLAGS += -I$(LIBDIR)/include
+
+CCFLAGS := $(CPPFLAGS) -target i386-pc-linux -mno-sse -mno-mmx
+CCFLAGS += -ggdb
+
+LDFLAGS := -T $(LIBDIR)/include/Link.ld
+
+DEPFLAGS := $(CPPFLAGS)
+
+export BUILDROOT BUILDDIR LIBDIR
+export AS CPP CC LD DEP 
+export ASFLAGS CPPFLAGS CCFLAGS LDFLAGS DEPFLAGS
 
 .SILENT:
 
-.PHONY: $(DIRS) floppy emul demul qemul
-#.default: all floppy emul
-.default: all qemul
+.PHONY: $(DIRS) clean emul default
+.DEFAULT: all emul
 
-nd: all qemul
-
-d: all floppy demul
+default: all emul
 
 all: $(DIRS)
     
-$(DIRS): force
+$(DIRS):
 	@echo "  \033[35mMAKE\033[0m    " $@
 	@cd $@; $(MAKE) $(MFLAGS)
 
 clean:
-	@for DIR in $(DIRS); do echo "  \033[35mCLEAN\033[0m   " $$DIR; cd $(BUILDDIR)/$$DIR; make clean; done;
+	@for DIR in $(DIRS); do echo "  \033[35mCLEAN\033[0m   " $$DIR; cd $(BUILDROOT)/$$DIR; make clean; done;
 
-floppy: force
-	@echo "  \033[35mUPDATING IMAGE\033[0m"
-	@build/update_image.sh
-
-emul: force
+emul:
 	@echo "  \033[35mSTARTING EMULATOR\033[0m"
-	@build/emul.sh
+	@tools/qemul.sh
 
-demul: force
-	@echo "  \033[35mSTARTING EMULATOR (\033[33mDEBUGGER\033[33m)\033[0m"
-	@build/demul.sh
-
-qemul: force
-	@echo "  \033[35mSTARTING EMULATOR\033[0m"
-	@build/qemul.sh
-
-force:
-	true
