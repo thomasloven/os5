@@ -44,7 +44,9 @@ registers_t *page_fault_handler(registers_t *r)
       disable_interrupts();
       debug("Page fault hapened!");
       debug("\n At: %x", fault_address);
+      debug("\n Code: %x", r->err_code);
       debug("\n From thread: %x", current->tid);
+      print_registers(r);
       for(;;);
   }
 }

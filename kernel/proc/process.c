@@ -6,6 +6,8 @@
 #include <lists.h>
 #include <vmm.h>
 #include <procmm.h>
+#include <k_debug.h>
+#include <scheduler.h>
 
 uint32_t next_pid = 1;
 
@@ -55,20 +57,25 @@ process_t *process_init(void (*func)(void))
 
 process_t *fork_process()
 {
-  process_t *proc = alloc_process();
-  proc->pd = vmm_clone_pd();
+  process_t *parent = current->proc;
+  process_t *child = alloc_process();
+
+  // Clone page directory
+  child->pd = vmm_clone_pd();
+  // Clone memory map (copy on write for everything)
+  procmm_fork(parent, child);
 
   thread_t *th = clone_thread(current);
-  append_to_list(proc->threads, th->process_threads);
-  th->proc = proc;
+  append_to_list(child->threads, th->process_threads);
+  th->proc = child;
 
   // Fix the family
-  proc->parent = current->proc;
-  proc->older_sibling = proc->parent->child;
-  if(proc->older_sibling)
-    proc->older_sibling->younger_sibling = proc;
-  proc->parent->child = proc;
+  child->parent = parent;
+  child->older_sibling = parent->child;
+  if(child->older_sibling)
+    child->older_sibling->younger_sibling = child;
+  parent->child = child;
 
-  return proc;
+  return child;
 }
 

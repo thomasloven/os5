@@ -15,6 +15,7 @@
 #include <strings.h>
 #include <process.h>
 #include <procmm.h>
+#include <k_syscall.h>
 
 void _idle(void)
 {
@@ -29,6 +30,7 @@ void usermode_proc(void)
 {
   int a = 0;
   a ++;
+  __asm__ ("int $0x80; mov %%eax, %0": "=r" (a));
   for(;;);
 }
 
@@ -76,17 +78,20 @@ registers_t *kinit(mboot_info_t *mboot, uint32_t mboot_magic)
 
   register_int_handler(INT_PF, page_fault_handler);
   register_int_handler(INT_SCHEDULE, switch_kernel_thread);
+  register_int_handler(0x80, syscall_handler);
 
   process_t *p = process_init((void(*)(void))0x1000);
   switch_process(p);
 
   new_area(p, 0x1000, 0x5000, MM_FLAG_WRITE, MM_TYPE_CODE);
-  new_area(p, 0xC0000000, 0xC0000000, MM_FLAG_WRITE | MM_FLAG_GROWSDOWN | MM_FLAG_ADDONUSE, MM_TYPE_STACK);
+  new_area(p, USER_STACK_TOP, USER_STACK_TOP, MM_FLAG_WRITE | MM_FLAG_GROWSDOWN | MM_FLAG_ADDONUSE, MM_TYPE_STACK);
   memcopy(0x1000, &usermode_proc, 0x1000);
   print_areas(p);
 
-  new_thread(&_clock,0);
-  new_thread(&_idle,0);
+  thread_t *clk = new_thread(&_clock,0);
+  clk->proc = p;
+  thread_t *idle = new_thread(&_idle,0);
+  idle->proc = p;
 
   return switch_kernel_thread(0);
 }

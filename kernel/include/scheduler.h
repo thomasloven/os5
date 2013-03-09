@@ -14,4 +14,6 @@ void scheduler_remove(thread_t *th);
 thread_t *scheduler_next();
 void scheduler_init();
 
+void scheduler_list();
+
 #endif

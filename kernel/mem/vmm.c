@@ -190,7 +190,7 @@ void vmm_copy_page(uintptr_t src, uintptr_t dst)
   uintptr_t old_temp2 = vmm_page_get(VMM_TEMP2);
   vmm_page_set(VMM_TEMP1, vmm_page_val(src, PAGE_PRESENT | PAGE_WRITE));
   vmm_page_set(VMM_TEMP2, vmm_page_val(dst, PAGE_PRESENT | PAGE_WRITE));
-  memcopy(VMM_TEMP1, VMM_TEMP2, PAGE_SIZE);
+  memcopy(VMM_TEMP2, VMM_TEMP1, PAGE_SIZE);
   vmm_page_set(VMM_TEMP1, old_temp1);
   vmm_page_set(VMM_TEMP2, old_temp2);
 }
@@ -221,7 +221,16 @@ page_dir_t vmm_clone_pd()
 
   uint32_t table;
 
-  // ADD STUFF TO SHARE TABLES UNTIL WRITE HERE
+  for(table = 0; table < vmm_dir_idx(KERNEL_OFFSET); table++)
+  {
+    if(page_directory[table])
+    {
+      expage_directory[table] = vmm_page_val(pmm_alloc_page(), \
+        page_directory[table] & PAGE_FLAG_MASK);
+      vmm_copy_page(page_directory[table] & PAGE_MASK, \
+        expage_directory[table] & PAGE_MASK);
+    }
+  }
 
   for(table = vmm_dir_idx(KERNEL_OFFSET); \
       table < VMM_PAGES_PER_TABLE - 2; table++)

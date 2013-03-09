@@ -60,7 +60,7 @@ mem_area_t *new_area(process_t *p, uintptr_t start,
     vmm_flags |= PAGE_WRITE;
 
   // Add to memory space
-  if(!(flags & MM_FLAG_ADDONUSE))
+  if(!(flags & MM_FLAG_ADDONUSE)  && !(flags & MM_FLAG_COW))
   {
     page_dir_t old = vmm_exdir_set(p->pd);
     i = start;
@@ -282,7 +282,7 @@ uint32_t procmm_handle_page_fault(uintptr_t address, uint32_t flags)
   {
     if(inside->flags & MM_FLAG_COW)
     {
-      if((flags & PF_PRESENT) && !(flags & PF_WRITE))
+      if((flags & PF_PRESENT) && (flags & PF_WRITE))
       {
         // Split out page from area and copy the page
         inside = split_area(inside, (address & PAGE_MASK), (address & PAGE_MASK) + PAGE_SIZE);
@@ -294,12 +294,13 @@ uint32_t procmm_handle_page_fault(uintptr_t address, uint32_t flags)
           inside->flags = inside->flags & ~MM_FLAG_COW;
           // Enable write on area
           vmm_page_set(address & PAGE_MASK, pval | PAGE_WRITE);
+          return 0;
         } else {
 
           // Copy page
           vmm_page_set(VMM_TEMP1, pval);
           vmm_page_set(address & PAGE_MASK, vmm_page_val(pmm_alloc_page(), pval & PAGE_FLAG_MASK | PAGE_WRITE));
-          memcopy(address, VMM_TEMP1, PAGE_SIZE);
+          memcopy(address & PAGE_MASK, VMM_TEMP1, PAGE_SIZE);
           vmm_page_set(VMM_TEMP1, 0);
 
           // Unset CopyOnWrite flag
@@ -350,5 +351,22 @@ uint32_t procmm_handle_page_fault(uintptr_t address, uint32_t flags)
   }
 
   return 1;
+
+}
+
+void procmm_fork(process_t *parent, process_t *child)
+{
+  // Copy memory information
+  memcopy(&child->mm, &parent->mm, sizeof(process_mem_t));
+  init_list(child->mm.mem);
+
+  // Share all areas
+  list_t *i;
+  for_each_in_list(&parent->mm.mem, i)
+  {
+    mem_area_t *ma = list_entry(i, mem_area_t, mem);
+    share_area(child, ma);
+  }
+
 
 }

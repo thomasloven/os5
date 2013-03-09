@@ -170,7 +170,7 @@ registers_t *idt_handler(registers_t *r)
     registers_t *ret = int_handlers[r->int_no](r);
     if ((ret->cs & 0x3) == 0x3)
     {
-      set_kernel_stack(stack_from_tcb(current));
+      set_kernel_stack(stack_from_tcb(((thread_t *)ret)));
     }
       ret->eflags |= EFL_INT;
     /*unmask_int(INT2IRQ(r->int_no));*/
@@ -178,7 +178,9 @@ registers_t *idt_handler(registers_t *r)
   } else {
     if(!ISIRQ(r->int_no))
     {
-      debug("\nUnhanded interrupt received, %x, %x", r->int_no, INT2IRQ(r->int_no));
+      debug("\nUnhanded interrupt received, %x", r->int_no);
+      if(ISIRQ(r->int_no))
+        debug(", irq %x", INT2IRQ(r->int_no));
       debug("\n Tid: %x", current->tid);
       print_registers(r);
       enable_interrupts();

@@ -7,6 +7,7 @@
 #include <heap.h>
 #include <memory.h>
 #include <scheduler.h>
+#include <process.h>
 
 // If this line throws an error, the size of the kernel thread stack has grown too small. Please change MIN_THREAD_STACK_SIZE or thread_t in thread.h
 // Or rather yet, change how the stack is allocated so that it works for all sizes...
@@ -64,14 +65,19 @@ thread_t *clone_thread(thread_t *th)
 {
   thread_t *new = alloc_thread();
 
-  memcopy(th, new, sizeof(thread_t));
+  uint32_t tid = new->tid;
+  memcopy(new, th, sizeof(thread_t));
+  new->tid = tid;
+
   if(th->kernel_thread)
   {
     uintptr_t offset = (uintptr_t)th - (uintptr_t)th->kernel_thread;
-    new->kernel_thread = (registers_t *)(th - offset);
+    new->kernel_thread = (registers_t *)((uintptr_t)new - offset);
   }
 
+
   init_list(new->tasks);
+  scheduler_insert(new);
 
   return new;
 }
@@ -86,6 +92,8 @@ registers_t *switch_kernel_thread(registers_t *r)
 
   thread_t *next = scheduler_next();
   scheduler_remove(next);
+
+  switch_process(next->proc);
 
   return next->kernel_thread;
 }
