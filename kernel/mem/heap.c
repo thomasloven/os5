@@ -4,10 +4,12 @@
 #include <vmm.h>
 #include <pmm.h>
 #include <memory.h>
+#include <synch.h>
 #include <k_debug.h>
 
 uintptr_t heap_top = KERNEL_HEAP_START;
 chunk_t *heap_first = 0;
+semaphore_t heap_sem;
 
 void expand_heap(uintptr_t start, uint32_t size)
 {
@@ -79,8 +81,10 @@ void kfree(void *a)
 {
   assert((uint32_t)a >= KERNEL_HEAP_START && (uint32_t)a < KERNEL_HEAP_END);
 
-  chunk_head(a)->allocated = FALSE;
-  glue_chunk(chunk_head(a));
+  spin_lock(&heap_sem);
+    chunk_head(a)->allocated = FALSE;
+    glue_chunk(chunk_head(a));
+  spin_unlock(&heap_sem);
 }
 
 void *kmalloc(uint32_t size)
@@ -89,32 +93,35 @@ void *kmalloc(uint32_t size)
   chunk_t *cur_chunk = heap_first;
   chunk_t *prev_chunk = 0;
 
-  while(cur_chunk)
-  {
-    if(cur_chunk->allocated == FALSE && cur_chunk->size >= size)
+  spin_lock(&heap_sem);
+    while(cur_chunk)
     {
-      split_chunk(cur_chunk, size);
-      cur_chunk->allocated = TRUE;
-      return chunk_data(cur_chunk);
+      if(cur_chunk->allocated == FALSE && cur_chunk->size >= size)
+      {
+        split_chunk(cur_chunk, size);
+        cur_chunk->allocated = TRUE;
+      spin_unlock(&heap_sem);
+        return chunk_data(cur_chunk);
+      }
+      prev_chunk = cur_chunk;
+      cur_chunk = cur_chunk->next;
     }
-    prev_chunk = cur_chunk;
-    cur_chunk = cur_chunk->next;
-  }
 
-  if(prev_chunk)
-  {
-    cur_chunk = (chunk_t *)((uint32_t)prev_chunk + prev_chunk->size);
-  } else {
-    heap_first = cur_chunk = (chunk_t *)KERNEL_HEAP_START;
-  }
+    if(prev_chunk)
+    {
+      cur_chunk = (chunk_t *)((uint32_t)prev_chunk + prev_chunk->size);
+    } else {
+      heap_first = cur_chunk = (chunk_t *)KERNEL_HEAP_START;
+    }
 
-  expand_heap((uintptr_t)cur_chunk, size);
-  memset(cur_chunk, 0, sizeof(chunk_t));
-  cur_chunk->prev = prev_chunk;
-  cur_chunk->next = 0;
-  cur_chunk->size = size;
-  cur_chunk->allocated = TRUE;
-  if(prev_chunk) prev_chunk->next = cur_chunk;
+    expand_heap((uintptr_t)cur_chunk, size);
+    memset(cur_chunk, 0, sizeof(chunk_t));
+    cur_chunk->prev = prev_chunk;
+    cur_chunk->next = 0;
+    cur_chunk->size = size;
+    cur_chunk->allocated = TRUE;
+    if(prev_chunk) prev_chunk->next = cur_chunk;
+  spin_unlock(&heap_sem);
 
   return chunk_data(cur_chunk);
 }

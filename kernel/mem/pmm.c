@@ -3,6 +3,7 @@
 #include <vmm.h>
 #include <multiboot.h>
 #include <ctype.h>
+#include <synch.h>
 #include <k_debug.h>
 
 uint8_t pmm_running;
@@ -10,6 +11,8 @@ uintptr_t pmm_pos;
 
 uintptr_t *pmm_page_stack_max = (uintptr_t *)PMM_PAGE_STACK;
 uintptr_t *pmm_page_stack_ptr = (uintptr_t *)PMM_PAGE_STACK;
+
+semaphore_t pmm_sem;
 
 uintptr_t pmm_alloc_page()
 {
@@ -24,16 +27,19 @@ uintptr_t pmm_alloc_page()
     panic("Out of memory!");
   }
 
-  pmm_page_stack_ptr--;
+  spin_lock(&pmm_sem);
+    pmm_page_stack_ptr--;
 
-  if(pmm_page_stack_ptr < (pmm_page_stack_max - PMM_STACK_ENTRIES_PER_PAGE))
-  {
-    pmm_page_stack_max = pmm_page_stack_max - PMM_STACK_ENTRIES_PER_PAGE;
-    uintptr_t ret = vmm_page_get((uintptr_t)pmm_page_stack_max) & PAGE_MASK;
-    
-    vmm_page_set(ret, 0);
-    return ret;
-  }
+    if(pmm_page_stack_ptr < (pmm_page_stack_max - PMM_STACK_ENTRIES_PER_PAGE))
+    {
+      pmm_page_stack_max = pmm_page_stack_max - PMM_STACK_ENTRIES_PER_PAGE;
+      uintptr_t ret = vmm_page_get((uintptr_t)pmm_page_stack_max) & PAGE_MASK;
+      
+      vmm_page_set(ret, 0);
+    spin_unlock(&pmm_sem);
+      return ret;
+    }
+  spin_unlock(&pmm_sem);
   return *pmm_page_stack_ptr;
 }
 
@@ -44,14 +50,16 @@ void pmm_free_page(uintptr_t page)
   if(page < pmm_pos + PAGE_SIZE) // Two pages are required for initial setup
     return;
 
-  if(pmm_page_stack_ptr >= pmm_page_stack_max)
-  {
-    vmm_page_set((uintptr_t)pmm_page_stack_max, vmm_page_val(page, PAGE_PRESENT | PAGE_WRITE));
-    pmm_page_stack_max = pmm_page_stack_max + PMM_STACK_ENTRIES_PER_PAGE;
-  } else {
-    *pmm_page_stack_ptr++ = page;
-  }
-  pmm_running = TRUE;
+  spin_lock(&pmm_sem);
+    if(pmm_page_stack_ptr >= pmm_page_stack_max)
+    {
+      vmm_page_set((uintptr_t)pmm_page_stack_max, vmm_page_val(page, PAGE_PRESENT | PAGE_WRITE));
+      pmm_page_stack_max = pmm_page_stack_max + PMM_STACK_ENTRIES_PER_PAGE;
+    } else {
+      *pmm_page_stack_ptr++ = page;
+    }
+    pmm_running = TRUE;
+  spin_unlock(&pmm_sem);
 }
 
 void pmm_init(mboot_info_t *mboot)

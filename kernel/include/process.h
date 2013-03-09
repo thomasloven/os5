@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <thread.h>
 #include <lists.h>
+#include <synch.h>
 
 #ifndef __ASSEMBLER__
 
@@ -33,6 +34,7 @@ typedef struct process_struct
   list_head_t threads;
   list_head_t proc_list;
   uintptr_t pd;
+  semaphore_t pd_sem;
 
   process_mem_t mm;
 } process_t;

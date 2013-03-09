@@ -4,6 +4,7 @@
 #include <memory.h>
 #include <k_debug.h>
 #include <ctype.h>
+#include <synch.h>
 
 uint8_t vmm_running = 0;
 
@@ -60,13 +61,21 @@ void vmm_page_touch(uintptr_t page, uint32_t flags)
 
   if(!(page_directory[vmm_dir_idx(page)] & PAGE_PRESENT))
   {
-    page_directory[vmm_dir_idx(page)] = pmm_alloc_page() | flags;
     if(page >= KERNEL_OFFSET && vmm_running)
     {
-      // Add a copy of the page table to the kernel page directory
-      page_dir_t old_exdir = vmm_exdir_set(kernel_pd);
-      expage_directory[vmm_dir_idx(page)] = page_directory[vmm_dir_idx(page)];
-      vmm_exdir_set(old_exdir);
+      spin_lock(&kernel_pd_sem);
+        page_dir_t old_exdir = vmm_exdir_set(kernel_pd);
+        if(expage_directory[vmm_dir_idx(page)] & PAGE_PRESENT)
+        {
+          page_directory[vmm_dir_idx(page)] = expage_directory[vmm_dir_idx(page)];
+        } else {
+          page_directory[vmm_dir_idx(page)] = pmm_alloc_page() | flags;
+          expage_directory[vmm_dir_idx(page)] = page_directory[vmm_dir_idx(page)];
+        }
+        vmm_exdir_set(old_exdir);
+      spin_unlock(&kernel_pd_sem);
+    } else {
+        page_directory[vmm_dir_idx(page)] = pmm_alloc_page() | flags;
     }
 
     vmm_flush_tlb((uintptr_t)&page_tables[vmm_table_idx(page)] & PAGE_MASK);

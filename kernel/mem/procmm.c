@@ -6,16 +6,16 @@
 #include <pmm.h>
 #include <vmm.h>
 #include <heap.h>
-
+#include <synch.h>
 #include <k_debug.h>
 
-process_t *init_process;
+semaphore_t procmm_sem;
+
 void init_procmm(process_t *p)
 {
   // Init memory areas for a process
   memset(&p->mm, 0, sizeof(process_mem_t));
   init_list(p->mm.mem);
-  init_process = p;
 }
 
 mem_area_t *alloc_area(uintptr_t start, uintptr_t end, 
@@ -62,26 +62,30 @@ mem_area_t *new_area(process_t *p, uintptr_t start,
   // Add to memory space
   if(!(flags & MM_FLAG_ADDONUSE)  && !(flags & MM_FLAG_COW))
   {
-    page_dir_t old = vmm_exdir_set(p->pd);
-    i = start;
-    while (i < end)
-    {
-      vmm_expage_set(i, vmm_page_val(pmm_alloc_page(), vmm_flags));
-      i += PAGE_SIZE;
-    }
-    vmm_exdir_set(old);
+    spin_lock(&p->pd_sem);
+      page_dir_t old = vmm_exdir_set(p->pd);
+      i = start;
+      while (i < end)
+      {
+        vmm_expage_set(i, vmm_page_val(pmm_alloc_page(), vmm_flags));
+        i += PAGE_SIZE;
+      }
+      vmm_exdir_set(old);
+    spin_unlock(&p->pd_sem);
   }
 
   // Sorted insertion into list
-  list_t *l = p->mm.mem.next;
-  while(l != &p->mm.mem)
-  {
-    mem_area_t *this = list_entry(l, mem_area_t, mem);
-    if(this->start > end)
-      break;
-    l = l->next;
-  }
-  list_insert_to_left(*l, area->mem);
+  spin_lock(&procmm_sem);
+    list_t *l = p->mm.mem.next;
+    while(l != &p->mm.mem)
+    {
+      mem_area_t *this = list_entry(l, mem_area_t, mem);
+      if(this->start > end)
+        break;
+      l = l->next;
+    }
+    list_insert_to_left(*l, area->mem);
+  spin_unlock(&procmm_sem);
 
   return glue_area(area);
 }
@@ -112,50 +116,52 @@ mem_area_t *split_area(mem_area_t *ma, uintptr_t start, uintptr_t end)
   mem_area_t *left = 0;
   mem_area_t *right = 0;
 
-  if(start > ma->start) // Split off a part to the left
-  {
-    left = alloc_area(ma->start, start, ma->flags, ma->type, ma->owner);
-    list_insert_to_left(ma->mem, left->mem);
-  }
-
-  if(end < ma->end) // Split off a part to the right
-  {
-    right = alloc_area(end, ma->end, ma->flags, ma->type, ma->owner);
-    list_insert_to_right(ma->mem, right->mem);
-  }
-
-  // Reshape old area
-  ma->start = start;
-  ma->end = end;
-
-
-  // Make the same splits with every copy of the memory area
-  list_t *copies_list;
-  for_each_in_list(&ma->copies, copies_list)
-  {
-
-    mem_area_t *mid = list_entry(copies_list, mem_area_t, copies);
-    if(left != 0) // Split off a part to the left
+  spin_lock(&procmm_sem);
+    if(start > ma->start) // Split off a part to the left
     {
-      mem_area_t *l = alloc_area(mid->start, start,\
-        mid->flags, mid->type, mid->owner);
-      list_insert_to_left(mid->mem, l->mem);
-      // Add to list of copies
-      append_to_list(left->copies, l->copies);
-    }
-    if(right != 0) // Split off a part to the right
-    {
-      mem_area_t *r = alloc_area(end, mid->end, \
-        mid->flags, mid->type, mid->owner);
-      list_insert_to_right(mid->mem, r->mem);
-      // Add to list of copies
-      append_to_list(right->copies, r->copies);
+      left = alloc_area(ma->start, start, ma->flags, ma->type, ma->owner);
+      list_insert_to_left(ma->mem, left->mem);
     }
 
-      // Reshape old area
-      mid->start = start;
-      mid->end = end;
-  }
+    if(end < ma->end) // Split off a part to the right
+    {
+      right = alloc_area(end, ma->end, ma->flags, ma->type, ma->owner);
+      list_insert_to_right(ma->mem, right->mem);
+    }
+
+    // Reshape old area
+    ma->start = start;
+    ma->end = end;
+
+
+    // Make the same splits with every copy of the memory area
+    list_t *copies_list;
+    for_each_in_list(&ma->copies, copies_list)
+    {
+
+      mem_area_t *mid = list_entry(copies_list, mem_area_t, copies);
+      if(left != 0) // Split off a part to the left
+      {
+        mem_area_t *l = alloc_area(mid->start, start,\
+          mid->flags, mid->type, mid->owner);
+        list_insert_to_left(mid->mem, l->mem);
+        // Add to list of copies
+        append_to_list(left->copies, l->copies);
+      }
+      if(right != 0) // Split off a part to the right
+      {
+        mem_area_t *r = alloc_area(end, mid->end, \
+          mid->flags, mid->type, mid->owner);
+        list_insert_to_right(mid->mem, r->mem);
+        // Add to list of copies
+        append_to_list(right->copies, r->copies);
+      }
+
+        // Reshape old area
+        mid->start = start;
+        mid->end = end;
+    }
+  spin_unlock(&procmm_sem);
 
   return ma;
 }
@@ -171,36 +177,38 @@ mem_area_t *glue_area(mem_area_t *ma)
   if(!(list_empty(ma->copies)))
     return ma;
 
-  list_t *area_list;
-  for_each_in_list(&ma->owner->mm.mem, area_list)
-  {
-    mem_area_t *area = list_entry(area_list, mem_area_t, mem);
-    if(area != ma && area->end == ma->start) // Glue to the left
+  spin_lock(&procmm_sem);
+    list_t *area_list;
+    for_each_in_list(&ma->owner->mm.mem, area_list)
     {
-      if((area->flags == ma->flags) && (area->type == ma->type))
+      mem_area_t *area = list_entry(area_list, mem_area_t, mem);
+      if(area != ma && area->end == ma->start) // Glue to the left
       {
-        // Reshape the left area and remove the current
-        area->end = ma->end;
-        free_area(ma);
-        ma = area;
-        break;
+        if((area->flags == ma->flags) && (area->type == ma->type))
+        {
+          // Reshape the left area and remove the current
+          area->end = ma->end;
+          free_area(ma);
+          ma = area;
+          break;
+        }
       }
     }
-  }
-  for_each_in_list(&ma->owner->mm.mem, area_list)
-  {
-    mem_area_t *area = list_entry(area_list, mem_area_t, mem);
-    if(area != ma && area->start == ma->end) // Glue to the right
+    for_each_in_list(&ma->owner->mm.mem, area_list)
     {
-      if((area->flags == ma->flags) && (area->type == ma->type))
+      mem_area_t *area = list_entry(area_list, mem_area_t, mem);
+      if(area != ma && area->start == ma->end) // Glue to the right
       {
-        // Reshape curent area and free right one
-        ma->end = area->end;
-        free_area(area);
-        break;
+        if((area->flags == ma->flags) && (area->type == ma->type))
+        {
+          // Reshape curent area and free right one
+          ma->end = area->end;
+          free_area(area);
+          break;
+        }
       }
     }
-  }
+  spin_unlock(&procmm_sem);
   // Return glued area
   return ma;
 }
@@ -239,26 +247,30 @@ mem_area_t *find_above(process_t *p, uintptr_t addr)
 
 void share_area(process_t *copy, mem_area_t *ma)
 {
+  spin_lock(&procmm_sem);
   ma->flags |= MM_FLAG_SHARED;
   if(ma->flags & MM_FLAG_WRITE)
   {
     ma->flags &= ~(MM_FLAG_WRITE);
     ma->flags |= MM_FLAG_COW;
 
-    page_dir_t old = vmm_exdir_set(ma->owner->pd);
-    uintptr_t i = ma->start;
-    while (i < ma->end)
-    {
-      uintptr_t pt_val = vmm_expage_get(i);
-      pt_val &= ~(PAGE_WRITE);
-       vmm_expage_set(i, pt_val);
-      i += PAGE_SIZE;
-    }
-    vmm_exdir_set(old);
+    spin_lock(&ma->owner->pd_sem);
+      page_dir_t old = vmm_exdir_set(ma->owner->pd);
+      uintptr_t i = ma->start;
+      while (i < ma->end)
+      {
+        uintptr_t pt_val = vmm_expage_get(i);
+        pt_val &= ~(PAGE_WRITE);
+         vmm_expage_set(i, pt_val);
+        i += PAGE_SIZE;
+      }
+      vmm_exdir_set(old);
+    spin_unlock(&ma->owner->pd_sem);
 
   }
   mem_area_t *new = new_area(copy, ma->start, ma->end, ma->flags, ma->type);
   append_to_list(ma->copies, new->copies);
+  spin_unlock(&procmm_sem);
 }
 
 
@@ -322,7 +334,7 @@ uint32_t procmm_handle_page_fault(uintptr_t address, uint32_t flags)
         if(inside->flags & MM_FLAG_WRITE) // Write enabled
           vmm_flags |= PAGE_WRITE;
         vmm_page_set(address & PAGE_MASK, vmm_page_val(pmm_alloc_page(), vmm_flags));
-        return 0;
+          return 0;
       }
     }
   } else {
@@ -332,7 +344,7 @@ uint32_t procmm_handle_page_fault(uintptr_t address, uint32_t flags)
     {
       if((above->start - address) >= PAGE_SIZE)
       {
-        return 1;
+          return 1;
       }
       if(!(above->flags & MM_FLAG_GROWSDOWN))
       {
@@ -340,7 +352,7 @@ uint32_t procmm_handle_page_fault(uintptr_t address, uint32_t flags)
       }
       if(address <= current->proc->mm.stack_limit)
       {
-        return 2;
+        return 1;
       }
 
       // Expand stack

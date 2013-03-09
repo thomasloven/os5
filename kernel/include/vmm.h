@@ -1,6 +1,7 @@
 #pragma once
 #include <stdint.h>
 #include <pmm.h>
+#include <synch.h>
 
 #define USER_STACK_BOTTOM 0xB0000000
 #define USER_STACK_TOP 0xBFFFF000
@@ -46,6 +47,7 @@
 typedef uintptr_t page_dir_t;
 
 page_dir_t kernel_pd;
+semaphore_t kernel_pd_sem;
 
 void vmm_pd_set(page_dir_t pd);
 uintptr_t vmm_page_get(uintptr_t page);
