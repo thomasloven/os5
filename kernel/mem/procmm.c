@@ -268,9 +268,9 @@ void share_area(process_t *copy, mem_area_t *ma)
     spin_unlock(&ma->owner->pd_sem);
 
   }
+  spin_unlock(&procmm_sem);
   mem_area_t *new = new_area(copy, ma->start, ma->end, ma->flags, ma->type);
   append_to_list(ma->copies, new->copies);
-  spin_unlock(&procmm_sem);
 }
 
 
