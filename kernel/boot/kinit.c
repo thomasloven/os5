@@ -15,6 +15,7 @@
 #include <strings.h>
 #include <process.h>
 #include <procmm.h>
+#include <syscall.h>
 #include <k_syscall.h>
 
 void _idle(void)
@@ -28,11 +29,14 @@ void _idle(void)
 
 void usermode_proc(void)
 {
-  int a = 0;
-  a ++;
-  __asm__ ("int $0x80; mov %%eax, %0": "=r" (a));
+  _syscall_fork();
+  _syscall_printf("Hello", "World");
   for(;;);
 }
+
+DEF_SYSCALL0(fork, SYSCALL_FORK)
+
+DEF_SYSCALL2(printf, SYSCALL_PUTCH, char*, char*)
 
 void _clock(void)
 {
