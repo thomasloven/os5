@@ -35,6 +35,9 @@ typedef struct thread_info_struct
   thread_t tcb;
 } thread_info_t;
 
+thread_info_t *boot_thread;
+uint32_t kernel_booted;
+
 thread_info_t *current_thread_info();
 
 #define current ((thread_t *)(&current_thread_info()->tcb))

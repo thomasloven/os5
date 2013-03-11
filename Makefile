@@ -2,7 +2,7 @@ BUILDROOT := $(PWD)
 BUILDDIR := $(BUILDROOT)/build
 LIBDIR := $(BUILDROOT)/library
 
-DIRS := kernel
+DIRS := kernel init
 
 AS := nasm
 CPP := clang -E
@@ -20,7 +20,7 @@ CPPFLAGS += -I$(LIBDIR)/include
 CCFLAGS := $(CPPFLAGS) -target i386-pc-linux -mno-sse -mno-mmx
 CCFLAGS += -ggdb
 
-LDFLAGS := -T $(LIBDIR)/include/Link.ld
+#LDFLAGS := -T $(LIBDIR)/include/Link.ld
 
 DEPFLAGS := $(CPPFLAGS)
 
@@ -39,6 +39,7 @@ all: $(DIRS)
     
 $(DIRS):
 	@echo "  \033[35mMAKE\033[0m    " $@
+	-@mkdir -p $(BUILDDIR)/$@
 	@cd $@; $(MAKE) $(MFLAGS)
 
 clean:

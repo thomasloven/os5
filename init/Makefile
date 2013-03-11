@@ -1,13 +1,11 @@
-SUBDIR := kernel
+SUBDIR := init
 
-DIRS := $(shell find . -type d)
-TARGET := $(BUILDDIR)/$(SUBDIR)/kernel
+TARGET := $(BUILDDIR)/$(SUBDIR)/init
 
-VPATH := ./ $(DIRS)
+VPATH := ./
 
-SOURCES := ./boot/boot.S ./boot/kinit.c 
-SOURCES += $(shell find . -name "*.S" | grep -v boot.S)
-SOURCES += $(shell find . -name "*.c" | grep -v kinit.c)
+SOURCES := $(shell find . -name "*.S" | grep -v boot.S)
+SOURCES += $(shell find . -name "*.c" | grep -v boot.S)
 
 OBJECTS := $(patsubst %.S,%.o,$(SOURCES))
 OBJECTS := $(patsubst %.c,%.o,$(OBJECTS))
@@ -16,12 +14,6 @@ OBJECTS := $(addprefix $(BUILDDIR)/$(SUBDIR)/,$(notdir $(OBJECTS)))
 DEPENDENCIES := $(patsubst %.S,%.d,$(SOURCES))
 DEPENDENCIES := $(patsubst %.c,%.d,$(DEPENDENCIES))
 DEPENDENCIES := $(addprefix $(BUILDDIR)/$(SUBDIR)/,$(notdir $(DEPENDENCIES)))
-
-
-CCFLAGS += -Iinclude 
-CPPFLAGS += -Iinclude
-DEPFLAGS += -Iinclude
-LDFLAGS := -T $(BUILDROOT)/$(SUBDIR)/include/Link.ld
 
 all: $(DEPENDENCIES) $(TARGET)
 

@@ -1,4 +1,5 @@
 #include <thread.h>
+#include <ctype.h>
 #include <k_debug.h>
 #include <stdint.h>
 #include <pmm.h>
@@ -17,6 +18,9 @@ uint32_t next_tid=1;
 
 thread_info_t *current_thread_info()
 {
+  if(!kernel_booted)
+    return boot_thread;
+
   thread_info_t *ti;
   ti = (thread_info_t *)((uint32_t)&ti & PAGE_MASK);
   return ti;
@@ -94,6 +98,8 @@ registers_t *switch_kernel_thread(registers_t *r)
   scheduler_remove(next);
 
   switch_process(next->proc);
+
+  kernel_booted = TRUE;
 
   return next->kernel_thread;
 }

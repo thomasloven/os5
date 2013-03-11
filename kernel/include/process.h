@@ -14,6 +14,7 @@ typedef struct process_mem_struct
 {
   uintptr_t code_start;
   uintptr_t code_end;
+  uintptr_t code_entry;
   uintptr_t arg_start;
   uintptr_t arg_end;
   uintptr_t env_start;

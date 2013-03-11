@@ -2,6 +2,8 @@
 #include <multiboot.h>
 #include <vmm.h>
 #include <strings.h>
+#include <procmm.h>
+#include <memory.h>
 #include <k_debug.h>
 
 void kernel_elf_init(mboot_info_t *mboot)
@@ -41,4 +43,47 @@ char *kernel_lookup_symbol(uint32_t addr)
     }
   }
   return 0;
+}
+
+void load_elf_segment(elf_header *image, elf_phead *phead)
+{
+
+  uint32_t flags = MM_FLAG_READ | MM_FLAG_WRITE | MM_FLAG_CANSHARE;
+  uint32_t type = MM_TYPE_CODE;
+  new_area(current->proc, phead->p_vaddr, phead->p_vaddr + phead->p_memsz, flags, type);
+
+  if(phead->p_memsz == 0) return;
+
+  memcopy(phead->p_vaddr, ((uintptr_t)image + phead->p_offset), phead->p_filesz);
+  memset(phead->p_vaddr + phead->p_filesz, 0, phead->p_memsz);
+}
+
+void load_elf(elf_header *image)
+{
+
+  elf_phead *program_head = (elf_phead *)((uintptr_t)image + image->elf_phoff);
+
+  process_t *p = current->proc;
+  process_mem_t *mm = &p->mm;
+
+  mm->code_start = ~0x0;
+  mm->code_end = 0x0;
+
+  uint32_t i;
+  for(i=0; i < image->elf_phnum; i++)
+  {
+    if(program_head[i].p_type == 0x1)
+    {
+      uintptr_t start = program_head[i].p_vaddr;
+      uintptr_t end = start + program_head[i].p_memsz;
+     if(start < mm->code_start)
+        mm->code_start = start;
+      if(end > mm->code_end)
+        mm->code_end = end;
+
+      load_elf_segment(image, &program_head[i]);
+    }
+  }
+
+  mm->code_entry = image->elf_entry;
 }
