@@ -1,16 +1,41 @@
 #include <k_syscall.h>
+#include <syscall.h>
 #include <stdint.h>
 #include <arch.h>
-#include <process.h>
+#include <idt.h>
 #include <lists.h>
+#include <memory.h>
 
 #include <k_debug.h>
 
+syscall_t syscall_handlers[NUM_SYSCALLS];
+
+void syscall_init()
+{
+  memset(syscall_handlers, 0 , NUM_SYSCALLS*sizeof(syscall_t *));
+  register_int_handler(INT_SYSCALL, syscall_handler);
+
+  KREG_SYSCALL(printf, SYSCALL_PRINTF);
+  KREG_SYSCALL(fork, SYSCALL_FORK);
+  KREG_SYSCALL(getpid, SYSCALL_GETPID);
+}
+
 registers_t *syscall_handler(registers_t *r)
 {
-  process_t *child = fork_process();
-  thread_t *cth = list_entry(child->threads.next, thread_t, process_threads);
-  cth->r.eax = 0;
-  r->eax = child->pid;
+
+  if(syscall_handlers[r->eax])
+    r = syscall_handlers[r->eax](r);
+  else
+    r->ebx = ERROR_NOSYSCALL;
+
   return r;
+}
+
+syscall_t register_syscall(uint32_t num, syscall_t handler)
+{
+  syscall_t ret = syscall_handlers[num];
+
+  syscall_handlers[num] = handler;
+
+  return ret;
 }

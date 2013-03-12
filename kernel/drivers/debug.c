@@ -17,6 +17,7 @@ void kdbg_init()
   scrn_x = scrn_y = 0;
   text_style = VGA_STYLE(GRAY, BLACK);
   memset((uint8_t *)vidmem, 0x0, SCRN_W*SCRN_H*2);
+  debug_sem = 0;
 }
 
 void kdbg_setpos(uint32_t x, uint32_t y)

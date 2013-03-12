@@ -54,6 +54,8 @@ process_t *process_init(void (*func)(void))
 
   boot_thread = thinfo_from_tcb(th);
 
+  switch_process(proc);
+
   return proc;
 }
 

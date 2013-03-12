@@ -16,6 +16,7 @@
 #include <process.h>
 #include <procmm.h>
 #include <k_syscall.h>
+#include <synch.h>
 
 void _idle(void)
 {
@@ -44,10 +45,12 @@ void _clock(void)
     uint16_t s = ((data[0]/16)*10 + (data[0]&0xf));
       
     uint32_t x,y;
+    spin_lock(&debug_sem);
     kdbg_getpos(&x,&y);
     kdbg_setpos(70,0);
     debug("[%d:%d:%d]",h,m,s);
     kdbg_setpos(x,y);
+    spin_unlock(&debug_sem);
   }
 
 }
@@ -63,15 +66,15 @@ registers_t *kinit(mboot_info_t *mboot, uint32_t mboot_magic)
   vmm_init();
   idt_init();
   tss_init();
+  register_int_handler(INT_PF, page_fault_handler);
+
   scheduler_init();
+  register_int_handler(INT_SCHEDULE, switch_kernel_thread);
   timer_init(500);
 
-  register_int_handler(INT_PF, page_fault_handler);
-  register_int_handler(INT_SCHEDULE, switch_kernel_thread);
-  register_int_handler(0x80, syscall_handler);
+  syscall_init();
 
-  process_t *p = process_init((void(*)(void))&_idle);
-  switch_process(p);
+  process_init((void(*)(void))&_idle);
 
   thread_t *clk = new_thread(&_clock,0);
   clk->proc = current->proc;
