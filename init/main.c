@@ -18,6 +18,10 @@ int _start()
 
     _syscall_printf("\n  I am the child! I have pid %x", _syscall_getpid());
 
+    _syscall_printf("\n errno before: %x", syscall_errno);
+    _syscall_unimpl();
+    _syscall_printf("\n errno after: %x", syscall_errno);
+
   }
 
   for(;;);
