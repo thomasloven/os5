@@ -21,13 +21,13 @@ DEPENDENCIES := $(addprefix $(BUILDDIR)/$(SUBDIR)/,$(notdir $(DEPENDENCIES)))
 CCFLAGS += -Iinclude 
 CPPFLAGS += -Iinclude
 DEPFLAGS += -Iinclude
-LDFLAGS := -T $(BUILDROOT)/$(SUBDIR)/include/Link.ld
+LDFLAGS += -T $(BUILDROOT)/$(SUBDIR)/include/Link.ld
 
 all: $(DEPENDENCIES) $(TARGET)
 
 $(TARGET): $(OBJECTS)
 	@echo "   \033[32mln\033[0m     " $(TARGET)
-	@$(LD) $(LDFLAGS) -o $(TARGET) $+
+	@$(LD) $(LDFLAGS) -o $(TARGET) $+ $(LIBPATH)
 
 $(BUILDDIR)/$(SUBDIR)/%.d: %.c
 	@echo "    \033[31mdep\033[0m " $*".c"

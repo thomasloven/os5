@@ -1,8 +1,9 @@
-SUBDIR := init
+SUBDIR := library
 
-TARGET := $(BUILDDIR)/$(SUBDIR)/init
+DIRS := $(shell find . -type d)
+TARGET := $(BUILDDIR)/$(SUBDIR)/clib.a
 
-VPATH := ./
+VPATH := ./ $(DIRS)
 
 SOURCES := $(shell find . -name "*.S" | grep -v boot.S)
 SOURCES += $(shell find . -name "*.c" | grep -v boot.S)
@@ -18,8 +19,8 @@ DEPENDENCIES := $(addprefix $(BUILDDIR)/$(SUBDIR)/,$(notdir $(DEPENDENCIES)))
 all: $(DEPENDENCIES) $(TARGET)
 
 $(TARGET): $(OBJECTS)
-	@echo "   \033[32mln\033[0m     " $(TARGET)
-	@$(LD) $(LDFLAGS) -o $(TARGET) $+ $(LIBPATH)
+	@echo "   \033[32mar\033[0m     " $(TARGET)
+	@$(AR) $(ARFLAGS) $(TARGET) $+
 
 $(BUILDDIR)/$(SUBDIR)/%.d: %.c
 	@echo "    \033[31mdep\033[0m " $*".c"

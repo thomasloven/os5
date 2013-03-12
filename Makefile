@@ -2,13 +2,14 @@ BUILDROOT := $(PWD)
 BUILDDIR := $(BUILDROOT)/build
 LIBDIR := $(BUILDROOT)/library
 
-DIRS := kernel init
+DIRS := library kernel init
 
 AS := nasm
 CPP := clang -E
 CC := clang
 LD := i386-elf-ld
 DEP := clang -MM
+AR := i386-elf-ar
 
 ASFLAGS := -f elf
 
@@ -20,13 +21,15 @@ CPPFLAGS += -I$(LIBDIR)/include
 CCFLAGS := $(CPPFLAGS) -target i386-pc-linux -mno-sse -mno-mmx
 CCFLAGS += -ggdb
 
-#LDFLAGS := -T $(LIBDIR)/include/Link.ld
+LIBPATH := $(BUILDDIR)/library/clib.a
 
 DEPFLAGS := $(CPPFLAGS)
 
-export BUILDROOT BUILDDIR LIBDIR
-export AS CPP CC LD DEP 
-export ASFLAGS CPPFLAGS CCFLAGS LDFLAGS DEPFLAGS
+ARFLAGS := -rc
+
+export BUILDROOT BUILDDIR LIBDIR LIBPATH
+export AS CPP CC LD DEP AR
+export ASFLAGS CPPFLAGS CCFLAGS LDFLAGS DEPFLAGS ARFLAGS
 
 .SILENT:
 
