@@ -1,7 +1,7 @@
 #include <stdint.h>
 #include <syscall.h>
 
-int _start()
+int main()
 {
   int a;
   a = 5;
@@ -24,6 +24,5 @@ int _start()
 
   }
 
-  for(;;);
   return 0;
 }
