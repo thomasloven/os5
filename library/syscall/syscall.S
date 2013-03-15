@@ -13,5 +13,8 @@ DEF_SYSCALL(printf, SYSCALL_PRINTF)
 [global _syscall_getpid]
 DEF_SYSCALL(getpid, SYSCALL_GETPID)
 
+[global _syscall_exit]
+DEF_SYSCALL(exit, SYSCALL_EXIT)
+
 [global _syscall_unimpl]
 DEF_SYSCALL(unimpl, SYSCALL_UNIMPL)

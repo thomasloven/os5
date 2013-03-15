@@ -1,6 +1,7 @@
 #include <k_syscall.h>
 #include <syscall.h>
 #include <process.h>
+#include <k_debug.h>
 
 KDEF_SYSCALL(fork, r)
 {
@@ -18,3 +19,17 @@ KDEF_SYSCALL(getpid, r)
   r->ebx = SYSCALL_OK;
   return r;
 }
+
+KDEF_SYSCALL(exit, r)
+{
+  process_stack stack = init_pstack();
+
+  exit_process(current->proc, stack[0]);
+
+  schedule();
+
+  debug("ERROR! REACHED END OF EXIT SYSCALL!");
+  for(;;);
+  return r;
+}
+

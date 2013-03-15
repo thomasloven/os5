@@ -1,6 +1,7 @@
 #include <scheduler.h>
 #include <k_debug.h>
 #include <thread.h>
+#include <process.h>
 #include <stdint.h>
 #include <lists.h>
 #include <k_debug.h>
@@ -39,6 +40,23 @@ void scheduler_list()
   {
     thread_t *th = list_entry(i, thread_t, tasks);
     debug("%x->",th->tid);
+  }
+}
+
+void scheduler_sleep(thread_t *th, list_head_t *list)
+{
+  scheduler_remove(th);
+  append_to_list(*list, th->tasks);
+}
+
+void scheduler_wake(list_head_t *list)
+{
+  list_t *i;
+  for_each_in_list(list, i)
+  {
+    thread_t *th = list_entry(i, thread_t, tasks);
+    scheduler_remove(th);
+    scheduler_insert(th);
   }
 }
 

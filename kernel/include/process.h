@@ -37,6 +37,9 @@ typedef struct process_struct
   uintptr_t pd;
   semaphore_t pd_sem;
 
+  list_head_t waiting;
+  uint32_t exit_code;
+
   process_mem_t mm;
 } process_t;
 
@@ -50,4 +53,7 @@ process_t *process_init(void (*func)(void));
 
 process_t *alloc_process();
 process_t *fork_process();
+void free_process(process_t *p);
+void exit_process(process_t *proc, uint32_t exit_code);
+
 #endif

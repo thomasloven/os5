@@ -39,6 +39,18 @@ thread_t *alloc_thread()
   return &th_info->tcb;
 }
 
+void free_thread(thread_t *th)
+{
+
+  scheduler_remove(th);
+
+  remove_from_list(th->tasks);
+  remove_from_list(th->process_threads);
+
+  thread_info_t *th_info = thinfo_from_tcb(th);
+  kfree(th_info);
+}
+
 thread_t *new_thread(void (*func)(void), uint8_t user)
 {
   thread_t *th = alloc_thread();

@@ -22,6 +22,7 @@ process_t *alloc_process()
 
   init_list(p->threads);
   init_list(p->proc_list);
+  init_list(p->waiting);
 
   append_to_list(process_list, p->proc_list);
 
@@ -29,6 +30,50 @@ process_t *alloc_process()
 
   return p;
 
+}
+
+void free_process(process_t *p)
+{
+
+  exit_process(p, 0);
+
+  // Make init adopt all the processes children
+  process_t *init = list_entry(process_list.next, process_t, proc_list);
+  if(p->child)
+  {
+    process_t *ch = p->child;
+    process_t *i = ch;
+    while(i->older_sibling)
+    {
+      i->parent = init;
+      i = i->older_sibling;
+    }
+    i->older_sibling = init->child;
+    i->older_sibling->younger_sibling = i;
+    init->child = ch;
+  }
+
+  remove_from_list(p->proc_list);
+
+  procmm_exit(p);
+
+  kfree(p);
+}
+
+void exit_process(process_t *proc, uint32_t exit_code)
+{
+  proc->exit_code = exit_code;
+  list_t *i;
+  for_each_in_list(&proc->threads, i)
+  {
+    thread_t *th = list_entry(i, thread_t, process_threads);
+    if(th != current)
+    free_thread(th);
+  }
+
+  proc->state = PROC_STATE_FINISHED;
+
+  scheduler_wake(&proc->waiting);
 }
 
 void switch_process(process_t *proc)

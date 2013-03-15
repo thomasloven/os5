@@ -5,6 +5,7 @@
 #define SYSCALL_GETPID 0x02
 #define SYSCALL_PRINTF 0x03
 #define SYSCALL_UNIMPL 0x04
+#define SYSCALL_EXIT 0x05
 
 #define SYSCALL_OK 0x00
 #define ERROR_NOSYSCALL 0x01
@@ -25,6 +26,7 @@
 
 DECL_SYSCALL0(fork);
 DECL_SYSCALL0(getpid);
+DECL_SYSCALL1(exit, uint32_t);
 
 DECL_SYSCALL1E(printf, char*);
 DECL_SYSCALL0(unimpl);

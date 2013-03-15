@@ -382,5 +382,14 @@ void procmm_fork(process_t *parent, process_t *child)
     share_area(child, ma);
   }
 
+}
 
+void procmm_exit(process_t *proc)
+{
+  list_t *i;
+  for_each_in_list(&proc->mm.mem, i)
+  {
+    mem_area_t *ma = list_entry(i, mem_area_t, mem);
+    free_area(ma);
+  }
 }

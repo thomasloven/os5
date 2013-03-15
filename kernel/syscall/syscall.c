@@ -18,6 +18,7 @@ void syscall_init()
   KREG_SYSCALL(printf, SYSCALL_PRINTF);
   KREG_SYSCALL(fork, SYSCALL_FORK);
   KREG_SYSCALL(getpid, SYSCALL_GETPID);
+  KREG_SYSCALL(exit, SYSCALL_EXIT);
 }
 
 registers_t *syscall_handler(registers_t *r)

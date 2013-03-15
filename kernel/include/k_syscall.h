@@ -28,5 +28,6 @@ void syscall_init();
 KDECL_SYSCALL(printf);
 KDECL_SYSCALL(fork);
 KDECL_SYSCALL(getpid);
+KDECL_SYSCALL(exit);
 
 #endif
