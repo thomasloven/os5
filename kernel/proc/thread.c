@@ -70,6 +70,7 @@ thread_t *new_thread(void (*func)(void), uint8_t user)
     th->r.ss = SEG_KERNEL_DATA;
   }
 
+  th->state = THREAD_STATE_READY;
   scheduler_insert(th);
 
   th->kernel_thread = &th->r;
@@ -103,7 +104,8 @@ registers_t *switch_kernel_thread(registers_t *r)
   if(r)
   {
     current->kernel_thread = r;
-    scheduler_insert(current);
+    if(current->state == THREAD_STATE_READY)
+      scheduler_insert(current);
   }
 
   thread_t *next = scheduler_next();

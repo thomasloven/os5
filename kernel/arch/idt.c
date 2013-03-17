@@ -183,7 +183,7 @@ registers_t *idt_handler(registers_t *r)
         debug(", irq %x", INT2IRQ(r->int_no));
       debug("\n Tid: %x", current->tid);
       print_registers(r);
-      enable_interrupts();
+      disable_interrupts();
       for(;;);
     }
   }

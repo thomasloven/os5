@@ -386,10 +386,11 @@ void procmm_fork(process_t *parent, process_t *child)
 
 void procmm_exit(process_t *proc)
 {
-  list_t *i;
-  for_each_in_list(&proc->mm.mem, i)
+  list_t *i = (&proc->mm.mem)->next;
+  while(i != &proc->mm.mem)
   {
     mem_area_t *ma = list_entry(i, mem_area_t, mem);
+    i = i->next;
     free_area(ma);
   }
 }

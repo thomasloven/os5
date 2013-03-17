@@ -46,17 +46,20 @@ void scheduler_list()
 void scheduler_sleep(thread_t *th, list_head_t *list)
 {
   scheduler_remove(th);
+  th->state = THREAD_STATE_WAITING;
   append_to_list(*list, th->tasks);
 }
 
 void scheduler_wake(list_head_t *list)
 {
-  list_t *i;
-  for_each_in_list(list, i)
+  list_t *i = list->next;;
+  while(i != list)
   {
     thread_t *th = list_entry(i, thread_t, tasks);
+    i = i->next;
     scheduler_remove(th);
     scheduler_insert(th);
+    th->state = THREAD_STATE_READY;
   }
 }
 

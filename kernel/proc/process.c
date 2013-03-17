@@ -32,16 +32,35 @@ process_t *alloc_process()
 
 }
 
-void free_process(process_t *p)
+process_t *get_process(uint32_t pid)
+{
+  list_t *i;
+  for_each_in_list(&process_list, i)
+  {
+    process_t *p = list_entry(i, process_t, proc_list);
+    if(p->pid == pid)
+      return p;
+  }
+  return 0;
+}
+
+void free_process(process_t *proc)
 {
 
-  exit_process(p, 0);
+  list_t *i = (&proc->threads)->next;
+  while (i != &proc->threads)
+  {
+    thread_t *th = list_entry(i, thread_t, process_threads);
+    i = i->next;
+    if(th != current)
+    free_thread(th);
+  }
 
   // Make init adopt all the processes children
   process_t *init = list_entry(process_list.next, process_t, proc_list);
-  if(p->child)
+  if(proc->child)
   {
-    process_t *ch = p->child;
+    process_t *ch = proc->child;
     process_t *i = ch;
     while(i->older_sibling)
     {
@@ -53,25 +72,28 @@ void free_process(process_t *p)
     init->child = ch;
   }
 
-  remove_from_list(p->proc_list);
+  remove_from_list(proc->proc_list);
 
-  procmm_exit(p);
+  procmm_exit(proc);
 
-  kfree(p);
+  kfree(proc);
 }
 
 void exit_process(process_t *proc, uint32_t exit_code)
 {
   proc->exit_code = exit_code;
-  list_t *i;
-  for_each_in_list(&proc->threads, i)
+  list_t *i = (&proc->threads)->next;
+  while (i != &proc->threads)
   {
     thread_t *th = list_entry(i, thread_t, process_threads);
+    i = i->next;
     if(th != current)
     free_thread(th);
   }
 
   proc->state = PROC_STATE_FINISHED;
+
+  current->state = THREAD_STATE_FINISHED;
 
   scheduler_wake(&proc->waiting);
 }

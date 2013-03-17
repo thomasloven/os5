@@ -51,6 +51,7 @@ void switch_process(process_t *proc);
 process_t *process_init(void (*func)(void));
 
 
+process_t *get_process(uint32_t pid);
 process_t *alloc_process();
 process_t *fork_process();
 void free_process(process_t *p);

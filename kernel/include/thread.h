@@ -21,6 +21,10 @@ typedef struct thread_struct
   struct process_struct *proc;
 } thread_t;
 
+#define THREAD_STATE_READY 0x1
+#define THREAD_STATE_WAITING 0x2
+#define THREAD_STATE_FINISHED 0x3
+
 // Changing this will require chaning kvalloc and all calls to it and current_thread_info()
 #define MAX_THREAD_STACK_SIZE PAGE_SIZE
 #define MIN_THREAD_STACK_SIZE (sizeof(uint32_t) * 100)

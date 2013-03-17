@@ -2,6 +2,7 @@
 #include <syscall.h>
 #include <process.h>
 #include <k_debug.h>
+#include <scheduler.h>
 
 KDEF_SYSCALL(fork, r)
 {
@@ -30,6 +31,25 @@ KDEF_SYSCALL(exit, r)
 
   debug("ERROR! REACHED END OF EXIT SYSCALL!");
   for(;;);
+  return r;
+}
+
+KDEF_SYSCALL(waitpid, r)
+{
+  process_stack stack = init_pstack();
+
+  process_t *proc = get_process(stack[0]);
+
+  while(proc->state != PROC_STATE_FINISHED)
+  {
+    scheduler_sleep(current, &proc->waiting);
+    
+    schedule();
+  }
+
+  r->eax = proc->exit_code;
+  free_process(proc);
+
   return r;
 }
 
