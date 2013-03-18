@@ -136,16 +136,16 @@ process_t *fork_process()
   // Clone memory map (copy on write for everything)
   procmm_fork(parent, child);
 
-  thread_t *th = clone_thread(current);
-  append_to_list(child->threads, th->process_threads);
-  th->proc = child;
-
   // Fix the family
   child->parent = parent;
   child->older_sibling = parent->child;
   if(child->older_sibling)
     child->older_sibling->younger_sibling = child;
   parent->child = child;
+
+  thread_t *th = clone_thread(current);
+  append_to_list(child->threads, th->process_threads);
+  th->proc = child;
 
   return child;
 }

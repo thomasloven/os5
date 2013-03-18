@@ -1,0 +1,708 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+AR	Makefile	/^AR := i386-elf-ar$/;"	m
+ARFLAGS	Makefile	/^ARFLAGS := -rc$/;"	m
+AS	Makefile	/^AS := nasm$/;"	m
+ASFLAGS	Makefile	/^ASFLAGS := -f elf$/;"	m
+BLACK	kernel/include/k_debug.h	/^#define BLACK /;"	d
+BLUE	kernel/include/k_debug.h	/^#define BLUE /;"	d
+BREAK	library/include/debug.h	/^#define BREAK /;"	d
+BROWN	kernel/include/k_debug.h	/^#define BROWN /;"	d
+BUILDDIR	Makefile	/^BUILDDIR := $(BUILDROOT)\/build$/;"	m
+BUILDROOT	Makefile	/^BUILDROOT := $(PWD)$/;"	m
+BootPageDirectory	kernel/boot/boot.S	/^BootPageDirectory:$/;"	l
+BootPageTable	kernel/boot/boot.S	/^BootPageTable:$/;"	l
+BootStack	kernel/boot/boot.S	/^BootStack:$/;"	l
+BootStackTop	kernel/boot/boot.S	/^BootStackTop:$/;"	l
+CC	Makefile	/^CC := clang$/;"	m
+CCFLAGS	Makefile	/^CCFLAGS := $(CPPFLAGS) -target i386-pc-linux -mno-sse -mno-mmx$/;"	m
+CPP	Makefile	/^CPP := clang -E$/;"	m
+CPPFLAGS	Makefile	/^CPPFLAGS := -Wall -Wextra -pedantic -m32 -O0 -std=c99 -finline-functions$/;"	m
+CYAN	kernel/include/k_debug.h	/^#define CYAN /;"	d
+DECL_SYSCALL0	library/include/syscall.h	/^#define DECL_SYSCALL0(/;"	d
+DECL_SYSCALL1	library/include/syscall.h	/^#define DECL_SYSCALL1(/;"	d
+DECL_SYSCALL1E	library/include/syscall.h	/^#define DECL_SYSCALL1E(/;"	d
+DECL_SYSCALL2	library/include/syscall.h	/^#define DECL_SYSCALL2(/;"	d
+DECL_SYSCALL3	library/include/syscall.h	/^#define DECL_SYSCALL3(/;"	d
+DEF_SYSCALL	library/include/syscall.h	/^#define DEF_SYSCALL(/;"	d
+DEP	Makefile	/^DEP := clang -MM$/;"	m
+DEPENDENCIES	init/Makefile	/^DEPENDENCIES := $(addprefix $(BUILDDIR)\/$(SUBDIR)\/,$(notdir $(DEPENDENCIES)))$/;"	m
+DEPENDENCIES	init/Makefile	/^DEPENDENCIES := $(patsubst %.S,%.d,$(SOURCES))$/;"	m
+DEPENDENCIES	init/Makefile	/^DEPENDENCIES := $(patsubst %.c,%.d,$(DEPENDENCIES))$/;"	m
+DEPENDENCIES	kernel/Makefile	/^DEPENDENCIES := $(addprefix $(BUILDDIR)\/$(SUBDIR)\/,$(notdir $(DEPENDENCIES)))$/;"	m
+DEPENDENCIES	kernel/Makefile	/^DEPENDENCIES := $(patsubst %.S,%.d,$(SOURCES))$/;"	m
+DEPENDENCIES	kernel/Makefile	/^DEPENDENCIES := $(patsubst %.c,%.d,$(DEPENDENCIES))$/;"	m
+DEPENDENCIES	library/Makefile	/^DEPENDENCIES := $(addprefix $(BUILDDIR)\/$(SUBDIR)\/,$(notdir $(DEPENDENCIES)))$/;"	m
+DEPENDENCIES	library/Makefile	/^DEPENDENCIES := $(patsubst %.S,%.d,$(SOURCES))$/;"	m
+DEPENDENCIES	library/Makefile	/^DEPENDENCIES := $(patsubst %.c,%.d,$(DEPENDENCIES))$/;"	m
+DEPFLAGS	Makefile	/^DEPFLAGS := $(CPPFLAGS)$/;"	m
+DIRS	Makefile	/^DIRS := library kernel init$/;"	m
+DIRS	kernel/Makefile	/^DIRS := $(shell find . -type d)$/;"	m
+DIRS	library/Makefile	/^DIRS := $(shell find . -type d)$/;"	m
+EFL_CPL3	kernel/include/idt.h	/^#define EFL_CPL3 /;"	d
+EFL_INT	kernel/include/idt.h	/^#define EFL_INT /;"	d
+ELF_ST_BIND	kernel/include/elf.h	/^#define ELF_ST_BIND(/;"	d
+ELF_ST_INFO	kernel/include/elf.h	/^#define ELF_ST_INFO(/;"	d
+ELF_ST_TYPE	kernel/include/elf.h	/^#define ELF_ST_TYPE(/;"	d
+ERROR_NOSYSCALL	library/include/syscall.h	/^#define ERROR_NOSYSCALL /;"	d
+FALSE	library/include/ctype.h	/^#define FALSE /;"	d
+GDT_TSS	kernel/include/idt.h	/^#define GDT_TSS /;"	d
+GRAY	kernel/include/k_debug.h	/^#define GRAY /;"	d
+GREEN	kernel/include/k_debug.h	/^#define GREEN /;"	d
+IDT_DPL_0	kernel/include/idt.h	/^#define IDT_DPL_0 /;"	d
+IDT_DPL_1	kernel/include/idt.h	/^#define IDT_DPL_1 /;"	d
+IDT_DPL_2	kernel/include/idt.h	/^#define IDT_DPL_2 /;"	d
+IDT_DPL_3	kernel/include/idt.h	/^#define IDT_DPL_3 /;"	d
+IDT_INT_GATE	kernel/include/idt.h	/^#define IDT_INT_GATE /;"	d
+IDT_PRESENT	kernel/include/idt.h	/^#define IDT_PRESENT /;"	d
+IDT_TASK_GATE	kernel/include/idt.h	/^#define IDT_TASK_GATE /;"	d
+IDT_TRAP_GATE	kernel/include/idt.h	/^#define IDT_TRAP_GATE /;"	d
+INT2IRQ	kernel/include/idt.h	/^#define INT2IRQ(/;"	d
+INTERR	kernel/arch/int.S	/^INTERR 10$/;"	l
+INTERR	kernel/arch/int.S	/^INTERR 11$/;"	l
+INTERR	kernel/arch/int.S	/^INTERR 12$/;"	l
+INTERR	kernel/arch/int.S	/^INTERR 13$/;"	l
+INTERR	kernel/arch/int.S	/^INTERR 14$/;"	l
+INTERR	kernel/arch/int.S	/^INTERR 8$/;"	l
+INTNOERR	kernel/arch/int.S	/^INTNOERR 0$/;"	l
+INTNOERR	kernel/arch/int.S	/^INTNOERR 1$/;"	l
+INTNOERR	kernel/arch/int.S	/^INTNOERR 128$/;"	l
+INTNOERR	kernel/arch/int.S	/^INTNOERR 130$/;"	l
+INTNOERR	kernel/arch/int.S	/^INTNOERR 15$/;"	l
+INTNOERR	kernel/arch/int.S	/^INTNOERR 16$/;"	l
+INTNOERR	kernel/arch/int.S	/^INTNOERR 17$/;"	l
+INTNOERR	kernel/arch/int.S	/^INTNOERR 18$/;"	l
+INTNOERR	kernel/arch/int.S	/^INTNOERR 19$/;"	l
+INTNOERR	kernel/arch/int.S	/^INTNOERR 2$/;"	l
+INTNOERR	kernel/arch/int.S	/^INTNOERR 20$/;"	l
+INTNOERR	kernel/arch/int.S	/^INTNOERR 21$/;"	l
+INTNOERR	kernel/arch/int.S	/^INTNOERR 22$/;"	l
+INTNOERR	kernel/arch/int.S	/^INTNOERR 23$/;"	l
+INTNOERR	kernel/arch/int.S	/^INTNOERR 24$/;"	l
+INTNOERR	kernel/arch/int.S	/^INTNOERR 25$/;"	l
+INTNOERR	kernel/arch/int.S	/^INTNOERR 255$/;"	l
+INTNOERR	kernel/arch/int.S	/^INTNOERR 26$/;"	l
+INTNOERR	kernel/arch/int.S	/^INTNOERR 27$/;"	l
+INTNOERR	kernel/arch/int.S	/^INTNOERR 28$/;"	l
+INTNOERR	kernel/arch/int.S	/^INTNOERR 29$/;"	l
+INTNOERR	kernel/arch/int.S	/^INTNOERR 3$/;"	l
+INTNOERR	kernel/arch/int.S	/^INTNOERR 30$/;"	l
+INTNOERR	kernel/arch/int.S	/^INTNOERR 31$/;"	l
+INTNOERR	kernel/arch/int.S	/^INTNOERR 32$/;"	l
+INTNOERR	kernel/arch/int.S	/^INTNOERR 33$/;"	l
+INTNOERR	kernel/arch/int.S	/^INTNOERR 34$/;"	l
+INTNOERR	kernel/arch/int.S	/^INTNOERR 35$/;"	l
+INTNOERR	kernel/arch/int.S	/^INTNOERR 36$/;"	l
+INTNOERR	kernel/arch/int.S	/^INTNOERR 37$/;"	l
+INTNOERR	kernel/arch/int.S	/^INTNOERR 38$/;"	l
+INTNOERR	kernel/arch/int.S	/^INTNOERR 39$/;"	l
+INTNOERR	kernel/arch/int.S	/^INTNOERR 4$/;"	l
+INTNOERR	kernel/arch/int.S	/^INTNOERR 40$/;"	l
+INTNOERR	kernel/arch/int.S	/^INTNOERR 41$/;"	l
+INTNOERR	kernel/arch/int.S	/^INTNOERR 42$/;"	l
+INTNOERR	kernel/arch/int.S	/^INTNOERR 43$/;"	l
+INTNOERR	kernel/arch/int.S	/^INTNOERR 44$/;"	l
+INTNOERR	kernel/arch/int.S	/^INTNOERR 45$/;"	l
+INTNOERR	kernel/arch/int.S	/^INTNOERR 46$/;"	l
+INTNOERR	kernel/arch/int.S	/^INTNOERR 47$/;"	l
+INTNOERR	kernel/arch/int.S	/^INTNOERR 5$/;"	l
+INTNOERR	kernel/arch/int.S	/^INTNOERR 6$/;"	l
+INTNOERR	kernel/arch/int.S	/^INTNOERR 7$/;"	l
+INTNOERR	kernel/arch/int.S	/^INTNOERR 9$/;"	l
+INT_GPF	kernel/include/idt.h	/^#define INT_GPF /;"	d
+INT_PF	kernel/include/idt.h	/^#define INT_PF /;"	d
+INT_SCHEDULE	kernel/include/idt.h	/^#define INT_SCHEDULE /;"	d
+INT_SYSCALL	kernel/include/idt.h	/^#define INT_SYSCALL /;"	d
+IRQ2INT	kernel/include/idt.h	/^#define IRQ2INT(/;"	d
+IRQ_TIMER	kernel/include/idt.h	/^#define IRQ_TIMER /;"	d
+ISIRQ	kernel/include/idt.h	/^#define ISIRQ(/;"	d
+KDECL_SYSCALL	kernel/include/k_syscall.h	/^#define KDECL_SYSCALL(/;"	d
+KDEF_SYSCALL	kernel/include/k_syscall.h	/^#define KDEF_SYSCALL(/;"	d
+KDEF_SYSCALL	kernel/syscall/sys_debug.c	/^KDEF_SYSCALL(printf, r)$/;"	f
+KDEF_SYSCALL	kernel/syscall/sys_process.c	/^KDEF_SYSCALL(exit, r)$/;"	f
+KDEF_SYSCALL	kernel/syscall/sys_process.c	/^KDEF_SYSCALL(fork, r)$/;"	f
+KDEF_SYSCALL	kernel/syscall/sys_process.c	/^KDEF_SYSCALL(getpid, r)$/;"	f
+KDEF_SYSCALL	kernel/syscall/sys_process.c	/^KDEF_SYSCALL(waitpid, r)$/;"	f
+KERNEL_HEAP_END	kernel/include/vmm.h	/^#define KERNEL_HEAP_END /;"	d
+KERNEL_HEAP_START	kernel/include/vmm.h	/^#define KERNEL_HEAP_START /;"	d
+KERNEL_OFFSET	kernel/include/vmm.h	/^#define KERNEL_OFFSET /;"	d
+KREG_SYSCALL	kernel/include/k_syscall.h	/^#define KREG_SYSCALL(/;"	d
+LBLACK	kernel/include/k_debug.h	/^#define LBLACK /;"	d
+LBLUE	kernel/include/k_debug.h	/^#define LBLUE /;"	d
+LBROWN	kernel/include/k_debug.h	/^#define LBROWN /;"	d
+LCYAN	kernel/include/k_debug.h	/^#define LCYAN /;"	d
+LD	Makefile	/^LD := i386-elf-ld$/;"	m
+LGRAY	kernel/include/k_debug.h	/^#define LGRAY /;"	d
+LGREEN	kernel/include/k_debug.h	/^#define LGREEN /;"	d
+LIBDIR	Makefile	/^LIBDIR := $(BUILDROOT)\/library$/;"	m
+LIBPATH	Makefile	/^LIBPATH := $(BUILDDIR)\/library\/clib.a$/;"	m
+LMAGENTA	kernel/include/k_debug.h	/^#define LMAGENTA /;"	d
+LRED	kernel/include/k_debug.h	/^#define LRED /;"	d
+MAGENTA	kernel/include/k_debug.h	/^#define MAGENTA /;"	d
+MAX_THREAD_STACK_SIZE	kernel/include/thread.h	/^#define MAX_THREAD_STACK_SIZE /;"	d
+MBOOT_FLAG_AOUT	kernel/include/multiboot.h	/^#define MBOOT_FLAG_AOUT /;"	d
+MBOOT_FLAG_APM	kernel/include/multiboot.h	/^#define MBOOT_FLAG_APM /;"	d
+MBOOT_FLAG_CMD	kernel/include/multiboot.h	/^#define MBOOT_FLAG_CMD /;"	d
+MBOOT_FLAG_CONFIG	kernel/include/multiboot.h	/^#define MBOOT_FLAG_CONFIG /;"	d
+MBOOT_FLAG_DEVICE	kernel/include/multiboot.h	/^#define MBOOT_FLAG_DEVICE /;"	d
+MBOOT_FLAG_DRIVES	kernel/include/multiboot.h	/^#define MBOOT_FLAG_DRIVES /;"	d
+MBOOT_FLAG_ELF	kernel/include/multiboot.h	/^#define MBOOT_FLAG_ELF /;"	d
+MBOOT_FLAG_MEM	kernel/include/multiboot.h	/^#define MBOOT_FLAG_MEM /;"	d
+MBOOT_FLAG_MMAP	kernel/include/multiboot.h	/^#define MBOOT_FLAG_MMAP /;"	d
+MBOOT_FLAG_MODS	kernel/include/multiboot.h	/^#define MBOOT_FLAG_MODS /;"	d
+MBOOT_FLAG_NAME	kernel/include/multiboot.h	/^#define MBOOT_FLAG_NAME /;"	d
+MBOOT_FLAG_VBE	kernel/include/multiboot.h	/^#define MBOOT_FLAG_VBE /;"	d
+MBOOT_HEADER_CHECKSUM	kernel/include/multiboot.h	/^#define MBOOT_HEADER_CHECKSUM /;"	d
+MBOOT_HEADER_FLAGS	kernel/include/multiboot.h	/^#define MBOOT_HEADER_FLAGS /;"	d
+MBOOT_MAGIC1	kernel/include/multiboot.h	/^#define MBOOT_MAGIC1 /;"	d
+MBOOT_MAGIC2	kernel/include/multiboot.h	/^#define MBOOT_MAGIC2 /;"	d
+MBOOT_MEMORY_INFO_FLAG	kernel/include/multiboot.h	/^#define MBOOT_MEMORY_INFO_FLAG /;"	d
+MBOOT_MEM_FLAG_FREE	kernel/include/multiboot.h	/^#define MBOOT_MEM_FLAG_FREE /;"	d
+MBOOT_PAGE_ALIGNED_FLAG	kernel/include/multiboot.h	/^#define MBOOT_PAGE_ALIGNED_FLAG /;"	d
+MIN_THREAD_STACK_SIZE	kernel/include/thread.h	/^#define MIN_THREAD_STACK_SIZE /;"	d
+MM_FLAG_ADDONUSE	kernel/include/procmm.h	/^#define MM_FLAG_ADDONUSE /;"	d
+MM_FLAG_AUTOGROW	kernel/include/procmm.h	/^#define MM_FLAG_AUTOGROW /;"	d
+MM_FLAG_CANSHARE	kernel/include/procmm.h	/^#define MM_FLAG_CANSHARE /;"	d
+MM_FLAG_COW	kernel/include/procmm.h	/^#define MM_FLAG_COW /;"	d
+MM_FLAG_GROWSDOWN	kernel/include/procmm.h	/^#define MM_FLAG_GROWSDOWN /;"	d
+MM_FLAG_READ	kernel/include/procmm.h	/^#define MM_FLAG_READ /;"	d
+MM_FLAG_SHARED	kernel/include/procmm.h	/^#define MM_FLAG_SHARED /;"	d
+MM_FLAG_WRITE	kernel/include/procmm.h	/^#define MM_FLAG_WRITE /;"	d
+MM_TYPE_ARG	kernel/include/procmm.h	/^#define MM_TYPE_ARG /;"	d
+MM_TYPE_CODE	kernel/include/procmm.h	/^#define MM_TYPE_CODE /;"	d
+MM_TYPE_ENV	kernel/include/procmm.h	/^#define MM_TYPE_ENV /;"	d
+MM_TYPE_STACK	kernel/include/procmm.h	/^#define MM_TYPE_STACK /;"	d
+MPIC_CMD_PORT	kernel/include/idt.h	/^#define MPIC_CMD_PORT /;"	d
+MPIC_DATA_PORT	kernel/include/idt.h	/^#define MPIC_DATA_PORT /;"	d
+MultiBootHeader	kernel/boot/boot.S	/^MultiBootHeader:$/;"	l
+NULL	library/include/ctype.h	/^#define NULL /;"	d
+NUM_INTERRUPTS	kernel/include/idt.h	/^#define NUM_INTERRUPTS /;"	d
+NUM_SYSCALLS	kernel/include/k_syscall.h	/^#define NUM_SYSCALLS /;"	d
+OBJECTS	init/Makefile	/^OBJECTS := $(addprefix $(BUILDDIR)\/$(SUBDIR)\/,$(notdir $(OBJECTS)))$/;"	m
+OBJECTS	init/Makefile	/^OBJECTS := $(patsubst %.S,%.o,$(SOURCES))$/;"	m
+OBJECTS	init/Makefile	/^OBJECTS := $(patsubst %.c,%.o,$(OBJECTS))$/;"	m
+OBJECTS	kernel/Makefile	/^OBJECTS := $(addprefix $(BUILDDIR)\/$(SUBDIR)\/,$(notdir $(OBJECTS)))$/;"	m
+OBJECTS	kernel/Makefile	/^OBJECTS := $(patsubst %.S,%.o,$(SOURCES))$/;"	m
+OBJECTS	kernel/Makefile	/^OBJECTS := $(patsubst %.c,%.o,$(OBJECTS))$/;"	m
+OBJECTS	library/Makefile	/^OBJECTS := $(addprefix $(BUILDDIR)\/$(SUBDIR)\/,$(notdir $(OBJECTS)))$/;"	m
+OBJECTS	library/Makefile	/^OBJECTS := $(patsubst %.S,%.o,$(SOURCES))$/;"	m
+OBJECTS	library/Makefile	/^OBJECTS := $(patsubst %.c,%.o,$(OBJECTS))$/;"	m
+PAGE_FLAG_MASK	kernel/include/pmm.h	/^#define PAGE_FLAG_MASK /;"	d
+PAGE_MASK	kernel/include/pmm.h	/^#define PAGE_MASK /;"	d
+PAGE_PRESENT	kernel/include/vmm.h	/^#define PAGE_PRESENT /;"	d
+PAGE_SIZE	kernel/include/pmm.h	/^#define PAGE_SIZE /;"	d
+PAGE_USER	kernel/include/vmm.h	/^#define PAGE_USER /;"	d
+PAGE_WRITE	kernel/include/vmm.h	/^#define PAGE_WRITE /;"	d
+PF_PRESENT	kernel/include/vmm.h	/^#define PF_PRESENT /;"	d
+PF_USER	kernel/include/vmm.h	/^#define PF_USER /;"	d
+PF_WRITE	kernel/include/vmm.h	/^#define PF_WRITE /;"	d
+PIC_EOI	kernel/include/idt.h	/^#define PIC_EOI /;"	d
+PIT_ACCESS_LOHI	kernel/include/timer.h	/^#define PIT_ACCESS_LOHI /;"	d
+PIT_CH0_DATA_PORT	kernel/include/timer.h	/^#define PIT_CH0_DATA_PORT /;"	d
+PIT_CMD_PORT	kernel/include/timer.h	/^#define PIT_CMD_PORT /;"	d
+PIT_DIVISOR_CONST	kernel/include/timer.h	/^#define PIT_DIVISOR_CONST /;"	d
+PIT_MODE_3	kernel/include/timer.h	/^#define PIT_MODE_3 /;"	d
+PIT_USE_CH0	kernel/include/timer.h	/^#define PIT_USE_CH0 /;"	d
+PMM_PAGE_STACK	kernel/include/vmm.h	/^#define PMM_PAGE_STACK /;"	d
+PMM_STACK_ENTRIES_PER_PAGE	kernel/include/pmm.h	/^#define PMM_STACK_ENTRIES_PER_PAGE /;"	d
+PROC_STATE_FINISHED	kernel/include/process.h	/^#define PROC_STATE_FINISHED /;"	d
+PROC_STATE_RUNNING	kernel/include/process.h	/^#define PROC_STATE_RUNNING /;"	d
+PROC_STATE_WAITING	kernel/include/process.h	/^#define PROC_STATE_WAITING /;"	d
+RED	kernel/include/k_debug.h	/^#define RED /;"	d
+SCRN_H	kernel/include/k_debug.h	/^#define SCRN_H /;"	d
+SCRN_W	kernel/include/k_debug.h	/^#define SCRN_W /;"	d
+SEG_KERNEL_CODE	kernel/include/idt.h	/^#define SEG_KERNEL_CODE /;"	d
+SEG_KERNEL_DATA	kernel/include/idt.h	/^#define SEG_KERNEL_DATA /;"	d
+SEG_TSS	kernel/include/idt.h	/^#define SEG_TSS /;"	d
+SEG_USER_CODE	kernel/include/idt.h	/^#define SEG_USER_CODE /;"	d
+SEG_USER_DATA	kernel/include/idt.h	/^#define SEG_USER_DATA /;"	d
+SOURCES	init/Makefile	/^SOURCES := $(shell find . -name "*.S" | grep -v boot.S)$/;"	m
+SOURCES	kernel/Makefile	/^SOURCES := .\/boot\/boot.S .\/boot\/kinit.c $/;"	m
+SOURCES	library/Makefile	/^SOURCES := $(shell find . -name "*.S" | grep -v boot.S)$/;"	m
+SPIC_CMD_PORT	kernel/include/idt.h	/^#define SPIC_CMD_PORT /;"	d
+SPIC_DATA_PORT	kernel/include/idt.h	/^#define SPIC_DATA_PORT /;"	d
+STACKITEM	library/include/stdarg.h	/^  #define STACKITEM /;"	d
+STRINGIFY	kernel/include/thread.h	/^#define STRINGIFY(/;"	d
+SUBDIR	init/Makefile	/^SUBDIR := init$/;"	m
+SUBDIR	kernel/Makefile	/^SUBDIR := kernel$/;"	m
+SUBDIR	library/Makefile	/^SUBDIR := library$/;"	m
+SYSCALL_EXIT	library/include/syscall.h	/^#define SYSCALL_EXIT /;"	d
+SYSCALL_FORK	library/include/syscall.h	/^#define SYSCALL_FORK /;"	d
+SYSCALL_GETPID	library/include/syscall.h	/^#define SYSCALL_GETPID /;"	d
+SYSCALL_OK	library/include/syscall.h	/^#define SYSCALL_OK /;"	d
+SYSCALL_PRINTF	library/include/syscall.h	/^#define SYSCALL_PRINTF /;"	d
+SYSCALL_UNIMPL	library/include/syscall.h	/^#define SYSCALL_UNIMPL /;"	d
+SYSCALL_WAITPID	library/include/syscall.h	/^#define SYSCALL_WAITPID /;"	d
+TARGET	init/Makefile	/^TARGET := $(BUILDDIR)\/$(SUBDIR)\/init$/;"	m
+TARGET	kernel/Makefile	/^TARGET := $(BUILDDIR)\/$(SUBDIR)\/kernel$/;"	m
+TARGET	library/Makefile	/^TARGET := $(BUILDDIR)\/$(SUBDIR)\/clib.a$/;"	m
+THREAD_STACK_SIZE	kernel/include/thread.h	/^#define THREAD_STACK_SIZE /;"	d
+THREAD_STACK_SPACE	kernel/include/thread.h	/^#define THREAD_STACK_SPACE /;"	d
+THREAD_STATE_FINISHED	kernel/include/thread.h	/^#define THREAD_STATE_FINISHED /;"	d
+THREAD_STATE_READY	kernel/include/thread.h	/^#define THREAD_STATE_READY /;"	d
+THREAD_STATE_WAITING	kernel/include/thread.h	/^#define THREAD_STATE_WAITING /;"	d
+TOSTRING	kernel/include/thread.h	/^#define TOSTRING(/;"	d
+TRUE	library/include/ctype.h	/^#define TRUE /;"	d
+USER_STACK_BOTTOM	kernel/include/vmm.h	/^#define USER_STACK_BOTTOM /;"	d
+USER_STACK_TOP	kernel/include/vmm.h	/^#define USER_STACK_TOP /;"	d
+VA_SIZE	library/include/stdarg.h	/^  #define VA_SIZE(/;"	d
+VGA_STYLE	kernel/include/k_debug.h	/^#define VGA_STYLE(/;"	d
+VIDMEM	kernel/include/k_debug.h	/^#define VIDMEM /;"	d
+VMM_EXPAGE_DIR	kernel/include/vmm.h	/^#define VMM_EXPAGE_DIR /;"	d
+VMM_EXPAGE_TABLES	kernel/include/vmm.h	/^#define VMM_EXPAGE_TABLES /;"	d
+VMM_PAGES_PER_TABLE	kernel/include/vmm.h	/^#define VMM_PAGES_PER_TABLE /;"	d
+VMM_PAGE_DIR	kernel/include/vmm.h	/^#define VMM_PAGE_DIR /;"	d
+VMM_PAGE_TABLES	kernel/include/vmm.h	/^#define VMM_PAGE_TABLES /;"	d
+VMM_TEMP1	kernel/include/vmm.h	/^#define VMM_TEMP1 /;"	d
+VMM_TEMP2	kernel/include/vmm.h	/^#define VMM_TEMP2 /;"	d
+VPATH	init/Makefile	/^VPATH := .\/$/;"	m
+VPATH	kernel/Makefile	/^VPATH := .\/ $(DIRS)$/;"	m
+VPATH	library/Makefile	/^VPATH := .\/ $(DIRS)$/;"	m
+WHITE	kernel/include/k_debug.h	/^#define WHITE /;"	d
+__gnuc_va_list	library/include/stdarg.h	/^  typedef __builtin_va_list __gnuc_va_list;$/;"	t
+__va_rounded_size	library/include/stdarg.h	/^  #define __va_rounded_size(/;"	d
+_clock	kernel/boot/kinit.c	/^void _clock(void)$/;"	f
+_idle	kernel/boot/kinit.c	/^void _idle(void)$/;"	f
+_init	library/init/init.c	/^void _init()$/;"	f
+_start	library/crt0.S	/^_start:$/;"	l
+access	kernel/include/idt.h	/^  uint8_t access;$/;"	m	struct:gdt_struct
+address	kernel/include/elf.h	/^  uint32_t address;$/;"	m	struct:__anon4
+address_align	kernel/include/elf.h	/^  uint32_t address_align;$/;"	m	struct:__anon4
+alloc_area	kernel/mem/procmm.c	/^mem_area_t *alloc_area(uintptr_t start, uintptr_t end, $/;"	f
+alloc_process	kernel/proc/process.c	/^process_t *alloc_process()$/;"	f
+alloc_thread	kernel/proc/thread.c	/^thread_t *alloc_thread()$/;"	f
+allocated	kernel/include/heap.h	/^  uint32_t allocated : 1;$/;"	m	struct:heap_header_struct
+apm_table	kernel/include/multiboot.h	/^  uint32_t apm_table;$/;"	m	struct:mboot_info_st
+append_to_list	kernel/include/lists.h	/^#define append_to_list(/;"	d
+arg_end	kernel/include/process.h	/^  uintptr_t arg_end;$/;"	m	struct:process_mem_struct
+arg_start	kernel/include/process.h	/^  uintptr_t arg_start;$/;"	m	struct:process_mem_struct
+assert	kernel/include/k_debug.h	/^  #define assert(/;"	d
+assert	kernel/include/k_debug.h	/^#define assert(/;"	d
+assert_higher	kernel/include/vmm.h	/^#define assert_higher(/;"	d
+base_addr_lower	kernel/include/multiboot.h	/^  uint32_t base_addr_lower;$/;"	m	struct:mboot_mmap_entry_st
+base_addr_upper	kernel/include/multiboot.h	/^  uint32_t base_addr_upper;$/;"	m	struct:mboot_mmap_entry_st
+base_h	kernel/include/idt.h	/^  uint16_t base_h;$/;"	m	struct:interrupt_descriptor
+base_h	kernel/include/idt.h	/^  uint8_t base_h;$/;"	m	struct:gdt_struct
+base_l	kernel/include/idt.h	/^  uint16_t base_l;$/;"	m	struct:gdt_struct
+base_l	kernel/include/idt.h	/^  uint16_t base_l;$/;"	m	struct:interrupt_descriptor
+base_m	kernel/include/idt.h	/^  uint8_t base_m;$/;"	m	struct:gdt_struct
+boot_device	kernel/include/multiboot.h	/^  uint32_t boot_device;$/;"	m	struct:mboot_info_st
+boot_load_name	kernel/include/multiboot.h	/^  uint32_t boot_load_name;$/;"	m	struct:mboot_info_st
+boot_thread	kernel/include/thread.h	/^thread_info_t *boot_thread;$/;"	v
+call	kernel/boot/boot.S	/^call kinit$/;"	l
+child	kernel/include/process.h	/^  struct process_struct *child;$/;"	m	struct:process_struct	typeref:struct:process_struct::process_struct
+chunk_data	kernel/include/heap.h	/^#define chunk_data(/;"	d
+chunk_head	kernel/include/heap.h	/^#define chunk_head(/;"	d
+chunk_t	kernel/include/heap.h	/^} chunk_t;$/;"	t	typeref:struct:heap_header_struct
+clone_thread	kernel/proc/thread.c	/^thread_t *clone_thread(thread_t *th)$/;"	f
+cmdline	kernel/include/multiboot.h	/^  uint32_t cmdline;$/;"	m	struct:mboot_info_st
+code_end	kernel/include/process.h	/^  uintptr_t code_end;$/;"	m	struct:process_mem_struct
+code_entry	kernel/include/process.h	/^  uintptr_t code_entry;$/;"	m	struct:process_mem_struct
+code_start	kernel/include/process.h	/^  uintptr_t code_start;$/;"	m	struct:process_mem_struct
+config_table	kernel/include/multiboot.h	/^  uint32_t config_table;$/;"	m	struct:mboot_info_st
+contract_heap	kernel/mem/heap.c	/^void contract_heap(chunk_t *c)$/;"	f
+copies	kernel/include/procmm.h	/^  list_t copies;$/;"	m	struct:mem_area_struct
+cs	kernel/include/arch.h	/^uint32_t cs;$/;"	m	struct:__anon1
+cs	kernel/include/idt.h	/^  uint32_t es, cs, ss, ds, fs, gs;$/;"	m	struct:tss_struct
+current	kernel/include/thread.h	/^#define current /;"	d
+current_thread_info	kernel/proc/thread.c	/^thread_info_t *current_thread_info()$/;"	f
+debug	kernel/include/k_debug.h	/^  #define debug(/;"	d
+debug	kernel/include/k_debug.h	/^#define debug /;"	d
+debug_sem	kernel/include/k_debug.h	/^semaphore_t debug_sem;$/;"	v
+disable_interrupts	kernel/include/arch.h	/^#define disable_interrupts(/;"	d
+drives_addr	kernel/include/multiboot.h	/^  uint32_t drives_addr;$/;"	m	struct:mboot_info_st
+drives_length	kernel/include/multiboot.h	/^  uint32_t drives_length;$/;"	m	struct:mboot_info_st
+ds	kernel/include/arch.h	/^  mov ds, %2$/;"	v
+ds	kernel/include/arch.h	/^uint32_t ds;$/;"	m	struct:__anon1
+ds	kernel/include/idt.h	/^  uint32_t es, cs, ss, ds, fs, gs;$/;"	m	struct:tss_struct
+e	kernel/include/arch.h	/^  mov e%2, %1$/;"	v
+eax	kernel/include/arch.h	/^uint32_t ebx, edx, ecx, eax;$/;"	m	struct:__anon1
+eax	library/include/syscall.h	/^  mov eax, %1$/;"	v
+ebp	kernel/include/arch.h	/^uint32_t edi, esi, ebp, esp;$/;"	m	struct:__anon1
+ebx	kernel/include/arch.h	/^uint32_t ebx, edx, ecx, eax;$/;"	m	struct:__anon1
+ecx	kernel/include/arch.h	/^uint32_t ebx, edx, ecx, eax;$/;"	m	struct:__anon1
+edi	kernel/include/arch.h	/^uint32_t edi, esi, ebp, esp;$/;"	m	struct:__anon1
+edx	kernel/include/arch.h	/^uint32_t ebx, edx, ecx, eax;$/;"	m	struct:__anon1
+eflags	kernel/include/arch.h	/^uint32_t eflags, useresp, ss;$/;"	m	struct:__anon1
+eip	kernel/include/arch.h	/^uint32_t eip;$/;"	m	struct:__anon1
+elf_ehsize	kernel/include/elf.h	/^  uint16_t elf_ehsize;$/;"	m	struct:__anon2
+elf_entry	kernel/include/elf.h	/^  uint32_t elf_entry;$/;"	m	struct:__anon2
+elf_flags	kernel/include/elf.h	/^  uint32_t elf_flags;$/;"	m	struct:__anon2
+elf_header	kernel/include/elf.h	/^}__attribute__((packed)) elf_header;$/;"	t	typeref:struct:__anon2
+elf_ident	kernel/include/elf.h	/^  uint8_t elf_ident[16];$/;"	m	struct:__anon2
+elf_machine	kernel/include/elf.h	/^  uint16_t elf_machine;$/;"	m	struct:__anon2
+elf_phead	kernel/include/elf.h	/^}__attribute__((packed)) elf_phead;$/;"	t	typeref:struct:__anon3
+elf_phentsize	kernel/include/elf.h	/^  uint16_t elf_phentsize;$/;"	m	struct:__anon2
+elf_phnum	kernel/include/elf.h	/^  uint16_t elf_phnum;$/;"	m	struct:__anon2
+elf_phoff	kernel/include/elf.h	/^  uint32_t elf_phoff;$/;"	m	struct:__anon2
+elf_section_head	kernel/include/elf.h	/^}__attribute__((packed)) elf_section_head;$/;"	t	typeref:struct:__anon4
+elf_shentsize	kernel/include/elf.h	/^  uint16_t elf_shentsize;$/;"	m	struct:__anon2
+elf_shnum	kernel/include/elf.h	/^  uint16_t elf_shnum;$/;"	m	struct:__anon2
+elf_shoff	kernel/include/elf.h	/^  uint32_t elf_shoff;$/;"	m	struct:__anon2
+elf_shstrndx	kernel/include/elf.h	/^  uint16_t elf_shstrndx;$/;"	m	struct:__anon2
+elf_symbol	kernel/include/elf.h	/^}__attribute__((packed)) elf_symbol;$/;"	t	typeref:struct:__anon5
+elf_t	kernel/include/elf.h	/^}__attribute__((packed)) elf_t;$/;"	t	typeref:struct:__anon6
+elf_type	kernel/include/elf.h	/^  uint16_t elf_type;$/;"	m	struct:__anon2
+elf_version	kernel/include/elf.h	/^  uint32_t elf_version;$/;"	m	struct:__anon2
+enable_interrupts	kernel/include/arch.h	/^#define enable_interrupts(/;"	d
+end	kernel/include/procmm.h	/^  uintptr_t end;$/;"	m	struct:mem_area_struct
+entry_size	kernel/include/elf.h	/^  uint32_t entry_size;$/;"	m	struct:__anon4
+env_end	kernel/include/process.h	/^  uintptr_t env_end;$/;"	m	struct:process_mem_struct
+env_start	kernel/include/process.h	/^  uintptr_t env_start;$/;"	m	struct:process_mem_struct
+err_code	kernel/include/arch.h	/^uint32_t int_no, err_code;$/;"	m	struct:__anon1
+es	kernel/include/arch.h	/^  mov es, %2$/;"	v
+es	kernel/include/idt.h	/^  uint32_t es, cs, ss, ds, fs, gs;$/;"	m	struct:tss_struct
+esi	kernel/include/arch.h	/^uint32_t edi, esi, ebp, esp;$/;"	m	struct:__anon1
+esp	kernel/include/arch.h	/^uint32_t edi, esi, ebp, esp;$/;"	m	struct:__anon1
+esp0	kernel/include/idt.h	/^  uint32_t esp0;$/;"	m	struct:tss_struct
+exit	kernel/include/k_syscall.h	/^KDECL_SYSCALL(exit);$/;"	v
+exit_code	kernel/include/process.h	/^  uint32_t exit_code;$/;"	m	struct:process_struct
+exit_process	kernel/proc/process.c	/^void exit_process(process_t *proc, uint32_t exit_code)$/;"	f
+expage_directory	kernel/mem/vmm.c	/^uintptr_t *expage_directory = (uintptr_t *)VMM_EXPAGE_DIR;$/;"	v
+expage_tables	kernel/mem/vmm.c	/^uintptr_t *expage_tables = (uintptr_t *)VMM_EXPAGE_TABLES;$/;"	v
+expand_heap	kernel/mem/heap.c	/^void expand_heap(uintptr_t start, uint32_t size)$/;"	f
+find_above	kernel/mem/procmm.c	/^mem_area_t *find_above(process_t *p, uintptr_t addr)$/;"	f
+find_including	kernel/mem/procmm.c	/^mem_area_t *find_including(process_t *p, uintptr_t addr)$/;"	f
+flags	kernel/include/elf.h	/^  uint32_t flags;$/;"	m	struct:__anon4
+flags	kernel/include/idt.h	/^  uint8_t flags :4;$/;"	m	struct:gdt_struct
+flags	kernel/include/idt.h	/^  uint8_t flags;$/;"	m	struct:interrupt_descriptor
+flags	kernel/include/multiboot.h	/^  uint32_t flags;$/;"	m	struct:mboot_info_st
+flags	kernel/include/procmm.h	/^  uint32_t flags;$/;"	m	struct:mem_area_struct
+for_each_in_list	kernel/include/lists.h	/^#define for_each_in_list(/;"	d
+fork	kernel/include/k_syscall.h	/^KDECL_SYSCALL(fork);$/;"	v
+fork	library/include/syscall.h	/^DECL_SYSCALL0(fork);$/;"	v
+fork_process	kernel/proc/process.c	/^process_t *fork_process()$/;"	f
+free_area	kernel/mem/procmm.c	/^void free_area(mem_area_t *ma)$/;"	f
+free_process	kernel/proc/process.c	/^void free_process(process_t *proc)$/;"	f
+free_thread	kernel/proc/thread.c	/^void free_thread(thread_t *th)$/;"	f
+fs	kernel/include/arch.h	/^  mov fs, %2$/;"	v
+fs	kernel/include/idt.h	/^  uint32_t es, cs, ss, ds, fs, gs;$/;"	m	struct:tss_struct
+gdt	kernel/boot/boot.S	/^gdt:$/;"	l
+gdt_entry_t	kernel/include/idt.h	/^}__attribute__((packed)) gdt_entry_t;$/;"	t	typeref:struct:gdt_struct
+gdt_ptr	kernel/boot/boot.S	/^gdt_ptr:$/;"	l
+gdt_struct	kernel/include/idt.h	/^typedef struct gdt_struct$/;"	s
+get_process	kernel/proc/process.c	/^process_t *get_process(uint32_t pid)$/;"	f
+getpid	kernel/include/k_syscall.h	/^KDECL_SYSCALL(getpid);$/;"	v
+getpid	library/include/syscall.h	/^DECL_SYSCALL0(getpid);$/;"	v
+global_tss	kernel/include/idt.h	/^tss_t global_tss;$/;"	v
+glue_area	kernel/mem/procmm.c	/^mem_area_t *glue_area(mem_area_t *ma)$/;"	f
+glue_chunk	kernel/mem/heap.c	/^void glue_chunk(chunk_t *c)$/;"	f
+gs	kernel/include/arch.h	/^  mov gs, %2$/;"	v
+gs	kernel/include/idt.h	/^  uint32_t es, cs, ss, ds, fs, gs;$/;"	m	struct:tss_struct
+heap_first	kernel/mem/heap.c	/^chunk_t *heap_first = 0;$/;"	v
+heap_header_struct	kernel/include/heap.h	/^typedef struct heap_header_struct$/;"	s
+heap_sem	kernel/mem/heap.c	/^semaphore_t heap_sem;$/;"	v
+heap_top	kernel/mem/heap.c	/^uintptr_t heap_top = KERNEL_HEAP_START;$/;"	v
+idt	kernel/arch/idt.c	/^idt_entry_t idt[NUM_INTERRUPTS];$/;"	v
+idt_entry_t	kernel/include/idt.h	/^} __attribute__((packed)) idt_entry_t;$/;"	t	typeref:struct:interrupt_descriptor
+idt_flush	kernel/arch/int.S	/^idt_flush:$/;"	l
+idt_handler	kernel/arch/idt.c	/^registers_t *idt_handler(registers_t *r)$/;"	f
+idt_init	kernel/arch/idt.c	/^void idt_init()$/;"	f
+idt_p	kernel/arch/idt.c	/^struct idt_pointer idt_p;$/;"	v	typeref:struct:idt_pointer
+idt_pointer	kernel/include/idt.h	/^struct idt_pointer$/;"	s
+idt_raw	kernel/arch/idt.c	/^isr_t *idt_raw[] = $/;"	v
+idt_set	kernel/arch/idt.c	/^void idt_set(uint32_t num, uint32_t base, uint32_t segment, uint8_t flags)$/;"	f
+idt_set_base	kernel/include/idt.h	/^#define idt_set_base(/;"	d
+inb	kernel/include/arch.h	/^#define inb(/;"	d
+info	kernel/include/elf.h	/^  uint32_t info;$/;"	m	struct:__anon4
+info	kernel/include/elf.h	/^  uint8_t info;$/;"	m	struct:__anon5
+init_list	kernel/include/lists.h	/^#define init_list(/;"	d
+init_procmm	kernel/mem/procmm.c	/^void init_procmm(process_t *p)$/;"	f
+init_pstack	kernel/include/k_syscall.h	/^#define init_pstack(/;"	d
+int16_t	library/include/stdint.h	/^typedef signed short int16_t;$/;"	t
+int32_t	library/include/stdint.h	/^typedef signed int int32_t;$/;"	t
+int64_t	library/include/stdint.h	/^typedef signed long long int64_t;$/;"	t
+int8_t	library/include/stdint.h	/^typedef signed char int8_t;$/;"	t
+int_handler_t	kernel/include/idt.h	/^typedef registers_t *(*int_handler_t)(registers_t *);$/;"	t
+int_handlers	kernel/arch/idt.c	/^int_handler_t int_handlers[NUM_INTERRUPTS];$/;"	v
+int_no	kernel/include/arch.h	/^uint32_t int_no, err_code;$/;"	m	struct:__anon1
+int_return	kernel/arch/int.S	/^int_return:$/;"	l
+int_stub	kernel/arch/int.S	/^int_stub:$/;"	l
+interrupt_descriptor	kernel/include/idt.h	/^typedef struct interrupt_descriptor$/;"	s
+inw	kernel/include/arch.h	/^#define inw(/;"	d
+iomap	kernel/include/idt.h	/^  uint16_t trap, iomap;$/;"	m	struct:tss_struct
+isalnum	library/include/ctype.h	/^#define isalnum(/;"	d
+isalpha	library/include/ctype.h	/^#define isalpha(/;"	d
+iscntrl	library/include/ctype.h	/^#define iscntrl(/;"	d
+isdigit	library/include/ctype.h	/^#define isdigit(/;"	d
+isgraph	library/include/ctype.h	/^#define isgraph(/;"	d
+islower	library/include/ctype.h	/^#define islower(/;"	d
+isprint	library/include/ctype.h	/^#define isprint(/;"	d
+ispunct	library/include/ctype.h	/^#define ispunct(/;"	d
+isr_t	kernel/include/idt.h	/^typedef void (*isr_t)(void);$/;"	t
+isspace	library/include/ctype.h	/^#define isspace(/;"	d
+isupper	library/include/ctype.h	/^#define isupper(/;"	d
+isxdigit	library/include/ctype.h	/^#define isxdigit(/;"	d
+jmp	kernel/boot/boot.S	/^jmp \$$/;"	l
+jmp	kernel/boot/boot.S	/^jmp int_return$/;"	l
+kcalloc	kernel/mem/heap.c	/^void *kcalloc(uint32_t size)$/;"	f
+kdbg_getpos	kernel/drivers/debug.c	/^void kdbg_getpos(uint32_t *x, uint32_t *y)$/;"	f
+kdbg_init	kernel/drivers/debug.c	/^void kdbg_init()$/;"	f
+kdbg_num2str	kernel/drivers/debug.c	/^int kdbg_num2str(uint32_t num, uint32_t base, char *buf)$/;"	f
+kdbg_printf	kernel/drivers/debug.c	/^void kdbg_printf(char *str, ...)$/;"	f
+kdbg_putch	kernel/drivers/debug.c	/^void kdbg_putch(uint8_t c, uint8_t style)$/;"	f
+kdbg_scroll	kernel/drivers/debug.c	/^void kdbg_scroll()$/;"	f
+kdbg_setpos	kernel/drivers/debug.c	/^void kdbg_setpos(uint32_t x, uint32_t y)$/;"	f
+kernel_booted	kernel/include/thread.h	/^uint32_t kernel_booted;$/;"	v
+kernel_elf	kernel/include/elf.h	/^elf_t kernel_elf;$/;"	v
+kernel_elf_init	kernel/proc/elf.c	/^void kernel_elf_init(mboot_info_t *mboot)$/;"	f
+kernel_lookup_symbol	kernel/proc/elf.c	/^char *kernel_lookup_symbol(uint32_t addr)$/;"	f
+kernel_pd	kernel/include/vmm.h	/^page_dir_t kernel_pd;$/;"	v
+kernel_pd_sem	kernel/include/vmm.h	/^semaphore_t kernel_pd_sem;$/;"	v
+kernel_thread	kernel/include/thread.h	/^  registers_t *kernel_thread;$/;"	m	struct:thread_struct
+kfree	kernel/mem/heap.c	/^void kfree(void *a)$/;"	f
+kinit	kernel/boot/kinit.c	/^registers_t *kinit(mboot_info_t *mboot, uint32_t mboot_magic)$/;"	f
+kmalloc	kernel/mem/heap.c	/^void *kmalloc(uint32_t size)$/;"	f
+kvalloc	kernel/mem/heap.c	/^void *kvalloc(uint32_t size)$/;"	f
+ldt	kernel/include/idt.h	/^  uint32_t ldt;$/;"	m	struct:tss_struct
+length_lower	kernel/include/multiboot.h	/^  uint32_t length_lower;$/;"	m	struct:mboot_mmap_entry_st
+length_upper	kernel/include/multiboot.h	/^  uint32_t length_upper;$/;"	m	struct:mboot_mmap_entry_st
+limit_h	kernel/include/idt.h	/^  uint8_t limit_h: 4;$/;"	m	struct:gdt_struct
+limit_l	kernel/include/idt.h	/^  uint16_t limit_l;$/;"	m	struct:gdt_struct
+link	kernel/include/elf.h	/^  uint32_t link;$/;"	m	struct:__anon4
+list_empty	kernel/include/lists.h	/^#define list_empty(/;"	d
+list_entry	kernel/include/lists.h	/^#define list_entry(/;"	d
+list_head_t	kernel/include/lists.h	/^typedef list_t list_head_t;$/;"	t
+list_insert_to_left	kernel/include/lists.h	/^#define list_insert_to_left(/;"	d
+list_insert_to_right	kernel/include/lists.h	/^#define list_insert_to_right(/;"	d
+list_struct	kernel/include/lists.h	/^typedef struct list_struct$/;"	s
+list_t	kernel/include/lists.h	/^} list_t;$/;"	t	typeref:struct:list_struct
+load_elf	kernel/proc/elf.c	/^void load_elf(elf_header *image)$/;"	f
+load_elf_segment	kernel/proc/elf.c	/^void load_elf_segment(elf_header *image, elf_phead *phead)$/;"	f
+main	init/main.c	/^int main()$/;"	f
+mask_int	kernel/arch/idt.c	/^void mask_int(unsigned char int_no)$/;"	f
+max	library/include/common.h	/^#define max(/;"	d
+mboot_info_st	kernel/include/multiboot.h	/^typedef struct mboot_info_st$/;"	s
+mboot_info_t	kernel/include/multiboot.h	/^}__attribute__((packed)) mboot_info_t;$/;"	t	typeref:struct:mboot_info_st
+mboot_mmap_entry_st	kernel/include/multiboot.h	/^typedef struct mboot_mmap_entry_st$/;"	s
+mboot_mmap_entry_t	kernel/include/multiboot.h	/^}__attribute__((packed)) mboot_mmap_entry_t;$/;"	t	typeref:struct:mboot_mmap_entry_st
+mboot_mod_t	kernel/include/multiboot.h	/^}__attribute__((packed)) mboot_mod_t;$/;"	t	typeref:struct:mboot_mods_st
+mboot_mods_st	kernel/include/multiboot.h	/^typedef struct mboot_mods_st$/;"	s
+mem	kernel/include/process.h	/^  list_head_t mem;$/;"	m	struct:process_mem_struct
+mem	kernel/include/procmm.h	/^  list_t mem;$/;"	m	struct:mem_area_struct
+mem_area_struct	kernel/include/procmm.h	/^typedef struct mem_area_struct$/;"	s
+mem_area_t	kernel/include/procmm.h	/^} mem_area_t;$/;"	t	typeref:struct:mem_area_struct
+mem_lower	kernel/include/multiboot.h	/^  uint32_t mem_lower;$/;"	m	struct:mboot_info_st
+mem_upper	kernel/include/multiboot.h	/^  uint32_t mem_upper;$/;"	m	struct:mboot_info_st
+memcopy	library/include/memory.h	/^#define memcopy(/;"	d
+memset	library/include/memory.h	/^#define memset(/;"	d
+min	library/include/common.h	/^#define min(/;"	d
+mm	kernel/include/process.h	/^  process_mem_t mm;$/;"	m	struct:process_struct
+mmap_addr	kernel/include/multiboot.h	/^  uint32_t mmap_addr;$/;"	m	struct:mboot_info_st
+mmap_length	kernel/include/multiboot.h	/^  uint32_t mmap_length;$/;"	m	struct:mboot_info_st
+mod_end	kernel/include/multiboot.h	/^  uint32_t mod_end;$/;"	m	struct:mboot_mods_st
+mod_start	kernel/include/multiboot.h	/^  uint32_t mod_start;$/;"	m	struct:mboot_mods_st
+mods_addr	kernel/include/multiboot.h	/^  uint32_t mods_addr;$/;"	m	struct:mboot_info_st
+mods_count	kernel/include/multiboot.h	/^  uint32_t mods_count;$/;"	m	struct:mboot_info_st
+mov	kernel/boot/boot.S	/^mov esp, eax$/;"	l
+mov	library/include/syscall.h	/^  mov [syscall_errno], ebx$/;"	v
+name	kernel/include/elf.h	/^  uint32_t name;$/;"	m	struct:__anon4
+name	kernel/include/elf.h	/^  uint32_t name;$/;"	m	struct:__anon5
+new_area	kernel/mem/procmm.c	/^mem_area_t *new_area(process_t *p, uintptr_t start,$/;"	f
+new_thread	kernel/proc/thread.c	/^thread_t *new_thread(void (*func)(void), uint8_t user)$/;"	f
+next	kernel/include/heap.h	/^  struct heap_header_struct *prev, *next;$/;"	m	struct:heap_header_struct	typeref:struct:heap_header_struct::
+next	kernel/include/lists.h	/^  struct list_struct *next;$/;"	m	struct:list_struct	typeref:struct:list_struct::list_struct
+next	kernel/include/scheduler.h	/^  struct thread_struct  *next;$/;"	m	struct:__anon7	typeref:struct:__anon7::thread_struct
+next_pid	kernel/proc/process.c	/^uint32_t next_pid = 1;$/;"	v
+next_tid	kernel/proc/thread.c	/^uint32_t next_tid=1;$/;"	v
+offset	kernel/include/elf.h	/^  uint32_t offset;$/;"	m	struct:__anon4
+offset	kernel/include/idt.h	/^  uint32_t offset;$/;"	m	struct:idt_pointer
+offsetof	kernel/include/lists.h	/^#define offsetof(/;"	d
+older_sibling	kernel/include/process.h	/^  struct process_struct *older_sibling;$/;"	m	struct:process_struct	typeref:struct:process_struct::process_struct
+other	kernel/include/elf.h	/^  uint8_t other;$/;"	m	struct:__anon5
+outb	kernel/include/arch.h	/^#define outb(/;"	d
+outw	kernel/include/arch.h	/^#define outw(/;"	d
+owner	kernel/include/procmm.h	/^  process_t *owner;$/;"	m	struct:mem_area_struct
+p_align	kernel/include/elf.h	/^  uint32_t p_align;$/;"	m	struct:__anon3
+p_filesz	kernel/include/elf.h	/^  uint32_t p_filesz;$/;"	m	struct:__anon3
+p_flags	kernel/include/elf.h	/^  uint32_t p_flags;$/;"	m	struct:__anon3
+p_memsz	kernel/include/elf.h	/^  uint32_t p_memsz;$/;"	m	struct:__anon3
+p_offset	kernel/include/elf.h	/^  uint32_t p_offset;$/;"	m	struct:__anon3
+p_paddr	kernel/include/elf.h	/^  uint32_t p_paddr;$/;"	m	struct:__anon3
+p_type	kernel/include/elf.h	/^  uint32_t p_type;$/;"	m	struct:__anon3
+p_vaddr	kernel/include/elf.h	/^  uint32_t p_vaddr;$/;"	m	struct:__anon3
+page_dir_t	kernel/include/vmm.h	/^typedef uintptr_t page_dir_t;$/;"	t
+page_directory	kernel/mem/vmm.c	/^uintptr_t *page_directory = (uintptr_t *)VMM_PAGE_DIR;$/;"	v
+page_fault_handler	kernel/fault/page_fault.c	/^registers_t *page_fault_handler(registers_t *r)$/;"	f
+page_tables	kernel/mem/vmm.c	/^uintptr_t *page_tables = (uintptr_t *)VMM_PAGE_TABLES;$/;"	v
+panic	kernel/include/k_debug.h	/^#define panic(/;"	d
+parent	kernel/include/process.h	/^  struct process_struct *parent;$/;"	m	struct:process_struct	typeref:struct:process_struct::process_struct
+pd	kernel/include/process.h	/^  uintptr_t pd;$/;"	m	struct:process_struct
+pd_sem	kernel/include/process.h	/^  semaphore_t pd_sem;$/;"	m	struct:process_struct
+pid	kernel/include/process.h	/^  uint32_t pid;$/;"	m	struct:process_struct
+pmm_alloc_page	kernel/mem/pmm.c	/^uintptr_t pmm_alloc_page()$/;"	f
+pmm_free_page	kernel/mem/pmm.c	/^void pmm_free_page(uintptr_t page)$/;"	f
+pmm_init	kernel/mem/pmm.c	/^void pmm_init(mboot_info_t *mboot)$/;"	f
+pmm_page_stack_max	kernel/mem/pmm.c	/^uintptr_t *pmm_page_stack_max = (uintptr_t *)PMM_PAGE_STACK;$/;"	v
+pmm_page_stack_ptr	kernel/mem/pmm.c	/^uintptr_t *pmm_page_stack_ptr = (uintptr_t *)PMM_PAGE_STACK;$/;"	v
+pmm_pos	kernel/mem/pmm.c	/^uintptr_t pmm_pos;$/;"	v
+pmm_running	kernel/mem/pmm.c	/^uint8_t pmm_running;$/;"	v
+pmm_sem	kernel/mem/pmm.c	/^semaphore_t pmm_sem;$/;"	v
+prev	kernel/include/heap.h	/^  struct heap_header_struct *prev, *next;$/;"	m	struct:heap_header_struct	typeref:struct:heap_header_struct::heap_header_struct
+prev	kernel/include/lists.h	/^  struct list_struct *prev;$/;"	m	struct:list_struct	typeref:struct:list_struct::list_struct
+prev	kernel/include/scheduler.h	/^  struct thread_struct *prev;$/;"	m	struct:__anon7	typeref:struct:__anon7::thread_struct
+print_areas	kernel/mem/procmm.c	/^void print_areas(process_t *p)$/;"	f
+print_registers	kernel/include/arch.h	/^#define print_registers(/;"	d
+print_stack_trace	kernel/drivers/debug.c	/^void print_stack_trace()$/;"	f
+printf	kernel/include/k_syscall.h	/^KDECL_SYSCALL(printf);$/;"	v
+proc	kernel/include/thread.h	/^  struct process_struct *proc;$/;"	m	struct:thread_struct	typeref:struct:thread_struct::process_struct
+proc_list	kernel/include/process.h	/^  list_head_t proc_list;$/;"	m	struct:process_struct
+process_init	kernel/proc/process.c	/^process_t *process_init(void (*func)(void))$/;"	f
+process_list	kernel/proc/process.c	/^list_head_t process_list;$/;"	v
+process_mem_struct	kernel/include/process.h	/^typedef struct process_mem_struct$/;"	s
+process_mem_t	kernel/include/process.h	/^} process_mem_t;$/;"	t	typeref:struct:process_mem_struct
+process_stack	kernel/include/k_syscall.h	/^typedef uintptr_t* process_stack;$/;"	t
+process_struct	kernel/include/process.h	/^typedef struct process_struct$/;"	s
+process_t	kernel/include/process.h	/^} process_t;$/;"	t	typeref:struct:process_struct
+process_threads	kernel/include/thread.h	/^  list_t process_threads;$/;"	m	struct:thread_struct
+procmm_exit	kernel/mem/procmm.c	/^void procmm_exit(process_t *proc)$/;"	f
+procmm_fork	kernel/mem/procmm.c	/^void procmm_fork(process_t *parent, process_t *child)$/;"	f
+procmm_handle_page_fault	kernel/mem/procmm.c	/^uint32_t procmm_handle_page_fault(uintptr_t address, uint32_t flags)$/;"	f
+procmm_sem	kernel/mem/procmm.c	/^semaphore_t procmm_sem;$/;"	v
+ptl	kernel/include/idt.h	/^  uint32_t ptl;$/;"	m	struct:tss_struct
+r	kernel/include/thread.h	/^  registers_t r;$/;"	m	struct:thread_struct
+register_int_handler	kernel/arch/idt.c	/^int_handler_t register_int_handler(uint32_t num, int_handler_t handler)$/;"	f
+register_syscall	kernel/syscall/syscall.c	/^syscall_t register_syscall(uint32_t num, syscall_t handler)$/;"	f
+registers_t	kernel/include/arch.h	/^} registers_t;$/;"	t	typeref:struct:__anon1
+remove_from_list	kernel/include/lists.h	/^#define remove_from_list(/;"	d
+reserved	kernel/include/idt.h	/^  uint8_t reserved;$/;"	m	struct:interrupt_descriptor
+reserved	kernel/include/multiboot.h	/^  uint32_t reserved;$/;"	m	struct:mboot_mods_st
+run_queue	kernel/proc/scheduler.c	/^list_head_t run_queue;$/;"	v
+schedule	kernel/include/thread.h	/^#define schedule(/;"	d
+scheduler_init	kernel/proc/scheduler.c	/^void scheduler_init()$/;"	f
+scheduler_insert	kernel/proc/scheduler.c	/^void scheduler_insert(thread_t *th)$/;"	f
+scheduler_list	kernel/proc/scheduler.c	/^void scheduler_list()$/;"	f
+scheduler_next	kernel/proc/scheduler.c	/^thread_t *scheduler_next()$/;"	f
+scheduler_remove	kernel/proc/scheduler.c	/^void scheduler_remove(thread_t *th)$/;"	f
+scheduler_sem	kernel/proc/scheduler.c	/^semaphore_t scheduler_sem;$/;"	v
+scheduler_sleep	kernel/proc/scheduler.c	/^void scheduler_sleep(thread_t *th, list_head_t *list)$/;"	f
+scheduler_wake	kernel/proc/scheduler.c	/^void scheduler_wake(list_head_t *list)$/;"	f
+scrn_x	kernel/drivers/debug.c	/^uint32_t scrn_x, scrn_y;$/;"	v
+scrn_y	kernel/drivers/debug.c	/^uint32_t scrn_x, scrn_y;$/;"	v
+section	kernel/boot/boot.S	/^section .bss$/;"	l
+section	kernel/boot/boot.S	/^section .data$/;"	l
+section	kernel/boot/boot.S	/^section .text$/;"	l
+segment	kernel/include/idt.h	/^  uint16_t segment;$/;"	m	struct:interrupt_descriptor
+semaphore_t	kernel/include/synch.h	/^typedef uintptr_t semaphore_t;$/;"	t
+set_gdt_base	kernel/include/idt.h	/^#define set_gdt_base(/;"	d
+set_gdt_limit	kernel/include/idt.h	/^#define set_gdt_limit(/;"	d
+set_kernel_stack	kernel/include/idt.h	/^#define set_kernel_stack(/;"	d
+share_area	kernel/mem/procmm.c	/^void share_area(process_t *copy, mem_area_t *ma)$/;"	f
+shindex	kernel/include/elf.h	/^  uint16_t shindex;$/;"	m	struct:__anon5
+size	kernel/include/elf.h	/^  uint32_t size;$/;"	m	struct:__anon4
+size	kernel/include/elf.h	/^  uint32_t size;$/;"	m	struct:__anon5
+size	kernel/include/heap.h	/^  uint32_t size : 31;$/;"	m	struct:heap_header_struct
+size	kernel/include/idt.h	/^  uint16_t size;$/;"	m	struct:idt_pointer
+size	kernel/include/multiboot.h	/^  uint32_t size;$/;"	m	struct:mboot_mmap_entry_st
+size_checker	kernel/proc/thread.c	/^uint32_t size_checker[1-2*!(THREAD_STACK_SPACE > MIN_THREAD_STACK_SIZE)];$/;"	v
+size_t	library/include/stdint.h	/^typedef uint32_t size_t;$/;"	t
+spin_lock	kernel/arch/synch.S	/^spin_lock:$/;"	l
+spin_unlock	kernel/include/synch.h	/^#define spin_unlock(/;"	d
+split_area	kernel/mem/procmm.c	/^mem_area_t *split_area(mem_area_t *ma, uintptr_t start, uintptr_t end)$/;"	f
+split_chunk	kernel/mem/heap.c	/^void split_chunk(chunk_t *c, uint32_t size)$/;"	f
+ss	kernel/include/arch.h	/^  mov ss, %2$/;"	v
+ss	kernel/include/arch.h	/^uint32_t eflags, useresp, ss;$/;"	m	struct:__anon1
+ss	kernel/include/idt.h	/^  uint32_t es, cs, ss, ds, fs, gs;$/;"	m	struct:tss_struct
+ss0	kernel/include/idt.h	/^  uint32_t ss0;$/;"	m	struct:tss_struct
+stack_from_tcb	kernel/include/thread.h	/^#define stack_from_tcb(/;"	d
+stack_from_thinfo	kernel/include/thread.h	/^#define stack_from_thinfo(/;"	d
+stack_limit	kernel/include/process.h	/^  uintptr_t stack_limit;$/;"	m	struct:process_mem_struct
+stackspace	kernel/include/thread.h	/^  uint8_t stackspace[THREAD_STACK_SPACE];$/;"	m	struct:thread_info_struct
+start	kernel/boot/boot.S	/^start:$/;"	l
+start	kernel/include/procmm.h	/^  uintptr_t start;$/;"	m	struct:mem_area_struct
+state	kernel/include/process.h	/^  uint32_t state;$/;"	m	struct:process_struct
+state	kernel/include/thread.h	/^  uint32_t state;$/;"	m	struct:thread_struct
+strcmp	library/strings/strings.c	/^uint32_t strcmp(char *a, char *b)$/;"	f
+string	kernel/include/multiboot.h	/^  uint8_t string[4];$/;"	m	struct:mboot_mods_st
+strlen	library/strings/strings.c	/^uint32_t strlen(char *str)$/;"	f
+strtab	kernel/include/elf.h	/^  uint8_t *strtab;$/;"	m	struct:__anon6
+strtab_size	kernel/include/elf.h	/^  uint32_t strtab_size;$/;"	m	struct:__anon6
+swap	library/include/common.h	/^#define swap(/;"	d
+switch_kernel_thread	kernel/proc/thread.c	/^registers_t *switch_kernel_thread(registers_t *r)$/;"	f
+switch_process	kernel/proc/process.c	/^void switch_process(process_t *proc)$/;"	f
+symbol_addr	kernel/include/multiboot.h	/^  uint32_t symbol_addr;$/;"	m	struct:mboot_info_st
+symbol_num	kernel/include/multiboot.h	/^  uint32_t symbol_num;$/;"	m	struct:mboot_info_st
+symbol_shndx	kernel/include/multiboot.h	/^  uint32_t symbol_shndx;$/;"	m	struct:mboot_info_st
+symbol_size	kernel/include/multiboot.h	/^  uint32_t symbol_size;$/;"	m	struct:mboot_info_st
+symtab	kernel/include/elf.h	/^  elf_symbol *symtab;$/;"	m	struct:__anon6
+symtab_size	kernel/include/elf.h	/^  uint32_t symtab_size;$/;"	m	struct:__anon6
+syscall_errno	library/include/syscall.h	/^uint32_t syscall_errno;$/;"	v
+syscall_errno	library/syscall/syscall.S	/^syscall_errno:$/;"	l
+syscall_handler	kernel/syscall/syscall.c	/^registers_t *syscall_handler(registers_t *r)$/;"	f
+syscall_handlers	kernel/syscall/syscall.c	/^syscall_t syscall_handlers[NUM_SYSCALLS];$/;"	v
+syscall_init	kernel/syscall/syscall.c	/^void syscall_init()$/;"	f
+syscall_t	kernel/include/k_syscall.h	/^typedef registers_t *(*syscall_t)(registers_t *);$/;"	t
+tasks	kernel/include/thread.h	/^  list_t tasks;$/;"	m	struct:thread_struct
+tcb	kernel/include/thread.h	/^  thread_t tcb;$/;"	m	struct:thread_info_struct
+tcb_from_thinfo	kernel/include/thread.h	/^#define tcb_from_thinfo(/;"	d
+text_style	kernel/drivers/debug.c	/^uint8_t text_style;$/;"	v
+thinfo_from_tcb	kernel/include/thread.h	/^#define thinfo_from_tcb(/;"	d
+thread_info_struct	kernel/include/thread.h	/^typedef struct thread_info_struct$/;"	s
+thread_info_t	kernel/include/thread.h	/^} thread_info_t;$/;"	t	typeref:struct:thread_info_struct
+thread_list_t	kernel/include/scheduler.h	/^} thread_list_t;$/;"	t	typeref:struct:__anon7
+thread_struct	kernel/include/thread.h	/^typedef struct thread_struct$/;"	s
+thread_t	kernel/include/thread.h	/^} thread_t;$/;"	t	typeref:struct:thread_struct
+threads	kernel/include/process.h	/^  list_head_t threads;$/;"	m	struct:process_struct
+ticks	kernel/drivers/timer.c	/^uint32_t ticks;$/;"	v
+tid	kernel/include/thread.h	/^  uint32_t tid;$/;"	m	struct:thread_struct
+timer_init	kernel/drivers/timer.c	/^void timer_init(uint32_t freq)$/;"	f
+timer_tick	kernel/drivers/timer.c	/^registers_t *timer_tick(registers_t *r)$/;"	f
+trap	kernel/include/idt.h	/^  uint16_t trap, iomap;$/;"	m	struct:tss_struct
+tss_flush	kernel/arch/int.S	/^tss_flush:$/;"	l
+tss_init	kernel/arch/idt.c	/^void tss_init()$/;"	f
+tss_struct	kernel/include/idt.h	/^typedef struct tss_struct$/;"	s
+tss_t	kernel/include/idt.h	/^}__attribute__((packed)) tss_t;$/;"	t	typeref:struct:tss_struct
+type	kernel/include/elf.h	/^  uint32_t type;$/;"	m	struct:__anon4
+type	kernel/include/multiboot.h	/^  uint32_t type;$/;"	m	struct:mboot_mmap_entry_st
+type	kernel/include/procmm.h	/^  uint32_t type;$/;"	m	struct:mem_area_struct
+uint16_t	library/include/stdint.h	/^typedef unsigned short uint16_t;$/;"	t
+uint32_t	library/include/stdint.h	/^typedef unsigned int uint32_t;$/;"	t
+uint64_t	library/include/stdint.h	/^typedef unsigned long long uint64_t;$/;"	t
+uint8_t	library/include/stdint.h	/^typedef unsigned char uint8_t;$/;"	t
+uintptr_t	library/include/stdint.h	/^typedef uint32_t uintptr_t;$/;"	t
+unimpl	library/include/syscall.h	/^DECL_SYSCALL0(unimpl);$/;"	v
+unmask_int	kernel/arch/idt.c	/^void unmask_int(unsigned char int_no)$/;"	f
+unused	kernel/include/idt.h	/^  uint32_t unused[15];$/;"	m	struct:tss_struct
+useresp	kernel/include/arch.h	/^uint32_t eflags, useresp, ss;$/;"	m	struct:__anon1
+va_arg	library/include/stdarg.h	/^  #define va_arg(/;"	d
+va_end	library/include/stdarg.h	/^  #define va_end(/;"	d
+va_list	library/include/stdarg.h	/^  typedef __builtin_va_list va_list;$/;"	t
+va_list	library/include/stdarg.h	/^  typedef uint8_t *va_list;$/;"	t
+va_start	library/include/stdarg.h	/^  #define va_start(/;"	d
+value	kernel/include/elf.h	/^  uint32_t value;$/;"	m	struct:__anon5
+vbe_control_info	kernel/include/multiboot.h	/^  uint32_t vbe_control_info;$/;"	m	struct:mboot_info_st
+vbe_interface_len	kernel/include/multiboot.h	/^  uint32_t vbe_interface_len;$/;"	m	struct:mboot_info_st
+vbe_interface_off	kernel/include/multiboot.h	/^  uint32_t vbe_interface_off;$/;"	m	struct:mboot_info_st
+vbe_interface_seg	kernel/include/multiboot.h	/^  uint32_t vbe_interface_seg;$/;"	m	struct:mboot_info_st
+vbe_mode	kernel/include/multiboot.h	/^  uint32_t vbe_mode;$/;"	m	struct:mboot_info_st
+vbe_mode_info	kernel/include/multiboot.h	/^  uint32_t vbe_mode_info;$/;"	m	struct:mboot_info_st
+vidmem	kernel/drivers/debug.c	/^uint16_t *vidmem = (uint16_t *)VIDMEM;$/;"	v
+vmm_clear_page	kernel/mem/vmm.c	/^void vmm_clear_page(uintptr_t page)$/;"	f
+vmm_clone_pd	kernel/mem/vmm.c	/^page_dir_t vmm_clone_pd()$/;"	f
+vmm_copy_page	kernel/mem/vmm.c	/^void vmm_copy_page(uintptr_t src, uintptr_t dst)$/;"	f
+vmm_dir_idx	kernel/include/vmm.h	/^#define vmm_dir_idx(/;"	d
+vmm_exdir_set	kernel/mem/vmm.c	/^page_dir_t vmm_exdir_set(page_dir_t pd)$/;"	f
+vmm_expage_get	kernel/mem/vmm.c	/^uintptr_t vmm_expage_get(uintptr_t page)$/;"	f
+vmm_expage_set	kernel/mem/vmm.c	/^void vmm_expage_set(uintptr_t page, uintptr_t value)$/;"	f
+vmm_expage_touch	kernel/mem/vmm.c	/^void vmm_expage_touch(uintptr_t page, uint32_t flags)$/;"	f
+vmm_extable_get	kernel/mem/vmm.c	/^uintptr_t vmm_extable_get(uintptr_t page)$/;"	f
+vmm_extable_set	kernel/mem/vmm.c	/^void vmm_extable_set(uintptr_t page, uintptr_t value)$/;"	f
+vmm_flush_tlb	kernel/include/vmm.h	/^#define vmm_flush_tlb(/;"	d
+vmm_init	kernel/mem/vmm.c	/^void vmm_init()$/;"	f
+vmm_new_pd	kernel/mem/vmm.c	/^page_dir_t vmm_new_pd()$/;"	f
+vmm_page_get	kernel/mem/vmm.c	/^uintptr_t vmm_page_get(uintptr_t page)$/;"	f
+vmm_page_set	kernel/mem/vmm.c	/^void vmm_page_set(uintptr_t page, uintptr_t value)$/;"	f
+vmm_page_touch	kernel/mem/vmm.c	/^void vmm_page_touch(uintptr_t page, uint32_t flags)$/;"	f
+vmm_page_val	kernel/include/vmm.h	/^#define vmm_page_val(/;"	d
+vmm_pd_set	kernel/mem/vmm.c	/^void vmm_pd_set(page_dir_t pd)$/;"	f
+vmm_running	kernel/mem/vmm.c	/^uint8_t vmm_running = 0;$/;"	v
+vmm_table_get	kernel/mem/vmm.c	/^uintptr_t vmm_table_get(uintptr_t page)$/;"	f
+vmm_table_idx	kernel/include/vmm.h	/^#define vmm_table_idx(/;"	d
+vmm_table_set	kernel/mem/vmm.c	/^void vmm_table_set(uintptr_t page, uintptr_t value)$/;"	f
+waiting	kernel/include/process.h	/^  list_head_t waiting;$/;"	m	struct:process_struct
+waitpid	kernel/include/k_syscall.h	/^KDECL_SYSCALL(waitpid);$/;"	v
+younger_sibling	kernel/include/process.h	/^  struct process_struct *younger_sibling;$/;"	m	struct:process_struct	typeref:struct:process_struct::process_struct

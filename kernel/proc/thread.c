@@ -86,15 +86,10 @@ thread_t *clone_thread(thread_t *th)
   memcopy(new, th, sizeof(thread_t));
   new->tid = tid;
 
-  if(th->kernel_thread)
-  {
-    uintptr_t offset = (uintptr_t)th - (uintptr_t)th->kernel_thread;
-    new->kernel_thread = (registers_t *)((uintptr_t)new - offset);
-  }
-
-
   init_list(new->tasks);
-  scheduler_insert(new);
+  init_list(new->process_threads);
+
+  new->kernel_thread = &new->r;
 
   return new;
 }

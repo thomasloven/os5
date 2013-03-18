@@ -3,6 +3,7 @@
 #include <process.h>
 #include <k_debug.h>
 #include <scheduler.h>
+#include <thread.h>
 
 KDEF_SYSCALL(fork, r)
 {
@@ -11,6 +12,8 @@ KDEF_SYSCALL(fork, r)
   cth->r.eax = 0;
   r->eax = child->pid;
   r->ebx = cth->r.ebx = SYSCALL_OK;
+
+  scheduler_insert(cth);
   return r;
 }
 
@@ -26,6 +29,8 @@ KDEF_SYSCALL(exit, r)
   process_stack stack = init_pstack();
 
   exit_process(current->proc, stack[0]);
+
+  current->state = THREAD_STATE_FINISHED;
 
   schedule();
 
