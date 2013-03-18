@@ -14,7 +14,7 @@ int main()
   {
 
     _syscall_printf("\n I am the parent! I have pid %x", _syscall_getpid());
-    uint32_t retval = _syscall_waitpid(pid);
+    uint32_t retval = _syscall_wait(pid);
     _syscall_printf("\n Process %x returned %x", pid, retval);
     for(;;);
 

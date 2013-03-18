@@ -29,6 +29,6 @@ KDECL_SYSCALL(printf);
 KDECL_SYSCALL(fork);
 KDECL_SYSCALL(getpid);
 KDECL_SYSCALL(exit);
-KDECL_SYSCALL(waitpid);
+KDECL_SYSCALL(wait);
 
 #endif

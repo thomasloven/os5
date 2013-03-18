@@ -19,7 +19,7 @@ void syscall_init()
   KREG_SYSCALL(fork, SYSCALL_FORK);
   KREG_SYSCALL(getpid, SYSCALL_GETPID);
   KREG_SYSCALL(exit, SYSCALL_EXIT);
-  KREG_SYSCALL(waitpid, SYSCALL_WAITPID);
+  KREG_SYSCALL(wait, SYSCALL_WAIT);
 }
 
 registers_t *syscall_handler(registers_t *r)

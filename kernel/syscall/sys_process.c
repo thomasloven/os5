@@ -39,7 +39,7 @@ KDEF_SYSCALL(exit, r)
   return r;
 }
 
-KDEF_SYSCALL(waitpid, r)
+KDEF_SYSCALL(wait, r)
 {
   process_stack stack = init_pstack();
 

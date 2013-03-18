@@ -19,5 +19,5 @@ DEF_SYSCALL(exit, SYSCALL_EXIT)
 [global _syscall_unimpl]
 DEF_SYSCALL(unimpl, SYSCALL_UNIMPL)
 
-[global _syscall_waitpid]
-DEF_SYSCALL(waitpid, SYSCALL_WAITPID)
+[global _syscall_wait]
+DEF_SYSCALL(wait, SYSCALL_WAIT)
