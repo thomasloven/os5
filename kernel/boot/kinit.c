@@ -3,7 +3,7 @@
 #include <pmm.h>
 #include <vmm.h>
 #include <multiboot.h>
-#include <heap.h>
+#include <k_heap.h>
 #include <idt.h>
 #include <arch.h>
 #include <memory.h>

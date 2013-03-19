@@ -17,7 +17,7 @@ DEPENDENCIES := $(addprefix $(BUILDDIR)/$(SUBDIR)/,$(notdir $(DEPENDENCIES)))
 
 all: $(DEPENDENCIES) $(TARGET)
 
-$(TARGET): $(OBJECTS)
+$(TARGET): $(OBJECTS) $(LIBPATH)
 	@echo "   \033[32mln\033[0m     " $(TARGET)
 	@$(LD) $(LDFLAGS) -o $(TARGET) $+ $(LIBPATH)
 

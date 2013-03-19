@@ -19,6 +19,7 @@ typedef struct process_mem_struct
   uintptr_t arg_end;
   uintptr_t env_start;
   uintptr_t env_end;
+  uintptr_t data_end;
   uintptr_t stack_limit;
   list_head_t mem;
 } process_mem_t;

@@ -26,7 +26,7 @@ typedef struct mem_area_struct
 #define MM_FLAG_AUTOGROW (1<<6)
 #define MM_FLAG_ADDONUSE (1<<7)
 
-#define MM_TYPE_CODE 1
+#define MM_TYPE_DATA 1
 #define MM_TYPE_ARG 4
 #define MM_TYPE_ENV 5
 #define MM_TYPE_STACK 6

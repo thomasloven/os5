@@ -5,7 +5,7 @@
 #include <lists.h>
 #include <pmm.h>
 #include <vmm.h>
-#include <heap.h>
+#include <k_heap.h>
 #include <synch.h>
 #include <k_debug.h>
 
@@ -38,18 +38,19 @@ mem_area_t *new_area(process_t *p, uintptr_t start,
 {
   // Add memory area to process and add its memory to memory space
 
-  start &= PAGE_MASK;
-  if((end & PAGE_FLAG_MASK))
-    end += PAGE_SIZE;
-  end &= PAGE_MASK;
+  /*start &= PAGE_MASK;*/
+  /*if((end & PAGE_FLAG_MASK))*/
+    /*end += PAGE_SIZE;*/
+  /*end &= PAGE_MASK;*/
 
   // Check that it doesn't collide with allready allocated space
   uintptr_t i = start;
   while(i <= end)
   {
-    if(find_including(p, i))
+    mem_area_t *a;
+    if((a = find_including(p, i)))
     {
-      debug("\n AREA COLLISION!");
+      debug("\n AREA COLLISION! %x %x %x", a->start, a->end, start);
       return 0;
     }
     i += PAGE_SIZE;

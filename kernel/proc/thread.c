@@ -5,7 +5,7 @@
 #include <pmm.h>
 #include <idt.h>
 #include <vmm.h>
-#include <heap.h>
+#include <k_heap.h>
 #include <memory.h>
 #include <scheduler.h>
 #include <process.h>

@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include <syscall.h>
+#include <heap.h>
 
 int main()
 {
@@ -25,6 +26,14 @@ int main()
     _syscall_printf("\n  errno before: %x", syscall_errno);
     _syscall_unimpl();
     _syscall_printf("\n  errno after: %x", syscall_errno);
+
+    char *str = malloc(sizeof(char)*8);
+    _syscall_printf("\n Allocated string at %x", str);
+    str[0] = 'a';
+    str[1] = 'b';
+    str[2] = 'c';
+    str[3] = 0;
+    _syscall_printf("\n %s", str);
 
   }
 

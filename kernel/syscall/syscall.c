@@ -20,6 +20,7 @@ void syscall_init()
   KREG_SYSCALL(getpid, SYSCALL_GETPID);
   KREG_SYSCALL(exit, SYSCALL_EXIT);
   KREG_SYSCALL(wait, SYSCALL_WAIT);
+  KREG_SYSCALL(sbrk, SYSCALL_SBRK);
 }
 
 registers_t *syscall_handler(registers_t *r)

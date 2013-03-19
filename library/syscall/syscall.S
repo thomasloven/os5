@@ -21,3 +21,6 @@ DEF_SYSCALL(unimpl, SYSCALL_UNIMPL)
 
 [global _syscall_wait]
 DEF_SYSCALL(wait, SYSCALL_WAIT)
+
+[global _syscall_sbrk]
+DEF_SYSCALL(sbrk, SYSCALL_SBRK)
