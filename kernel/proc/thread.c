@@ -103,12 +103,22 @@ registers_t *switch_kernel_thread(registers_t *r)
       scheduler_insert(current);
   }
 
-  thread_t *next = scheduler_next();
-  scheduler_remove(next);
+  thread_t *next = 0;
 
-  switch_process(next->proc);
+  while(next == 0)
+  {
+    next = scheduler_next();
+    scheduler_remove(next);
 
-  kernel_booted = TRUE;
+    switch_process(next->proc);
+
+    if(kernel_booted == TRUE)
+    {
+      next = handle_signal(next);
+    } else {
+      kernel_booted = TRUE;
+    }
+  }
 
   return next->kernel_thread;
 }

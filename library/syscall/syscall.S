@@ -24,3 +24,6 @@ DEF_SYSCALL(wait, SYSCALL_WAIT)
 
 [global _syscall_sbrk]
 DEF_SYSCALL(sbrk, SYSCALL_SBRK)
+
+[global _syscall_kill]
+DEF_SYSCALL(kill, SYSCALL_KILL)

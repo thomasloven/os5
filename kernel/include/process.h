@@ -9,6 +9,9 @@
 
 struct thread_struct;
 
+#define NUM_SIGNALS 64
+#define SIG_IGNORE 0x0
+#define SIG_DFL 0x1
 
 typedef struct process_mem_struct
 {
@@ -42,7 +45,17 @@ typedef struct process_struct
   uint32_t exit_code;
 
   process_mem_t mm;
+
+  list_head_t signals;
+  uintptr_t signal_actions[NUM_SIGNALS];
+  uint8_t signal_mask[NUM_SIGNALS];
+
 } process_t;
+
+typedef struct signal_struct {
+  uint32_t signum;
+  list_head_t signals;
+} signal_t;
 
 #define PROC_STATE_RUNNING 0x1
 #define PROC_STATE_WAITING 0x2
@@ -57,5 +70,8 @@ process_t *alloc_process();
 process_t *fork_process();
 void free_process(process_t *p);
 void exit_process(process_t *proc, uint32_t exit_code);
+
+void signal_process(process_t *p, uint32_t signum);
+thread_t *handle_signal(thread_t *old);
 
 #endif

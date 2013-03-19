@@ -23,6 +23,14 @@ process_t *alloc_process()
   init_list(p->threads);
   init_list(p->proc_list);
   init_list(p->waiting);
+  init_list(p->signals);
+
+  int i;
+  for(i = 0; i < NUM_SIGNALS; i++)
+  {
+    p->signal_actions[i] = SIG_DFL;
+    p->signal_mask[i] = 1;
+  }
 
   append_to_list(process_list, p->proc_list);
 
@@ -136,6 +144,9 @@ process_t *fork_process()
   // Clone memory map (copy on write for everything)
   procmm_fork(parent, child);
 
+  memcopy(child->signal_actions, parent->signal_actions, NUM_SIGNALS*sizeof(uintptr_t));
+  memcopy(child->signal_mask, parent->signal_mask, NUM_SIGNALS*sizeof(uint8_t));
+
   // Fix the family
   child->parent = parent;
   child->older_sibling = parent->child;
@@ -148,5 +159,40 @@ process_t *fork_process()
   th->proc = child;
 
   return child;
+}
+
+void signal_process(process_t *p, uint32_t signum)
+{
+  debug("Sending signal %x to %x", signum, p->pid);
+  signal_t *sig = kmalloc(sizeof(signal_t));
+  init_list(sig->signals);
+  sig->signum = signum;
+
+  append_to_list(p->signals, sig->signals);
+}
+
+thread_t *handle_signal(thread_t *old)
+{
+  process_t *p = old->proc;
+
+  if(list_empty(p->signals))
+    return old;
+  
+  signal_t *sig = list_entry(p->signals.next, signal_t, signals);
+  remove_from_list(sig->signals);
+
+  if(p->signal_actions[sig->signum] == SIG_IGNORE)
+  {
+    kfree(sig);
+    return old;
+  } else if (p->signal_actions[sig->signum] == SIG_DFL) {
+    exit_process(p, sig->signum);
+    return 0;
+  } else {
+
+  }
+
+
+  return old;
 }
 
