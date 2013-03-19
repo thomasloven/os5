@@ -38,10 +38,10 @@ mem_area_t *new_area(process_t *p, uintptr_t start,
 {
   // Add memory area to process and add its memory to memory space
 
-  /*start &= PAGE_MASK;*/
-  /*if((end & PAGE_FLAG_MASK))*/
-    /*end += PAGE_SIZE;*/
-  /*end &= PAGE_MASK;*/
+  start &= PAGE_MASK;
+  if((end & PAGE_FLAG_MASK))
+    end += PAGE_SIZE;
+  end &= PAGE_MASK;
 
   // Check that it doesn't collide with allready allocated space
   uintptr_t i = start;
