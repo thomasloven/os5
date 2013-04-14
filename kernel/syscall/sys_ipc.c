@@ -2,6 +2,7 @@
 #include <k_syscall.h>
 #include <stdint.h>
 #include <process.h>
+#include <k_debug.h>
 
 KDEF_SYSCALL(kill, r)
 {
@@ -11,5 +12,17 @@ KDEF_SYSCALL(kill, r)
   signal_process(p, stack[1]);
 
   schedule();
+  return r;
+}
+
+KDEF_SYSCALL(signal, r)
+{
+  debug("signal");
+  return r;
+}
+
+KDEF_SYSCALL(sighndl, r)
+{
+  debug("sighndl");
   return r;
 }

@@ -27,3 +27,12 @@ DEF_SYSCALL(sbrk, SYSCALL_SBRK)
 
 [global _syscall_kill]
 DEF_SYSCALL(kill, SYSCALL_KILL)
+
+[global _syscall_sighndl]
+DEF_SYSCALL(sighndl, SYSCALL_SIGHNDL)
+
+[global _syscall_signal]
+DEF_SYSCALL(signal, SYSCALL_SIGNAL)
+
+[global _syscall_done]
+DEF_SYSCALL(done, SYSCALL_DONE)

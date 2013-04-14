@@ -32,5 +32,8 @@ KDECL_SYSCALL(exit);
 KDECL_SYSCALL(wait);
 KDECL_SYSCALL(sbrk);
 KDECL_SYSCALL(kill);
+KDECL_SYSCALL(signal);
+KDECL_SYSCALL(sighndl);
+KDECL_SYSCALL(done);
 
 #endif

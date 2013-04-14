@@ -9,6 +9,9 @@
 #define SYSCALL_WAIT 0x06
 #define SYSCALL_SBRK 0x07
 #define SYSCALL_KILL 0x08
+#define SYSCALL_SIGNAL 0x09
+#define SYSCALL_SIGHNDL 0xA0
+#define SYSCALL_DONE 0x0A
 
 #define SYSCALL_OK 0x00
 #define ERROR_NOSYSCALL 0x01
@@ -34,6 +37,10 @@ DECL_SYSCALL1(wait, uint32_t);
 
 DECL_SYSCALL1(sbrk, uint32_t);
 DECL_SYSCALL2(kill, uint32_t, uint32_t);
+
+DECL_SYSCALL2(signal, uint32_t, void *);
+DECL_SYSCALL1(sighndl, void(*)());
+DECL_SYSCALL0(done);
 
 DECL_SYSCALL1E(printf, char*);
 DECL_SYSCALL0(unimpl);

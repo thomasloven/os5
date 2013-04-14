@@ -4,14 +4,11 @@
 #include <thread.h>
 #include <lists.h>
 #include <synch.h>
+#include <signals.h>
 
 #ifndef __ASSEMBLER__
 
 struct thread_struct;
-
-#define NUM_SIGNALS 64
-#define SIG_IGNORE 0x0
-#define SIG_DFL 0x1
 
 typedef struct process_mem_struct
 {
@@ -49,6 +46,7 @@ typedef struct process_struct
   list_head_t signals;
   uintptr_t signal_actions[NUM_SIGNALS];
   uint8_t signal_mask[NUM_SIGNALS];
+  uintptr_t signal_handler;
 
 } process_t;
 

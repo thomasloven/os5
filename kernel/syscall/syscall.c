@@ -21,7 +21,11 @@ void syscall_init()
   KREG_SYSCALL(exit, SYSCALL_EXIT);
   KREG_SYSCALL(wait, SYSCALL_WAIT);
   KREG_SYSCALL(sbrk, SYSCALL_SBRK);
+
   KREG_SYSCALL(kill, SYSCALL_KILL);
+  KREG_SYSCALL(signal, SYSCALL_SIGNAL);
+  KREG_SYSCALL(sighndl, SYSCALL_SIGHNDL);
+  KREG_SYSCALL(done, SYSCALL_DONE);
 }
 
 registers_t *syscall_handler(registers_t *r)

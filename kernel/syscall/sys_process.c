@@ -58,3 +58,8 @@ KDEF_SYSCALL(wait, r)
   return r;
 }
 
+KDEF_SYSCALL(done, r)
+{
+  debug("Thread is done");
+  return r;
+}
