@@ -3,10 +3,6 @@ set path=$SCRPATH/**
 
 let NERDTreeIgnore = ['\.o$']
 
-set foldmethod=indent
-set foldcolumn=1
-set foldlevel=100
-
 call rainbow_parenthsis#LoadRound()
 call rainbow_parenthsis#LoadSquare()
 call rainbow_parenthsis#LoadBraces()

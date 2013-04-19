@@ -36,7 +36,7 @@ export ASFLAGS CPPFLAGS CCFLAGS LDFLAGS DEPFLAGS ARFLAGS
 .PHONY: $(DIRS) clean emul default
 .DEFAULT: all emul
 
-default: all emul
+default: all
 
 all: $(DIRS)
     
