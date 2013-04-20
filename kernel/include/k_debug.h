@@ -1,6 +1,7 @@
 #pragma once
 #include <stdint.h>
 #include <synch.h>
+#include <debug.h>
 
 #define VIDMEM  0xC00B8000
 
@@ -30,6 +31,8 @@
 #ifndef __ASSEMBLER__
 
 #define debug kdbg_printf
+
+int run_tests();
 
 void kdbg_init();
 void kdbg_scroll();

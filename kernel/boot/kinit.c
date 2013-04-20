@@ -87,6 +87,7 @@ registers_t *kinit(mboot_info_t *mboot, uint32_t mboot_magic)
   idle->proc = current->proc;
   new_area(current->proc, USER_STACK_TOP, USER_STACK_TOP, MM_FLAG_WRITE | MM_FLAG_GROWSDOWN | MM_FLAG_ADDONUSE, MM_TYPE_STACK);
 
+  run_tests();
 
   return switch_kernel_thread(0);
 }
