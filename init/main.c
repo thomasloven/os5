@@ -2,6 +2,11 @@
 #include <syscall.h>
 #include <heap.h>
 
+void sbrk()
+{
+  ;
+}
+
 int main()
 {
   int a;

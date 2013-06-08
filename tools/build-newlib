@@ -27,4 +27,5 @@ pushd $BUILDDIR/newlib
   export PATH=$BINUTILS:$PATH
   make all
   make install
+  cp /usr/local/Cellar/gcc-cross/4.8.1/lib/gcc/i386-elf/4.8.1/include/stddef.h $BUILDDIR/lib/i386-elf/include/.
 popd
