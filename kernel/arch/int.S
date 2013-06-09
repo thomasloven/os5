@@ -1,3 +1,4 @@
+#define _STDINT_H
 #include <arch.h>
 #include <idt.h>
 

@@ -1,3 +1,4 @@
+#include <common.h>
 #include <stdint.h>
 #include <pmm.h>
 #include <vmm.h>

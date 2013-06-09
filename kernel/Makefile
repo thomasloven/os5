@@ -19,7 +19,9 @@ DEPENDENCIES := $(addprefix $(BUILDDIR)/$(SUBDIR)/,$(notdir $(DEPENDENCIES)))
 
 
 CCFLAGS += -Iinclude 
+CPPFLAGS += -I$(LIBDIR)/include
 CPPFLAGS += -Iinclude
+DEPFLAGS += -I$(LIBDIR)/include
 DEPFLAGS += -Iinclude
 LDFLAGS += -T $(BUILDROOT)/$(SUBDIR)/include/Link.ld
 
@@ -38,7 +40,7 @@ $(BUILDDIR)/$(SUBDIR)/%.d: %.S
 
 $(BUILDDIR)/$(SUBDIR)/%.o: %.c
 	@echo "  \033[33m gcc\033[0m    " $<
-	@$(CC) $(CCFLAGS) -c $< -o $@
+	$(CC) $(CCFLAGS) -c $< -o $@
 
 %.o: %.s
 	@echo "   \033[33mnasm\033[0m   " $<

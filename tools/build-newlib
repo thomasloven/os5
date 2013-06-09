@@ -58,18 +58,20 @@ pushd $BUILDDIR/newlib
   fi
   if [ $1 == "makepatch" ]; then
     pushd $NEWLIBDIR
-    git add -N .
-    PATCH=`git diff`
+    git add .
+    PATCH=`git diff --cached`
     if [ -z $PATCH ]; then
       echo No changes
       exit 1
     fi
-    git diff --no-color > $PATCHFILE
+    git diff --cached --no-color > $PATCHFILE
+    git reset HEAD .
     popd
   fi
   if [ $1 == "reset" ]; then
     pushd $NEWLIBDIR
       git checkout .
+      git clean -f
     popd
   fi
       

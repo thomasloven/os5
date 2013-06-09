@@ -1,18 +1,18 @@
 #include <stdint.h>
-#include <syscall.h>
-#include <heap.h>
+/*#include <syscall.h>*/
+/*#include <heap.h>*/
 
-void sbrk()
-{
-  ;
-}
+#include <stdio.h>
 
 int main()
 {
   int a;
   a = 5;
 
-  _syscall_printf("Hello from, %s.", "init");
+ printf("Hello from, %s.", "init");
+ for(;;);
+ return 0;
+ /*
 
   _syscall_printf("\nI'm going to fork now.");
   uint32_t pid = _syscall_fork();
@@ -43,4 +43,5 @@ int main()
   }
 
   return 0x123;
+  */
 }

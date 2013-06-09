@@ -1,7 +1,7 @@
 #include <elf.h>
 #include <multiboot.h>
 #include <vmm.h>
-#include <strings.h>
+#include <k_strings.h>
 #include <procmm.h>
 #include <memory.h>
 #include <k_debug.h>

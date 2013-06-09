@@ -19,7 +19,7 @@ all: $(DEPENDENCIES) $(TARGET)
 
 $(TARGET): $(OBJECTS) $(LIBPATH)
 	@echo "   \033[32mln\033[0m     " $(TARGET)
-	@$(LD) $(LDFLAGS) -o $(TARGET) $+ $(LIBPATH1) $(LIBPATH)
+	@$(LD) $(LDFLAGS) -o $(TARGET) $+ $(LIBPATH)
 
 $(BUILDDIR)/$(SUBDIR)/%.d: %.c
 	@echo "    \033[31mdep\033[0m " $*".c"

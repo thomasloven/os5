@@ -17,4 +17,7 @@
   x = y; \
   y = temp_; })
 
+#define TRUE 1
+#define FALSE 0
+
 #endif

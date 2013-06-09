@@ -1,3 +1,4 @@
+#define _STDINT_H
 #include <multiboot.h>
 #include <vmm.h>
 #include <arch.h>

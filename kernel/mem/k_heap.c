@@ -1,3 +1,4 @@
+#include <common.h>
 #include <k_heap.h>
 #include <stdint.h>
 #include <ctype.h>

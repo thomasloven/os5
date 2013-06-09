@@ -1,6 +1,7 @@
 #pragma once
 // This should move to the library sooner or later (rather sooner)
 #ifndef __ASSEMBLER__
+#include <stdint.h>
 
 typedef struct list_struct
 {
@@ -12,10 +13,10 @@ typedef list_t list_head_t;
 
 #define for_each_in_list(head, item) \
   for((item) = (head); ((item) = (item)->next) != (head); )
-#define offsetof(type, member) ((size_t) ( (char *)&((type *)0)->member - (char *)0))
+#define list_offsetof(type, member) ((uint32_t) ( (char *)&((type *)0)->member - (char *)0))
 #define list_entry(ptr, type, member) ({\
   const __typeof__( ((type *)0)->member ) *__mptr = (ptr); \
-  (type *)( (char *)__mptr - offsetof(type,member));})
+  (type *)( (char *)__mptr - list_offsetof(type,member));})
 
 #define list_empty(head) \
   ((head).next == &(head))

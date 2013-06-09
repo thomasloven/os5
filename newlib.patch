@@ -1,0 +1,44 @@
+diff --git a/libgloss/libnosys/syscall.h b/libgloss/libnosys/syscall.h
+new file mode 100644
+index 0000000..319f8ff
+--- /dev/null
++++ b/libgloss/libnosys/syscall.h
+@@ -0,0 +1,12 @@
++#define SYSCALL_PRINTF 0x03
++
++#define DEF_SYSCALL(name, num) \
++  _syscall_##name: \
++  defsyscall num
++
++%macro defsyscall 1
++  mov eax, %1
++  int 0x80
++  mov [syscall_errno], ebx
++  ret
++%endmacro
+diff --git a/libgloss/libnosys/syscalls.S b/libgloss/libnosys/syscalls.S
+new file mode 100644
+index 0000000..54c380f
+--- /dev/null
++++ b/libgloss/libnosys/syscalls.S
+@@ -0,0 +1,8 @@
++#include "syscall.h"
++
++[global syscall_errno]
++syscall_errno:
++db 0x0, 0x0, 0x0, 0x0
++
++[global _syscall_printf]
++DEF_SYSCALL(printf, SYSCALL_PRINTF)
+diff --git a/libgloss/libnosys/write.c b/libgloss/libnosys/write.c
+index 0136d74..9c3f90c 100644
+--- a/libgloss/libnosys/write.c
++++ b/libgloss/libnosys/write.c
+@@ -17,6 +17,7 @@ _DEFUN (_write, (file, ptr, len),
+         int   len)
+ {
+   errno = ENOSYS;
++  _syscall_printf(prt);
+   return -1;
+ }
+ 
