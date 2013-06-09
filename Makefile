@@ -23,7 +23,7 @@ CCFLAGS := $(CPPFLAGS) -target i386-pc-linux -mno-sse -mno-mmx
 CCFLAGS += -ggdb
 
 LIBPATH1 := $(BUILDDIR)/library/clib.a
-LIBPATH := $(BUILDDIR)/lib/i386-elf/lib/libc.a
+LIBPATH := $(BUILDDIR)/lib/i386-elf/lib/libc.a $(BUILDDIR)/lib/lib/libnosys.a
 
 DEPFLAGS := $(CPPFLAGS)
 
