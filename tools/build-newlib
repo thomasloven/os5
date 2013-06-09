@@ -34,12 +34,22 @@ pushd $BUILDDIR/newlib
   if [ $1 == "reconfigure" ]; then
     rm -r *
     $NEWLIBDIR/configure --prefix=$BUILDDIR/lib --target=i386-elf
+    pushd ../libgloss
+      rm -r *
+      $NEWLIBDIR/libgloss/configure --prefix=$BUILDDIR/lib CC=i386-elf-gcc AS=i386-elf-as AR=i386-elf-ar LD=i386-elf-ld RANLIB=i386-elf-ranlib
+    popd
   fi
   if [ $1 == "build" ]; then
     export PATH=$BINUTILS:$PATH
     make all
     make install
     cp /usr/local/Cellar/gcc-cross/4.8.1/lib/gcc/i386-elf/4.8.1/include/stddef.h $BUILDDIR/lib/i386-elf/include/.
+  fi
+  if [ $1 == "libgloss" ]; then
+    pushd ../libgloss
+      CFLAGS=-I$BUILDDIR/lib/i386-elf/include make all
+      make install
+    popd
   fi
   if [ $1 == "patch" ]; then
     pushd $NEWLIBDIR
