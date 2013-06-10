@@ -1,3 +1,209 @@
+diff --git a/libgloss/libnosys/Makefile.in b/libgloss/libnosys/Makefile.in
+index ff4c416..a06defb 100644
+--- a/libgloss/libnosys/Makefile.in
++++ b/libgloss/libnosys/Makefile.in
+@@ -68,7 +68,7 @@ OBJCOPY = `if [ -f ${objroot}/../binutils/objcopy ] ; \
+ OBJS = chown.o close.o environ.o errno.o execve.o fork.o fstat.o \
+ 	getpid.o gettod.o isatty.o kill.o link.o lseek.o open.o \
+ 	read.o readlink.o sbrk.o stat.o symlink.o times.o unlink.o \
+-	wait.o write.o _exit.o
++	wait.o write.o _exit.o syscalls.o
+ 
+ # Object files specific to particular targets.
+ EVALOBJS = ${OBJS}
+diff --git a/libgloss/libnosys/chown.c b/libgloss/libnosys/chown.c
+index 67f98d5..c3e15e7 100644
+--- a/libgloss/libnosys/chown.c
++++ b/libgloss/libnosys/chown.c
+@@ -17,6 +17,7 @@ _DEFUN (_chown, (path, owner, group),
+         uid_t owner _AND
+         gid_t group)
+ {
++  _syscall_printf("\n Syscall chown");
+   errno = ENOSYS;
+   return -1;
+ }
+diff --git a/libgloss/libnosys/close.c b/libgloss/libnosys/close.c
+index b759b86..1ebf6cd 100644
+--- a/libgloss/libnosys/close.c
++++ b/libgloss/libnosys/close.c
+@@ -14,6 +14,7 @@ int
+ _DEFUN (_close, (fildes),
+         int fildes)
+ {
++  _syscall_printf("\n Syscall close");
+   errno = ENOSYS;
+   return -1;
+ }
+diff --git a/libgloss/libnosys/execve.c b/libgloss/libnosys/execve.c
+index 01743ff..d1a1f9e 100644
+--- a/libgloss/libnosys/execve.c
++++ b/libgloss/libnosys/execve.c
+@@ -16,6 +16,7 @@ _DEFUN (_execve, (name, argv, env),
+         char **argv  _AND
+         char **env)
+ {
++  _syscall_printf("\n Syscall execve");
+   errno = ENOSYS;
+   return -1;
+ }
+diff --git a/libgloss/libnosys/fork.c b/libgloss/libnosys/fork.c
+index f5795cb..e9fcee4 100644
+--- a/libgloss/libnosys/fork.c
++++ b/libgloss/libnosys/fork.c
+@@ -14,6 +14,7 @@ int
+ _DEFUN (_fork, (),
+         _NOARGS)
+ {
++  _syscall_printf("\n Syscall fork");
+   errno = ENOSYS;
+   return -1;
+ }
+diff --git a/libgloss/libnosys/fstat.c b/libgloss/libnosys/fstat.c
+index 4e18d42..7502067 100644
+--- a/libgloss/libnosys/fstat.c
++++ b/libgloss/libnosys/fstat.c
+@@ -17,6 +17,8 @@ _DEFUN (_fstat, (fildes, st),
+         int          fildes _AND
+         struct stat *st)
+ {
++  _syscall_printf("\n Syscall fstat");
++  _syscall_printf("\n Syscall again");
+   errno = ENOSYS;
+   return -1;
+ }
+diff --git a/libgloss/libnosys/getpid.c b/libgloss/libnosys/getpid.c
+index 0ea1923..40e96b6 100644
+--- a/libgloss/libnosys/getpid.c
++++ b/libgloss/libnosys/getpid.c
+@@ -14,6 +14,7 @@ int
+ _DEFUN (_getpid, (),
+         _NOARGS)
+ {
++  _syscall_printf("\n Syscall getpid");
+   errno = ENOSYS;
+   return -1;
+ }
+diff --git a/libgloss/libnosys/gettod.c b/libgloss/libnosys/gettod.c
+index 4d42b4b..ace41e7 100644
+--- a/libgloss/libnosys/gettod.c
++++ b/libgloss/libnosys/gettod.c
+@@ -19,6 +19,7 @@ _DEFUN (_gettimeofday, (ptimeval, ptimezone),
+         struct timeval  *ptimeval  _AND
+         void *ptimezone)
+ {
++  _syscall_printf("\n Syscall gettod");
+   errno = ENOSYS;
+   return -1;
+ }
+diff --git a/libgloss/libnosys/isatty.c b/libgloss/libnosys/isatty.c
+index d93e177..bc8c800 100644
+--- a/libgloss/libnosys/isatty.c
++++ b/libgloss/libnosys/isatty.c
+@@ -14,6 +14,7 @@ int
+ _DEFUN (_isatty, (file),
+         int file)
+ {
++  _syscall_printf("\n Syscall isatty");
+   errno = ENOSYS;
+   return 0;
+ }
+diff --git a/libgloss/libnosys/kill.c b/libgloss/libnosys/kill.c
+index f1d12c6..21992dd 100644
+--- a/libgloss/libnosys/kill.c
++++ b/libgloss/libnosys/kill.c
+@@ -15,6 +15,7 @@ _DEFUN (_kill, (pid, sig),
+         int pid  _AND
+         int sig)
+ {
++  _syscall_printf("\n Syscall kill");
+   errno = ENOSYS;
+   return -1;
+ }
+diff --git a/libgloss/libnosys/link.c b/libgloss/libnosys/link.c
+index 35881cf..12d33e5 100644
+--- a/libgloss/libnosys/link.c
++++ b/libgloss/libnosys/link.c
+@@ -15,6 +15,7 @@ _DEFUN (_link, (existing, new),
+         char *existing _AND
+         char *new)
+ {
++  _syscall_printf("\n Syscall link");
+   errno = ENOSYS;
+   return -1;
+ }
+diff --git a/libgloss/libnosys/lseek.c b/libgloss/libnosys/lseek.c
+index 0aa89e2..464933d 100644
+--- a/libgloss/libnosys/lseek.c
++++ b/libgloss/libnosys/lseek.c
+@@ -16,6 +16,7 @@ _DEFUN (_lseek, (file, ptr, dir),
+         int   ptr   _AND
+         int   dir)
+ {
++  _syscall_printf("\n Syscall lseek");
+   errno = ENOSYS;
+   return -1;
+ }
+diff --git a/libgloss/libnosys/open.c b/libgloss/libnosys/open.c
+index 2c8a6ce..0574321 100644
+--- a/libgloss/libnosys/open.c
++++ b/libgloss/libnosys/open.c
+@@ -16,6 +16,7 @@ _DEFUN (_open, (file, flags, mode),
+         int   flags _AND
+         int   mode)
+ {
++  _syscall_printf("\n Syscall open");
+   errno = ENOSYS;
+   return -1;
+ }
+diff --git a/libgloss/libnosys/read.c b/libgloss/libnosys/read.c
+index 1a2819c..55ea2e25 100644
+--- a/libgloss/libnosys/read.c
++++ b/libgloss/libnosys/read.c
+@@ -16,6 +16,7 @@ _DEFUN (_read, (file, ptr, len),
+         char *ptr   _AND
+         int   len)
+ {
++  _syscall_printf("\n Syscall read");
+   errno = ENOSYS;
+   return -1;
+ }
+diff --git a/libgloss/libnosys/readlink.c b/libgloss/libnosys/readlink.c
+index 7df253c..aa2c0d5 100644
+--- a/libgloss/libnosys/readlink.c
++++ b/libgloss/libnosys/readlink.c
+@@ -17,6 +17,7 @@ _DEFUN (_readlink, (path, buf, bufsize),
+         char *buf _AND
+         size_t bufsize)
+ {
++  _syscall_printf("\n Syscall readlink");
+   errno = ENOSYS;
+   return -1;
+ }
+diff --git a/libgloss/libnosys/stat.c b/libgloss/libnosys/stat.c
+index 7c34637..90251a0 100644
+--- a/libgloss/libnosys/stat.c
++++ b/libgloss/libnosys/stat.c
+@@ -17,6 +17,7 @@ _DEFUN (_stat, (file, st),
+         const char  *file _AND
+         struct stat *st)
+ {
++  _syscall_printf("\n Syscall stat");
+   errno = ENOSYS;
+   return -1;
+ }
+diff --git a/libgloss/libnosys/symlink.c b/libgloss/libnosys/symlink.c
+index d9e29f2..7546dde 100644
+--- a/libgloss/libnosys/symlink.c
++++ b/libgloss/libnosys/symlink.c
+@@ -15,6 +15,7 @@ _DEFUN (_symlink, (path1, path2),
+         const char *path1 _AND
+         const char *path2)
+ {
++  _syscall_printf("\n Syscall symlink");
+   errno = ENOSYS;
+   return -1;
+ }
 diff --git a/libgloss/libnosys/syscall.h b/libgloss/libnosys/syscall.h
 new file mode 100644
 index 0000000..319f8ff
@@ -16,29 +222,70 @@ index 0000000..319f8ff
 +  mov [syscall_errno], ebx
 +  ret
 +%endmacro
-diff --git a/libgloss/libnosys/syscalls.S b/libgloss/libnosys/syscalls.S
+diff --git a/libgloss/libnosys/syscalls.s b/libgloss/libnosys/syscalls.s
 new file mode 100644
-index 0000000..54c380f
+index 0000000..f505d28
 --- /dev/null
-+++ b/libgloss/libnosys/syscalls.S
-@@ -0,0 +1,8 @@
-+#include "syscall.h"
++++ b/libgloss/libnosys/syscalls.s
+@@ -0,0 +1,11 @@
 +
 +[global syscall_errno]
 +syscall_errno:
 +db 0x0, 0x0, 0x0, 0x0
 +
 +[global _syscall_printf]
-+DEF_SYSCALL(printf, SYSCALL_PRINTF)
++_syscall_printf:
++  mov eax, 0x3
++  int 0x80
++  mov [syscall_errno], ebx
++  ret
+diff --git a/libgloss/libnosys/times.c b/libgloss/libnosys/times.c
+index f205e50..dabad76 100644
+--- a/libgloss/libnosys/times.c
++++ b/libgloss/libnosys/times.c
+@@ -15,6 +15,7 @@ clock_t
+ _DEFUN (_times, (buf),
+         struct tms *buf)
+ {
++  _syscall_printf("\n Syscall times");
+   errno = ENOSYS;
+   return -1;
+ }
+diff --git a/libgloss/libnosys/unlink.c b/libgloss/libnosys/unlink.c
+index c543709..de22a7f 100644
+--- a/libgloss/libnosys/unlink.c
++++ b/libgloss/libnosys/unlink.c
+@@ -14,6 +14,7 @@ int
+ _DEFUN (_unlink, (name),
+         char *name)
+ {
++  _syscall_printf("\n Syscall unlink");
+   errno = ENOSYS;
+   return -1;
+ }
+diff --git a/libgloss/libnosys/wait.c b/libgloss/libnosys/wait.c
+index 2a785be..b69a632 100644
+--- a/libgloss/libnosys/wait.c
++++ b/libgloss/libnosys/wait.c
+@@ -14,6 +14,7 @@ int
+ _DEFUN (_wait, (status),
+         int  *status)
+ {
++  _syscall_printf("\n Syscall wait");
+   errno = ENOSYS;
+   return -1;
+ }
 diff --git a/libgloss/libnosys/write.c b/libgloss/libnosys/write.c
-index 0136d74..9c3f90c 100644
+index 0136d74..307e6f9 100644
 --- a/libgloss/libnosys/write.c
 +++ b/libgloss/libnosys/write.c
-@@ -17,6 +17,7 @@ _DEFUN (_write, (file, ptr, len),
+@@ -16,7 +16,9 @@ _DEFUN (_write, (file, ptr, len),
+         char *ptr   _AND
          int   len)
  {
++  _syscall_printf("\n Syscall write");
    errno = ENOSYS;
-+  _syscall_printf(prt);
++  _syscall_printf(ptr);
    return -1;
  }
  

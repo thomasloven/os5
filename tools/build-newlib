@@ -36,7 +36,7 @@ pushd $BUILDDIR/newlib
     $NEWLIBDIR/configure --prefix=$BUILDDIR/lib --target=i386-elf
     pushd ../libgloss
       rm -r *
-      $NEWLIBDIR/libgloss/configure --prefix=$BUILDDIR/lib CC=i386-elf-gcc AS=i386-elf-as AR=i386-elf-ar LD=i386-elf-ld RANLIB=i386-elf-ranlib
+      $NEWLIBDIR/libgloss/configure --prefix=$BUILDDIR/lib CC=i386-elf-gcc AS='nasm -f elf' AR=i386-elf-ar LD=i386-elf-ld RANLIB=i386-elf-ranlib
     popd
   fi
   if [ $1 == "build" ]; then
@@ -47,6 +47,7 @@ pushd $BUILDDIR/newlib
   fi
   if [ $1 == "libgloss" ]; then
     pushd ../libgloss
+    export PATH=$BINUTILS:$PATH
       CFLAGS=-I$BUILDDIR/lib/i386-elf/include make all
       make install
     popd
