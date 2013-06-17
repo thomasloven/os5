@@ -1,9 +1,10 @@
 #include <stdint.h>
 #include <syscall.h>
+#include <stdlib.h>
 int main();
 
 void _init()
 {
-  _syscall_exit(main());
+  exit(main());
   for(;;);
 }

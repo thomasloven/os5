@@ -1,32 +1,29 @@
 #include <stdint.h>
-/*#include <syscall.h>*/
+#include <syscall.h>
 /*#include <heap.h>*/
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
 
 int main()
 {
   int a;
   a = 5;
 
- printf("Hello from, %s.", "init");
- for(;;);
- return 0;
- /*
-
   _syscall_printf("\nI'm going to fork now.");
-  uint32_t pid = _syscall_fork();
+  uint32_t pid = fork();
   if(pid)
   {
 
-    _syscall_printf("\n I am the parent! I have pid %x", _syscall_getpid());
+    _syscall_printf("\n I am the parent! I have pid %x", getpid());
     uint32_t retval = _syscall_wait(pid);
     _syscall_printf("\n Process %x returned %x", pid, retval);
     for(;;);
 
   } else {
 
-    _syscall_printf("\n  I am the child! I have pid %x", _syscall_getpid());
+    _syscall_printf("\n  I am the child! I have pid %x", getpid());
 
     _syscall_printf("\n  errno before: %x", syscall_errno);
     _syscall_unimpl();
@@ -43,5 +40,4 @@ int main()
   }
 
   return 0x123;
-  */
 }
