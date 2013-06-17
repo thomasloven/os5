@@ -2,7 +2,7 @@ BUILDROOT := $(PWD)
 BUILDDIR := $(BUILDROOT)/build
 LIBDIR := $(BUILDROOT)/library
 
-DIRS := kernel init
+DIRS := library kernel init
 
 AS := nasm
 CPP := clang -E
@@ -16,14 +16,14 @@ ASFLAGS := -f elf
 CPPFLAGS := -Wall -Wextra -pedantic -m32 -O0 -std=c99 -finline-functions
 CPPFLAGS += -fno-stack-protector -nostdinc -ffreestanding -Wno-unused-function
 CPPFLAGS += -Wno-unused-parameter -g -Wno-gnu
-#CPPFLAGS += -I$(LIBDIR)/include
+CPPFLAGS += -I$(LIBDIR)/include
 CPPFLAGS += -I$(BUILDDIR)/lib/i386-elf/include
 
 CCFLAGS := $(CPPFLAGS) -target i386-pc-linux -mno-sse -mno-mmx
 CCFLAGS += -ggdb
 
 #LIBPATH1 := $(BUILDDIR)/library/clib.a
-LIBPATH := $(BUILDDIR)/lib/i386-elf/lib/libc.a $(BUILDDIR)/lib/lib/libnosys.a
+LIBPATH := $(BUILDDIR)/lib/i386-elf/lib/libc.a $(BUILDDIR)/library/clib.a
 
 DEPFLAGS := $(CPPFLAGS)
 
@@ -33,7 +33,7 @@ export BUILDROOT BUILDDIR LIBDIR LIBPATH1 LIBPATH
 export AS CPP CC LD DEP AR
 export ASFLAGS CPPFLAGS CCFLAGS LDFLAGS DEPFLAGS ARFLAGS
 
-.SILENT:
+#.SILENT:
 
 .PHONY: $(DIRS) clean emul default
 .DEFAULT: all emul

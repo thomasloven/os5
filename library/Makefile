@@ -16,6 +16,7 @@ DEPENDENCIES := $(patsubst %.S,%.d,$(SOURCES))
 DEPENDENCIES := $(patsubst %.c,%.d,$(DEPENDENCIES))
 DEPENDENCIES := $(addprefix $(BUILDDIR)/$(SUBDIR)/,$(notdir $(DEPENDENCIES)))
 
+
 all: $(DEPENDENCIES) $(TARGET)
 
 $(TARGET): $(OBJECTS)
@@ -24,10 +25,10 @@ $(TARGET): $(OBJECTS)
 
 $(BUILDDIR)/$(SUBDIR)/%.d: %.c
 	@echo "    \033[31mdep\033[0m " $*".c"
-	@$(DEP) $(DEPFLAGS) $< -o $@ -MT "$(BUILDDIR)/$*.o $(BUILDDIR)/$*.d"
+	$(DEP) $(DEPFLAGS) $< -o $@ -MT "$(BUILDDIR)/$*.o $(BUILDDIR)/$*.d"
 $(BUILDDIR)/$(SUBDIR)/%.d: %.S
 	@echo "    \033[31mdep\033[0m " $*".S"
-	@$(DEP) $(DEPFLAGS) $< -o $@ -MT "$(BUILDDIR)/$*.o $(BUILDDIR)/$*.d"
+	$(DEP) $(DEPFLAGS) $< -o $@ -MT "$(BUILDDIR)/$*.o $(BUILDDIR)/$*.d"
 
 $(BUILDDIR)/$(SUBDIR)/%.o: %.c
 	@echo "  \033[33m gcc\033[0m    " $<
