@@ -36,6 +36,12 @@ struct dirent {
   char name[256];
 };
 
+typedef struct vfs_entry
+{
+  char *name;
+  fs_node_t *node;
+} vfs_entry_t;
+
 uint32_t vfs_read(fs_node_t *node, uint32_t offset, uint32_t size, uint8_t *buffer);
 uint32_t vfs_write(fs_node_t *node, uint32_t offset, uint32_t size, uint8_t *buffer);
 void vfs_open(fs_node_t *node, uint32_t flags);

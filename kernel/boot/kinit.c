@@ -17,6 +17,7 @@
 #include <procmm.h>
 #include <k_syscall.h>
 #include <synch.h>
+#include <vfs.h>
 
 void _idle(void)
 {
@@ -72,6 +73,7 @@ registers_t *kinit(mboot_info_t *mboot, uint32_t mboot_magic)
   register_int_handler(INT_SCHEDULE, switch_kernel_thread);
   timer_init(500);
 
+  vfs_init();
   syscall_init();
 
   process_init((void(*)(void))&_idle);
