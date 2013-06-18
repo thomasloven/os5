@@ -10,7 +10,6 @@ uint32_t read_debug(fs_node_t *node, uint32_t offset, uint32_t size, uint8_t *bu
 
 uint32_t write_debug(fs_node_t *node, uint32_t offset, uint32_t size, uint8_t *buffer)
 {
-  buffer[size] = '\0';
   debug("%s",buffer);
   return size;
 }
