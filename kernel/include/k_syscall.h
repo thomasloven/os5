@@ -32,4 +32,6 @@ KDECL_SYSCALL(exit);
 KDECL_SYSCALL(wait);
 KDECL_SYSCALL(sbrk);
 
+KDECL_SYSCALL(open);
+
 #endif
