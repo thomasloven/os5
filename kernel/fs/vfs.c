@@ -2,6 +2,8 @@
 #include <trees.h>
 #include <string.h>
 #include <k_heap.h>
+#include <lists.h>
+#include <k_debug.h>
 
 tree_t vfs_tree;
 fs_node_t *root_node;
@@ -66,9 +68,42 @@ void vfs_init()
 
   vfs_entry_t *root = root_tn->item = kmalloc(sizeof(vfs_entry_t));
   init_list(root_tn->children);
+  init_list(root_tn->siblings);
   root_tn->parent = 0;
 
   root->name = strdup("[root]");
   root->node = 0;
 
+  tree_node_t *child_tn = kmalloc(sizeof(tree_node_t));
+  vfs_entry_t *child = child_tn->item = kmalloc(sizeof(vfs_entry_t));
+  init_list(child_tn->children);
+  init_list(child_tn->siblings);
+  child_tn->parent = root_tn;
+  append_to_list(root_tn->children, child_tn->siblings);
+
+  child->name = strdup("child_node");
+  child->node = 0;
+  
+
+
+}
+
+void vfs_print_tree_rec(tree_node_t *node, int level)
+{
+  int i;
+  debug("\n");
+  for(i=0; i < level; i++)
+    debug(" ");
+  vfs_entry_t *entry = node->item;
+  debug("%s", entry->name);
+  list_t *l;
+  for_each_in_list(&node->children, l)
+  {
+    vfs_print_tree_rec(list_entry(l, tree_node_t, siblings), level+1);
+  }
+}
+
+void vfs_print_tree()
+{
+  vfs_print_tree_rec(vfs_tree.root, 0);
 }

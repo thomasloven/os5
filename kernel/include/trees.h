@@ -9,6 +9,7 @@ typedef struct tree_node
   void *item;
   list_head_t children;
   struct tree_node *parent;
+  list_t siblings;
 } tree_node_t;
 
 typedef struct

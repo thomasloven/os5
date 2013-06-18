@@ -74,6 +74,7 @@ registers_t *kinit(mboot_info_t *mboot, uint32_t mboot_magic)
   timer_init(500);
 
   vfs_init();
+  vfs_print_tree();
   syscall_init();
 
   process_init((void(*)(void))&_idle);
