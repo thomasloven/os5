@@ -1,0 +1,40 @@
+#include <vfs.h>
+#include <k_debug.h>
+#include <k_heap.h>
+#include <string.h>
+
+uint32_t read_debug(fs_node_t *node, uint32_t offset, uint32_t size, uint8_t *buffer)
+{
+  return 0;
+}
+
+uint32_t write_debug(fs_node_t *node, uint32_t offset, uint32_t size, uint8_t *buffer)
+{
+  buffer[size] = '\0';
+  debug("%s",buffer);
+  return size;
+}
+
+void open_debug(fs_node_t *node, uint32_t flags)
+{
+  return;
+}
+
+void close_debug(fs_node_t *node)
+{
+  return;
+}
+
+fs_node_t *debug_dev_init()
+{
+  fs_node_t *node = kmalloc(sizeof(fs_node_t));
+  memset(node, 0, sizeof(fs_node_t));
+  strcpy(node->name, "debug");
+  node->read = &read_debug;
+  node->write = &write_debug;
+  node->open = &open_debug;
+  node->close = &close_debug;
+  node->readdir = 0;
+  node->finddir = 0;
+  return node;
+}

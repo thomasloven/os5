@@ -73,8 +73,12 @@ void vfs_init()
   root->node = 0;
 
 
-  vfs_mount("/dev/file/system/path", 0);
+  fs_node_t *dbg = debug_dev_init();
+  vfs_mount("/dev/debug", dbg);
   vfs_mount("/dev/file/path",0);
+
+  char *str = "hello, world!";
+  dbg->write(dbg, 0, strlen(str), str);
 
 }
 
@@ -97,7 +101,6 @@ void vfs_mount(char *path, fs_node_t *mount_root)
   tree_node_t *node = vfs_tree.root;
   while(i < p + path_length)
   {
-    debug("\nLooking for %s", i);
     int found = 0;
     list_t *l;
     for_each_in_list(&node->children, l)
@@ -106,7 +109,6 @@ void vfs_mount(char *path, fs_node_t *mount_root)
       vfs_entry_t *entry = tn->item;
       if(!strcmp(entry->name, i))
       {
-        debug("Found it!");
         found = 1;
         node = tn;
         break;
@@ -114,7 +116,6 @@ void vfs_mount(char *path, fs_node_t *mount_root)
     }
     if(!found)
     {
-      debug("Didn't find");
       tree_node_t *new = kmalloc(sizeof(tree_node_t));
       init_tree_node(new);
       vfs_entry_t *n = new->item = kmalloc(sizeof(vfs_entry_t));
@@ -123,12 +124,12 @@ void vfs_mount(char *path, fs_node_t *mount_root)
 
       tree_make_child(node, new);
       node = new;
-
     }
 
     i += strlen(i);
-    
   }
+  vfs_entry_t *entry = node->item;
+  entry->node = mount_root;
 
 }
 
