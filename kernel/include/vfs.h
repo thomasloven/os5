@@ -50,6 +50,7 @@ struct dirent *vfs_readdir(fs_node_t *node, uint32_t index);
 fs_node_t *vfs_finddir(fs_node_t *node, char *name);
 
 void vfs_init();
+void vfs_mount(char *path, fs_node_t *mount_root);
 
 void vfs_print_tree();
 

@@ -72,16 +72,63 @@ void vfs_init()
   root->name = strdup("[root]");
   root->node = 0;
 
-  tree_node_t *child_tn = kmalloc(sizeof(tree_node_t));
-  init_tree_node(child_tn);
-  vfs_entry_t *child = child_tn->item = kmalloc(sizeof(vfs_entry_t));
 
-  child->name = strdup("child_node");
-  child->node = 0;
+  vfs_mount("/dev/file/system/path", 0);
+  vfs_mount("/dev/file/path",0);
 
-  tree_make_child(root_tn, child_tn);
-  
+}
 
+void vfs_mount(char *path, fs_node_t *mount_root)
+{
+  char *p = strdup(path);
+  char *i = p;
+
+  uint32_t path_length = strlen(path);
+  // Tokenize path
+  while(i < p + path_length)
+  {
+    if(*i == '/')
+      *i = '\0';
+    i++;
+  }
+  p[path_length] = '\0';
+  i = p + 1;
+
+  tree_node_t *node = vfs_tree.root;
+  while(i < p + path_length)
+  {
+    debug("\nLooking for %s", i);
+    int found = 0;
+    list_t *l;
+    for_each_in_list(&node->children, l)
+    {
+      tree_node_t *tn = list_entry(l, tree_node_t, siblings);
+      vfs_entry_t *entry = tn->item;
+      if(!strcmp(entry->name, i))
+      {
+        debug("Found it!");
+        found = 1;
+        node = tn;
+        break;
+      }
+    }
+    if(!found)
+    {
+      debug("Didn't find");
+      tree_node_t *new = kmalloc(sizeof(tree_node_t));
+      init_tree_node(new);
+      vfs_entry_t *n = new->item = kmalloc(sizeof(vfs_entry_t));
+      n->name = strdup(i);
+      n->node = 0;
+
+      tree_make_child(node, new);
+      node = new;
+
+    }
+
+    i += strlen(i);
+    
+  }
 
 }
 
