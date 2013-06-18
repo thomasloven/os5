@@ -22,4 +22,13 @@ typedef struct
   tree.size=0; \
   tree.root=(tree_node_t *)0;
 
+#define init_tree_node(node) \
+  init_list(node->children); \
+  init_list(node->siblings); \
+  node->parent = 0;
+
+#define tree_make_child(par, chl) \
+  chl->parent = par; \
+  append_to_list(par->children, chl->siblings)
+
 #endif

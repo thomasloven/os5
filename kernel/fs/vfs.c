@@ -66,23 +66,20 @@ void vfs_init()
   vfs_tree.size = 0;
   tree_node_t *root_tn = vfs_tree.root = kmalloc(sizeof(tree_node_t));
 
+  init_tree_node(root_tn);
   vfs_entry_t *root = root_tn->item = kmalloc(sizeof(vfs_entry_t));
-  init_list(root_tn->children);
-  init_list(root_tn->siblings);
-  root_tn->parent = 0;
 
   root->name = strdup("[root]");
   root->node = 0;
 
   tree_node_t *child_tn = kmalloc(sizeof(tree_node_t));
+  init_tree_node(child_tn);
   vfs_entry_t *child = child_tn->item = kmalloc(sizeof(vfs_entry_t));
-  init_list(child_tn->children);
-  init_list(child_tn->siblings);
-  child_tn->parent = root_tn;
-  append_to_list(root_tn->children, child_tn->siblings);
 
   child->name = strdup("child_node");
   child->node = 0;
+
+  tree_make_child(root_tn, child_tn);
   
 
 
