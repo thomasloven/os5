@@ -1,7 +1,7 @@
 
 [global _start]
-[extern main]
+[extern _init]
 
 _start:
-  call main
+  call _init
   jmp $
