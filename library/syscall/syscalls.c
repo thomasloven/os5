@@ -9,7 +9,7 @@ extern int errno;
 int _exit(int rc)
 {
   _syscall_printf("\n Syscall _exit()");
-  return _syscall_exit();
+  return _syscall_exit(rc);
 }
 
 int close(int file)
