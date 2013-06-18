@@ -4,6 +4,7 @@
 #include <arch.h>
 #include <thread.h>
 #include <process.h>
+#include <k_debug.h>
 
 KDEF_SYSCALL(open, r)
 {
@@ -27,7 +28,7 @@ KDEF_SYSCALL(open, r)
     r->eax = fd;
     return r;
   }
-  fs_node_t *node = vfs_find_node(stack[0]);
+  fs_node_t *node = vfs_find_node((char *)stack[0]);
   vfs_open(node, stack[2]);
   p->fd[fd].node = node;
   p->fd[fd].offset = 0;

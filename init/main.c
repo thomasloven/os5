@@ -16,6 +16,9 @@ int main()
   if(pid)
   {
 
+    int fd = open("/dev/debug", "w");
+    _syscall_printf("\n Opened file %d", fd);
+
     _syscall_printf("\n I am the parent! I have pid %x", getpid());
     uint32_t retval = _syscall_wait(pid);
     _syscall_printf("\n Process %x returned %x", pid, retval);

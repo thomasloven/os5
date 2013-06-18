@@ -4,6 +4,7 @@
 #include <thread.h>
 #include <lists.h>
 #include <synch.h>
+#include <vfs.h>
 
 #ifndef __ASSEMBLER__
 

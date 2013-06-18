@@ -75,8 +75,8 @@ int lseek(int file, int ptr, int dir)
 
 int open(const char *name, int flags, int mode)
 {
-  _syscall_printf("\n Syscall open()");
-  return -1;
+  _syscall_printf("\n Syscall open(%x %x %x)", name, flags, mode);
+  return _syscall_open(name, flags, mode);
 }
 
 int read(int file, char *ptr, int len)
