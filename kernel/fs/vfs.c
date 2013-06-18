@@ -78,7 +78,7 @@ void vfs_init()
   vfs_mount("/dev/file/path",0);
 
   char *str = "hello, world!";
-  dbg->write(dbg, 0, strlen(str), str);
+  vfs_write(dbg, 0, strlen(str), str);
 
 }
 

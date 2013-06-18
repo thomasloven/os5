@@ -24,6 +24,12 @@ typedef struct process_mem_struct
   list_head_t mem;
 } process_mem_t;
 
+typedef struct
+{
+  fs_node_t *node;
+  uint32_t offset;
+} file_desc_t;
+
 typedef struct process_struct
 {
   uint32_t pid;
@@ -42,6 +48,8 @@ typedef struct process_struct
   uint32_t exit_code;
 
   process_mem_t mm;
+
+  file_desc_t fd[256];
 } process_t;
 
 #define PROC_STATE_RUNNING 0x1
