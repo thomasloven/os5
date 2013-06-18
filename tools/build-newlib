@@ -20,60 +20,11 @@ LDREAL=`readlink $LDPATH`
 LDREALDIR=`dirname $LDREAL`
 BINUTILS=`cd $LDDIR/$LDREALDIR/../i386-elf/bin; pwd`
 
+mkdir $BUILDDIR/newlib
 pushd $BUILDDIR/newlib
-  if [ -z $1 ]; then
-    echo "Commands:"
-    echo reconfigure
-    echo build
-    echo --
-    echo patch
-    echo makepatch
-    echo reset
-    exit 0
-  fi
-  if [ $1 == "reconfigure" ]; then
     rm -r *
     $NEWLIBDIR/configure --prefix=$BUILDDIR/lib --target=i386-elf
-    pushd ../libgloss
-      rm -r *
-      $NEWLIBDIR/libgloss/configure --prefix=$BUILDDIR/lib CC=i386-elf-gcc AS='nasm -f elf' AR=i386-elf-ar LD=i386-elf-ld RANLIB=i386-elf-ranlib
-    popd
-  fi
-  if [ $1 == "build" ]; then
     export PATH=$BINUTILS:$PATH
     make all
     make install
-    cp /usr/local/Cellar/gcc-cross/4.8.1/lib/gcc/i386-elf/4.8.1/include/stddef.h $BUILDDIR/lib/i386-elf/include/.
-  fi
-  if [ $1 == "libgloss" ]; then
-    pushd ../libgloss
-    export PATH=$BINUTILS:$PATH
-      CFLAGS=-I$BUILDDIR/lib/i386-elf/include make all
-      make install
-    popd
-  fi
-  if [ $1 == "patch" ]; then
-    pushd $NEWLIBDIR
-      git apply $PATCHFILE
-    popd
-  fi
-  if [ $1 == "makepatch" ]; then
-    pushd $NEWLIBDIR
-    git add .
-    PATCH=`git diff --cached`
-    if [ -z $PATCH ]; then
-      echo No changes
-      exit 1
-    fi
-    git diff --cached --no-color > $PATCHFILE
-    git reset HEAD .
-    popd
-  fi
-  if [ $1 == "reset" ]; then
-    pushd $NEWLIBDIR
-      git checkout .
-      git clean -f
-    popd
-  fi
-      
 popd

@@ -14,7 +14,7 @@ AR := i386-elf-ar
 ASFLAGS := -f elf
 
 CPPFLAGS := -Wall -Wextra -pedantic -m32 -O0 -std=c99 -finline-functions
-CPPFLAGS += -fno-stack-protector -nostdinc -ffreestanding -Wno-unused-function
+CPPFLAGS += -fno-stack-protector -ffreestanding -Wno-unused-function
 CPPFLAGS += -Wno-unused-parameter -g -Wno-gnu
 CPPFLAGS += -I$(LIBDIR)/include
 CPPFLAGS += -I$(BUILDDIR)/lib/i386-elf/include
