@@ -78,9 +78,52 @@ void vfs_init()
   vfs_mount("/dev/file/path",0);
 
   char *str = "hello, world!";
-  vfs_write(dbg, 0, strlen(str), str);
+
+  vfs_write(vfs_find_node("/dev/debug"), 0, strlen(str), str);
 
 }
+
+fs_node_t *vfs_find_node(char *path)
+{
+  char *p = strdup(path);
+  char *i = p;
+
+  uint32_t path_length = strlen(path);
+  while(i < p + path_length)
+  {
+    if(*i == '/')
+      *i = '\0';
+    i++;
+  }
+  p[path_length] = '\0';
+  i = p + 1;
+
+  tree_node_t *node = vfs_tree.root;
+  while(i < p + path_length)
+  {
+    int found = 0;
+    list_t *l;
+    for_each_in_list(&node->children, l)
+    {
+      tree_node_t *tn = list_entry(l, tree_node_t, siblings);
+      vfs_entry_t *entry = tn->item;
+      if(!strcmp(entry->name, i))
+      {
+        found = 1;
+        node = tn;
+        break;
+      }
+    }
+    if(!found)
+    {
+      return 0;
+    }
+    i += strlen(i);
+  }
+  vfs_entry_t *entry = node->item;
+  return entry->node;
+}
+
 
 void vfs_mount(char *path, fs_node_t *mount_root)
 {

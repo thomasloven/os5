@@ -51,6 +51,7 @@ fs_node_t *vfs_finddir(fs_node_t *node, char *name);
 
 void vfs_init();
 void vfs_mount(char *path, fs_node_t *mount_root);
+fs_node_t *vfs_find_node(char *path);
 
 void vfs_print_tree();
 
