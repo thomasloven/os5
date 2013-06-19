@@ -16,13 +16,6 @@ int main()
   uint32_t pid = fork();
   if(pid)
   {
-
-    int fd = fopen("/dev/debug", "w");
-    _syscall_printf("\n Opened file %d", fd);
-    char *str = "Hello from user";
-    write(fd, str, strlen(str));
-    printf("Hello, again!");
-
     _syscall_printf("\n I am the parent! I have pid %x", getpid());
     uint32_t retval = _syscall_wait(pid);
     _syscall_printf("\n Process %x returned %x", pid, retval);
@@ -31,6 +24,10 @@ int main()
   } else {
 
     _syscall_printf("\n  I am the child! I have pid %x", getpid());
+    fopen("/dev/debug", "w");
+    fopen("/dev/debug", "w");
+
+    printf("Hello printf!!");
 
     _syscall_printf("\n  errno before: %x", syscall_errno);
     _syscall_unimpl();
