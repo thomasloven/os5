@@ -252,7 +252,7 @@ void share_area(process_t *copy, mem_area_t *ma)
 {
   spin_lock(&procmm_sem);
   ma->flags |= MM_FLAG_SHARED;
-  if(ma->flags & MM_FLAG_WRITE)
+  if((ma->flags & MM_FLAG_WRITE) || (ma->flags & MM_FLAG_COW))
   {
     ma->flags &= ~(MM_FLAG_WRITE);
     ma->flags |= MM_FLAG_COW;
@@ -311,7 +311,7 @@ uint32_t procmm_handle_page_fault(uintptr_t address, uint32_t flags)
           vmm_page_set(address & PAGE_MASK, pval | PAGE_WRITE);
           return 0;
         } else {
-
+    debug("CopyonWrite");
           // Copy page
           vmm_page_set(VMM_TEMP1, pval);
           vmm_page_set(address & PAGE_MASK, vmm_page_val(pmm_alloc_page(), pval & PAGE_FLAG_MASK | PAGE_WRITE));
