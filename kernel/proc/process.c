@@ -135,6 +135,8 @@ process_t *fork_process()
   child->pd = vmm_clone_pd();
   // Clone memory map (copy on write for everything)
   procmm_fork(parent, child);
+  // Clone file descriptors
+  memcopy(child->fd, parent->fd, sizeof(file_desc_t)*256);
 
   // Fix the family
   child->parent = parent;
