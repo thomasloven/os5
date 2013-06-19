@@ -55,6 +55,7 @@ KDEF_SYSCALL(wait, r)
   r->eax = proc->exit_code;
   free_process(proc);
 
+  r->ebx = SYSCALL_OK;
   return r;
 }
 

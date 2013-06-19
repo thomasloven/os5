@@ -33,6 +33,7 @@ KDEF_SYSCALL(open, r)
   p->fd[fd].node = node;
   p->fd[fd].offset = 0;
   r->eax = fd;
+  r->ebx = SYSCALL_OK;
   return r;
   
 }
@@ -46,5 +47,6 @@ KDEF_SYSCALL(write, r)
 
   fs_node_t *node = p->fd[stack[0]].node;
   r->eax = vfs_write(node, 0, stack[2], stack[1]);
+  r->ebx = SYSCALL_OK;
   return r;
 }

@@ -14,7 +14,7 @@ int _exit(int rc)
 
 int close(int file)
 {
-  _syscall_printf("\n Syscall close()");
+  _syscall_printf("\n Syscall close(%x)", file);
   return -1;
 }
 

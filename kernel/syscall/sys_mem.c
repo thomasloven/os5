@@ -27,5 +27,6 @@ KDEF_SYSCALL(sbrk, r)
   r->eax = p->mm.data_end;
   p->mm.data_end = p->mm.data_end + size;
   
+  r->ebx = SYSCALL_OK;
   return r;
 }
