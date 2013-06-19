@@ -44,8 +44,12 @@ registers_t *page_fault_handler(registers_t *r)
       disable_interrupts();
       debug("Page fault hapened!");
       debug("\n At: %x", fault_address);
-      debug("\n Code: %x", r->err_code);
+      debug("\n Code: %x (%s,%s,%s)", r->err_code, \
+          (r->err_code & 0x4)?"user":"kernel", \
+          (r->err_code & 0x2)?"write":"read", \
+          (r->err_code & 0x1)?"non-present":"protection");
       debug("\n From thread: %x", current->tid);
+      debug("\n From process: %x", current->proc->pid);
       print_registers(r);
       for(;;);
   }
