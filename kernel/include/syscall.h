@@ -8,6 +8,7 @@
 #define SYSCALL_EXIT 0x05
 #define SYSCALL_WAIT 0x06
 #define SYSCALL_SBRK 0x07
+#define SYSCALL_YIELD 0x08
 
 #define SYSCALL_OPEN 0x10
 #define SYSCALL_WRITE 0x11

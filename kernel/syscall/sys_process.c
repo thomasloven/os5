@@ -59,3 +59,9 @@ KDEF_SYSCALL(wait, r)
   return r;
 }
 
+KDEF_SYSCALL(yield, r)
+{
+  schedule();
+  return r;
+}
+

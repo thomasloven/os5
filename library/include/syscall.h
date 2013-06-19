@@ -7,6 +7,7 @@
 #define SYSCALL_EXIT 0x05
 #define SYSCALL_WAIT 0x06
 #define SYSCALL_SBRK 0x07
+#define SYSCALL_YIELD 0x08
 
 #define SYSCALL_OPEN 0x10
 #define SYSCALL_WRITE 0x11
@@ -38,6 +39,7 @@ DECL_SYSCALL0(exit);
 DECL_SYSCALL0(unimpl);
 DECL_SYSCALL1(wait, int);
 DECL_SYSCALL1(sbrk, int);
+DECL_SYSCALL0(yield);
 
 DECL_SYSCALL3(open, const char *, int, int);
 

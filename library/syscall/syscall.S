@@ -28,6 +28,9 @@ DEF_SYSCALL(wait, SYSCALL_WAIT)
 [global _syscall_sbrk]
 DEF_SYSCALL(sbrk, SYSCALL_SBRK)
 
+[global _syscall_yield]
+DEF_SYSCALL(yield, SYSCALL_YIELD)
+
 
 [global _syscall_open]
 DEF_SYSCALL(open, SYSCALL_OPEN)
