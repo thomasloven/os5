@@ -47,9 +47,11 @@ DECL_SYSCALL3(open, const char *, int, int);
   defsyscall num
 
 %macro defsyscall 1
+  mov [syscall_temp], ebx
   mov eax, %1
   int 0x80
   mov [syscall_errno], ebx
+  mov ebx, [syscall_temp]
   ret
 %endmacro
 

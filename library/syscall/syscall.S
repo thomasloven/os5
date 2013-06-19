@@ -3,6 +3,9 @@
 [global syscall_errno]
 syscall_errno:
   db 0x0, 0x0, 0x0, 0x0
+[global syscall_temp]
+syscall_temp:
+  db 0x0, 0x0, 0x0, 0x0
 
 [global _syscall_fork]
 DEF_SYSCALL(fork, 0x1)
