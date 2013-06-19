@@ -31,3 +31,6 @@ DEF_SYSCALL(sbrk, SYSCALL_SBRK)
 
 [global _syscall_open]
 DEF_SYSCALL(open, SYSCALL_OPEN)
+
+[global _syscall_write]
+DEF_SYSCALL(write, SYSCALL_WRITE)

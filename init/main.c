@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <string.h>
 
 int main()
 {
@@ -16,8 +17,11 @@ int main()
   if(pid)
   {
 
-    int fd = open("/dev/debug", "w");
+    int fd = fopen("/dev/debug", "w");
     _syscall_printf("\n Opened file %d", fd);
+    char *str = "Hello from user";
+    write(fd, str, strlen(str));
+    printf("Hello, again!");
 
     _syscall_printf("\n I am the parent! I have pid %x", getpid());
     uint32_t retval = _syscall_wait(pid);

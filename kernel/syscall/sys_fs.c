@@ -36,3 +36,15 @@ KDEF_SYSCALL(open, r)
   return r;
   
 }
+
+KDEF_SYSCALL(write, r)
+{
+  //int write(int file, char *ptr, int len)
+
+  process_stack stack = init_pstack();
+  process_t *p = current->proc;
+
+  fs_node_t *node = p->fd[stack[0]].node;
+  r->eax = vfs_write(node, 0, stack[2], stack[1]);
+  return r;
+}

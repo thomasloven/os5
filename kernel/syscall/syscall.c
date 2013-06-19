@@ -23,6 +23,7 @@ void syscall_init()
   KREG_SYSCALL(sbrk, SYSCALL_SBRK);
 
   KREG_SYSCALL(open, SYSCALL_OPEN);
+  KREG_SYSCALL(write, SYSCALL_WRITE);
 }
 
 registers_t *syscall_handler(registers_t *r)

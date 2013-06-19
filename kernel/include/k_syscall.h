@@ -33,5 +33,6 @@ KDECL_SYSCALL(wait);
 KDECL_SYSCALL(sbrk);
 
 KDECL_SYSCALL(open);
+KDECL_SYSCALL(write);
 
 #endif
