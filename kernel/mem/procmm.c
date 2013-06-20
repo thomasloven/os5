@@ -180,6 +180,9 @@ mem_area_t *glue_area(mem_area_t *ma)
   if(!(list_empty(ma->copies)))
     return ma;
 
+  if(ma->flags & MM_FLAG_COW)
+    return ma;
+
   spin_lock(&procmm_sem);
     list_t *area_list;
     for_each_in_list(&ma->owner->mm.mem, area_list)
