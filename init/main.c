@@ -23,23 +23,28 @@ int main()
 
   } else {
 
-    _syscall_printf("\n  I am the child! I have pid %x", getpid());
     fopen("/dev/debug", "w");
     fopen("/dev/debug", "w");
+    fopen("/dev/debug", "w");
+    printf("  I am the child! I have pid %x\n", getpid());
 
     printf("Hello printf!!");
+    fflush(stdout);
+    pid = fork();
+    if(pid)
+    {
+      printf("A\n");
+      printf("Returned %x!\n", _syscall_wait(pid));
+    } else {
+      printf("B\n");
+      printf(" Childs Child.\n");
+      _syscall_yield();
+      /*printf("\n Childs child!");*/
+      /*for(;;);*/
+      return 0;
+    }
 
-    _syscall_printf("\n  errno before: %x", syscall_errno);
-    _syscall_unimpl();
-    _syscall_printf("\n  errno after: %x", syscall_errno);
-
-    char *str = malloc(sizeof(char)*8);
-    _syscall_printf("\n Allocated string at %x", str);
-    str[0] = 'a';
-    str[1] = 'b';
-    str[2] = 'c';
-    str[3] = 0;
-    _syscall_printf("\n %s", str);
+    printf("after fork");
 
   }
 
