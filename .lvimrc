@@ -11,9 +11,7 @@ call rainbow_parenthsis#Activate()
 
 let g:syntastic_c_include_dirs = [ 'library/include', 'kernel/include' ]
 "let g:syntastic_c_checker = 'clang -fsyntax-only -Wall -Wextra -pedantic'
-let g:syntastic_c_checker = 'clang'
+let g:syntastic_c_compiler = 'clang'
 let g:syntastic_c_compiler_options = '-fsyntax-only -Wall -Wextra -pedantic -Wno-gnu -m32'
 let g:syntastic_c_check_header = 1
-
-set wildignore=*.o
 
