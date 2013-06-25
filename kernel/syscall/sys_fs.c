@@ -46,7 +46,7 @@ KDEF_SYSCALL(write, r)
   process_t *p = current->proc;
 
   fs_node_t *node = p->fd[stack[0]].node;
-  r->eax = vfs_write(node, 0, stack[2], stack[1]);
+  r->eax = vfs_write(node, 0, stack[2], (char *)stack[1]);
   r->ebx = SYSCALL_OK;
   return r;
 }

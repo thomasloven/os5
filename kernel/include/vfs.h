@@ -6,8 +6,8 @@
 
 struct fs_node;
 
-typedef uint32_t (*read_type_t)(struct fs_node *, uint32_t, uint32_t, uint8_t *);
-typedef uint32_t (*write_type_t)(struct fs_node *, uint32_t, uint32_t, uint8_t *);
+typedef uint32_t (*read_type_t)(struct fs_node *, uint32_t, uint32_t, char *);
+typedef uint32_t (*write_type_t)(struct fs_node *, uint32_t, uint32_t, char *);
 typedef void (*open_type_t)(struct fs_node *, uint32_t);
 typedef void (*close_type_t)(struct fs_node *);
 typedef struct dirent *(*readdir_type_t)(struct fs_node *, uint32_t);
@@ -42,8 +42,8 @@ typedef struct vfs_entry
   fs_node_t *node;
 } vfs_entry_t;
 
-uint32_t vfs_read(fs_node_t *node, uint32_t offset, uint32_t size, uint8_t *buffer);
-uint32_t vfs_write(fs_node_t *node, uint32_t offset, uint32_t size, uint8_t *buffer);
+uint32_t vfs_read(fs_node_t *node, uint32_t offset, uint32_t size, char *buffer);
+uint32_t vfs_write(fs_node_t *node, uint32_t offset, uint32_t size, char *buffer);
 void vfs_open(fs_node_t *node, uint32_t flags);
 void vfs_close(fs_node_t *node);
 struct dirent *vfs_readdir(fs_node_t *node, uint32_t index);

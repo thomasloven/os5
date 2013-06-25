@@ -42,6 +42,7 @@ DECL_SYSCALL1(sbrk, int);
 DECL_SYSCALL0(yield);
 
 DECL_SYSCALL3(open, const char *, int, int);
+DECL_SYSCALL3(write, int, char *, int);
 
 #else
 

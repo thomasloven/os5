@@ -3,12 +3,12 @@
 #include <k_heap.h>
 #include <string.h>
 
-uint32_t read_debug(fs_node_t *node, uint32_t offset, uint32_t size, uint8_t *buffer)
+uint32_t read_debug(fs_node_t *node, uint32_t offset, uint32_t size, char *buffer)
 {
   return 0;
 }
 
-uint32_t write_debug(fs_node_t *node, uint32_t offset, uint32_t size, uint8_t *buffer)
+uint32_t write_debug(fs_node_t *node, uint32_t offset, uint32_t size, char *buffer)
 {
   debug("%s",buffer);
   return size;

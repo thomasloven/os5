@@ -15,3 +15,4 @@ let g:syntastic_c_compiler = 'clang'
 let g:syntastic_c_compiler_options = '-fsyntax-only -Wall -Wextra -pedantic -Wno-gnu -m32'
 let g:syntastic_c_check_header = 1
 
+let g:ctrlp_custom_ignore = 'newlib'

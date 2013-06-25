@@ -100,7 +100,7 @@ void kdbg_printf(char *str, ...)
           scrn_x++;
       }
     }
-    else if(isprint(*str))
+    else if(isprint((unsigned char)*str))
     {
       kdbg_putch(*str, text_style);
       scrn_x++;
