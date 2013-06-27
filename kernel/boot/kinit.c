@@ -74,13 +74,13 @@ registers_t *kinit(mboot_info_t *mboot, uint32_t mboot_magic)
   timer_init(500);
 
   vfs_init();
-  vfs_print_tree();
+  /* vfs_print_tree(); */
   syscall_init();
 
   process_init((void(*)(void))&_idle);
 
-  thread_t *clk = new_thread(&_clock,0);
-  clk->proc = current->proc;
+  /* thread_t *clk = new_thread(&_clock,0); */
+  /* clk->proc = current->proc; */
 
   mboot_mod_t *mods = (mboot_mod_t *)(assert_higher(mboot->mods_addr));
   mods->mod_start = assert_higher(mods->mod_start);

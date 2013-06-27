@@ -77,9 +77,6 @@ void vfs_init()
   vfs_mount("/dev/debug", dbg);
   vfs_mount("/dev/file/path",0);
 
-  char *str = "hello, world!";
-
-  vfs_write(vfs_find_node("/dev/debug"), 0, strlen(str), str);
 
 }
 

@@ -6,29 +6,29 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <sys/wait.h>
 
 int main()
 {
-  int a;
-  a = 5;
+  fopen("/dev/debug", "w");
+  fopen("/dev/debug", "w");
+  fopen("/dev/debug", "w");
 
-  _syscall_printf("\nI'm going to fork now.");
+  printf("This is the init process.\n");
+
   uint32_t pid = fork();
   if(pid)
   {
-    _syscall_printf("\n I am the parent! I have pid %x", getpid());
-    uint32_t retval = _syscall_wait(pid);
-    _syscall_printf("\n Process %x returned %x", pid, retval);
+    printf("Inint parent. Pid:%x", getpid());
+    fflush(stdout);
+    uint32_t retval = wait(pid);
+    printf("Child (pid:%x) returned with %x", pid, retval);
     for(;;);
 
   } else {
 
-    fopen("/dev/debug", "w");
-    fopen("/dev/debug", "w");
-    fopen("/dev/debug", "w");
     printf("  I am the child! I have pid %x\n", getpid());
 
-    printf("Hello printf!!");
     fflush(stdout);
     pid = fork();
     if(pid)
