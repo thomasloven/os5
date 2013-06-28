@@ -96,7 +96,7 @@ thread_t *clone_thread(thread_t *th)
 
 registers_t *switch_kernel_thread(registers_t *r)
 {
-  if(r)
+  if(r && r != &boot_thread->tcb.r)
   {
     current->kernel_thread = r;
     if(current->state == THREAD_STATE_READY)
@@ -104,7 +104,10 @@ registers_t *switch_kernel_thread(registers_t *r)
   }
 
   thread_t *next = scheduler_next();
-  scheduler_remove(next);
+  if(!next)
+    next = &boot_thread->tcb;
+  else
+    scheduler_remove(next);
 
   switch_process(next->proc);
 

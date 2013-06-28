@@ -86,8 +86,8 @@ registers_t *kinit(mboot_info_t *mboot, uint32_t mboot_magic)
   mods->mod_start = assert_higher(mods->mod_start);
 
   load_elf((elf_header *)mods->mod_start);
-  thread_t *idle = new_thread((void(*)(void))current->proc->mm.code_entry,1);
-  idle->proc = current->proc;
+  thread_t *init = new_thread((void(*)(void))current->proc->mm.code_entry,1);
+  init->proc = current->proc;
   new_area(current->proc, USER_STACK_TOP, USER_STACK_TOP, MM_FLAG_WRITE | MM_FLAG_GROWSDOWN | MM_FLAG_ADDONUSE, MM_TYPE_STACK);
 
 

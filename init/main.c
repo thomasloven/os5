@@ -16,13 +16,14 @@ int main()
 
   printf("This is the init process.\n");
 
-  uint32_t pid = fork();
+  uint16_t pid = fork();
   if(pid)
   {
     printf("Inint parent. Pid:%x", getpid());
     fflush(stdout);
-    uint32_t retval = wait(pid);
+    uint16_t retval = _syscall_wait(pid);
     printf("Child (pid:%x) returned with %x", pid, retval);
+    fflush(stdout);
     for(;;);
 
   } else {

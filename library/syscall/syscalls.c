@@ -11,7 +11,7 @@ extern int errno;
 void  _exit(int rc)
 {
 #ifndef NDEBUG
-  _syscall_printf("\n Syscall _exit()");
+  _syscall_printf("\n Syscall _exit(%x)", rc);
 #endif
 
   _syscall_exit(rc);

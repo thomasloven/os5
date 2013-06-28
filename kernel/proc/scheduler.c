@@ -31,6 +31,7 @@ thread_t *scheduler_next()
     return list_entry(run_queue.next, thread_t, tasks);
   else
   {
+    return 0;
     for(;;);
   }
 }
@@ -42,11 +43,13 @@ void scheduler_init()
   spin_unlock(&scheduler_sem);
 }
 
-void scheduler_list()
+void scheduler_list(list_head_t *list)
 {
+  if(list == 0)
+    list = &run_queue;
   spin_lock(&scheduler_sem);
   list_t *i;
-  for_each_in_list(&run_queue, i)
+  for_each_in_list(list, i)
   {
     thread_t *th = list_entry(i, thread_t, tasks);
     debug("%x->",th->tid);
