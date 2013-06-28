@@ -15,9 +15,12 @@ uintptr_t *page_tables = (uintptr_t *)VMM_PAGE_TABLES;
 uintptr_t *expage_directory = (uintptr_t *)VMM_EXPAGE_DIR;
 uintptr_t *expage_tables = (uintptr_t *)VMM_EXPAGE_TABLES;
 
+semaphore_t exdir_sem;
+semaphore_t temp_sem; // VMM_TEMPn addresses
+
 void vmm_pd_set(page_dir_t pd)
 {
-  // Replace the page directory
+  // Load a new page directory
   __asm__ volatile("mov %0, %%cr3" : : "r" (pd));
 }
 
@@ -62,25 +65,35 @@ void vmm_page_touch(uintptr_t page, uint32_t flags)
 
   if(!(page_directory[vmm_dir_idx(page)] & PAGE_PRESENT))
   {
+    // There is no page table for the page
+
     if(page >= KERNEL_OFFSET && vmm_running)
     {
+      // The page we want to add is in the kernel space
       spin_lock(&kernel_pd_sem);
+      spin_lock(&exdir_sem);
         page_dir_t old_exdir = vmm_exdir_set(kernel_pd);
         if(expage_directory[vmm_dir_idx(page)] & PAGE_PRESENT)
         {
+          // If the page table exists in the master page directory, just
+          // copy it.
           page_directory[vmm_dir_idx(page)] = expage_directory[vmm_dir_idx(page)];
         } else {
+          // Otherwise allocate a new table
           page_directory[vmm_dir_idx(page)] = pmm_alloc_page() | flags;
           expage_directory[vmm_dir_idx(page)] = page_directory[vmm_dir_idx(page)];
         }
         vmm_exdir_set(old_exdir);
+      spin_unlock(&exdir_sem);
       spin_unlock(&kernel_pd_sem);
     } else {
-        page_directory[vmm_dir_idx(page)] = pmm_alloc_page() | flags;
+      // If the page is in user space, just allocate a new table.
+      page_directory[vmm_dir_idx(page)] = pmm_alloc_page() | flags;
     }
 
+    // Clear the new page table
     vmm_flush_tlb((uintptr_t)&page_tables[vmm_table_idx(page)] & PAGE_MASK);
-  memset((uintptr_t)&page_tables[vmm_table_idx(page)] & PAGE_MASK, 0, \
+    memset((uintptr_t)&page_tables[vmm_table_idx(page)] & PAGE_MASK, 0, \
     PAGE_SIZE);
   }
 }
@@ -165,7 +178,7 @@ void vmm_expage_touch(uintptr_t page, uint32_t flags)
   {
     expage_directory[vmm_dir_idx(page)] = pmm_alloc_page() | flags;
     vmm_flush_tlb((uintptr_t)&expage_tables[vmm_table_idx(page)] & PAGE_MASK);
-  memset((uintptr_t)&expage_tables[vmm_table_idx(page)] & PAGE_MASK, 0, \
+    memset((uintptr_t)&expage_tables[vmm_table_idx(page)] & PAGE_MASK, 0, \
     PAGE_SIZE);
   }
 }
@@ -173,7 +186,7 @@ void vmm_expage_touch(uintptr_t page, uint32_t flags)
 void vmm_expage_set(uintptr_t page, uintptr_t value)
 {
   // Set the value of a page table entry in the currently loaded external page
-  // directory
+  // directory.
   page &= PAGE_MASK;
 
   vmm_expage_touch(page, value & PAGE_FLAG_MASK);
@@ -186,37 +199,51 @@ void vmm_clear_page(uintptr_t page)
 {
   // Clear a physical page
 
-  uintptr_t old = vmm_page_get(VMM_TEMP1);
-  vmm_page_set(VMM_TEMP1, vmm_page_val(page, PAGE_PRESENT | PAGE_WRITE));
-  memset(VMM_TEMP1, 0, PAGE_SIZE),
-  vmm_page_set(VMM_TEMP1, old);
+  spin_lock(&temp_sem);
+    uintptr_t old = vmm_page_get(VMM_TEMP1);
+    vmm_page_set(VMM_TEMP1, vmm_page_val(page, PAGE_PRESENT | PAGE_WRITE));
+    memset(VMM_TEMP1, 0, PAGE_SIZE),
+    vmm_page_set(VMM_TEMP1, old);
+  spin_unlock(&temp_sem);
 }
 
 void vmm_copy_page(uintptr_t src, uintptr_t dst)
 {
   // Make a copy of a physical page
   
-  uintptr_t old_temp1 = vmm_page_get(VMM_TEMP1);
-  uintptr_t old_temp2 = vmm_page_get(VMM_TEMP2);
-  vmm_page_set(VMM_TEMP1, vmm_page_val(src, PAGE_PRESENT | PAGE_WRITE));
-  vmm_page_set(VMM_TEMP2, vmm_page_val(dst, PAGE_PRESENT | PAGE_WRITE));
-  memcopy(VMM_TEMP2, VMM_TEMP1, PAGE_SIZE);
-  vmm_page_set(VMM_TEMP1, old_temp1);
-  vmm_page_set(VMM_TEMP2, old_temp2);
+  spin_lock(&temp_sem);
+    uintptr_t old_temp1 = vmm_page_get(VMM_TEMP1);
+    uintptr_t old_temp2 = vmm_page_get(VMM_TEMP2);
+    vmm_page_set(VMM_TEMP1, vmm_page_val(src, PAGE_PRESENT | PAGE_WRITE));
+    vmm_page_set(VMM_TEMP2, vmm_page_val(dst, PAGE_PRESENT | PAGE_WRITE));
+
+    // There's probably an x86 instruction to do this faster?
+    memcopy(VMM_TEMP2, VMM_TEMP1, PAGE_SIZE);
+
+    vmm_page_set(VMM_TEMP1, old_temp1);
+    vmm_page_set(VMM_TEMP2, old_temp2);
+  spin_unlock(&temp_sem);
 }
 
 page_dir_t vmm_new_pd()
 {
+  // Returns the physical address of a page directory prepared for
+  // recursive paging.
+
   page_dir_t pd = pmm_alloc_page();
 
-  uintptr_t old = vmm_page_get(VMM_TEMP1);
-  vmm_page_set(VMM_TEMP1, vmm_page_val(pd, PAGE_PRESENT | PAGE_WRITE));
-  memset(VMM_TEMP1, 0, PAGE_SIZE);
+  spin_lock(&temp_sem);
+    // Clear page directory.
+    uintptr_t old = vmm_page_get(VMM_TEMP1);
+    vmm_page_set(VMM_TEMP1, vmm_page_val(pd, PAGE_PRESENT | PAGE_WRITE));
+    memset(VMM_TEMP1, 0, PAGE_SIZE);
 
-  uint32_t *pdir = (uint32_t *)VMM_TEMP1;
-  pdir[VMM_PAGES_PER_TABLE - 1] = vmm_page_val(pd, PAGE_PRESENT | PAGE_WRITE);
+    // Make page directory recursive.
+    uint32_t *pdir = (uint32_t *)VMM_TEMP1;
+    pdir[VMM_PAGES_PER_TABLE - 1] = vmm_page_val(pd, PAGE_PRESENT | PAGE_WRITE);
 
-  vmm_page_set(VMM_TEMP1, old);
+    vmm_page_set(VMM_TEMP1, old);
+  spin_unlock(&temp_sem);
 
   return pd;
 }
@@ -227,27 +254,31 @@ page_dir_t vmm_clone_pd()
 
   page_dir_t pd = vmm_new_pd();
 
-  page_dir_t old_exdir = vmm_exdir_set(pd);
+  spin_lock(&exdir_sem);
+    page_dir_t old_exdir = vmm_exdir_set(pd);
 
-  uint32_t table;
+    uint32_t table;
 
-  for(table = 0; table < vmm_dir_idx(KERNEL_OFFSET); table++)
-  {
-    if(page_directory[table])
+    // Copy each page table except the kernel space
+    for(table = 0; table < vmm_dir_idx(KERNEL_OFFSET); table++)
     {
-      expage_directory[table] = vmm_page_val(pmm_alloc_page(), \
-        page_directory[table] & PAGE_FLAG_MASK);
-      vmm_copy_page(page_directory[table] & PAGE_MASK, \
-        expage_directory[table] & PAGE_MASK);
+      if(page_directory[table])
+      {
+        expage_directory[table] = vmm_page_val(pmm_alloc_page(), \
+          page_directory[table] & PAGE_FLAG_MASK);
+        vmm_copy_page(page_directory[table] & PAGE_MASK, \
+          expage_directory[table] & PAGE_MASK);
+      }
     }
-  }
 
-  for(table = vmm_dir_idx(KERNEL_OFFSET); \
-      table < VMM_PAGES_PER_TABLE - 2; table++)
-  {
-    expage_directory[table] = page_directory[table];
-  }
-  vmm_exdir_set(old_exdir);
+    // Point to the same page tables for the kernel space
+    for(table = vmm_dir_idx(KERNEL_OFFSET); \
+        table < VMM_PAGES_PER_TABLE - 2; table++)
+    {
+      expage_directory[table] = page_directory[table];
+    }
+    vmm_exdir_set(old_exdir);
+  spin_unlock(&exdir_sem);
 
   return pd;
 }
@@ -255,8 +286,13 @@ page_dir_t vmm_clone_pd()
 
 void vmm_init()
 {
+  // Setup the physical memory manager
+
+  // Save the address of the kernel page directory (used as refference
+  // for all others)
   __asm__ volatile("mov %%cr3, %0" : "=r" (kernel_pd));
 
+  // Set current page directory to a copy of the kernel page directory.
   vmm_pd_set(vmm_clone_pd());
   vmm_running = TRUE;
 }
