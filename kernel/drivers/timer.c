@@ -8,6 +8,8 @@ uint32_t ticks;
 
 void timer_init(uint32_t freq)
 {
+  // Enables the PIT with frequency freq
+
   ticks = 0;
 
   register_int_handler(IRQ2INT(IRQ_TIMER), timer_tick);
@@ -20,6 +22,11 @@ void timer_init(uint32_t freq)
 
 registers_t *timer_tick(registers_t *r)
 {
+  // This should be kept as short as possible unless scheduling is
+  // needed.
+  //
+  // Actually, this kind of needs a reworking and some planning...
+
   ticks ++;
   if(ticks %10 == 0)
   {

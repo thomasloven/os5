@@ -15,8 +15,6 @@ uintptr_t *page_tables = (uintptr_t *)VMM_PAGE_TABLES;
 uintptr_t *expage_directory = (uintptr_t *)VMM_EXPAGE_DIR;
 uintptr_t *expage_tables = (uintptr_t *)VMM_EXPAGE_TABLES;
 
-semaphore_t exdir_sem;
-semaphore_t temp_sem; // VMM_TEMPn addresses
 
 void vmm_pd_set(page_dir_t pd)
 {

@@ -8,12 +8,15 @@
 
 void kernel_elf_init(mboot_info_t *mboot)
 {
+  // Load data about the kernel executable for use in debugging.
+
   elf_section_head *sections = assert_higher((elf_section_head *)mboot->symbol_addr);
 
   uint32_t stringtab = (uint32_t)(assert_higher(sections[mboot->symbol_shndx].address));
   uint32_t i;
   for(i=0; i < mboot->symbol_num; i++)
   {
+    // We want to find the string and symbol tables.
     char *name = (char *) stringtab + sections[i].name;
     if(!strcmp(name,".strtab"))
     {
@@ -30,6 +33,9 @@ void kernel_elf_init(mboot_info_t *mboot)
 
 char *kernel_lookup_symbol(uint32_t addr)
 {
+  // Finds the name of the kernel function at addr.
+  // Requires kernel_elf_init to be run first.
+
   uint32_t i;
 
   for(i=0; i < (kernel_elf.symtab_size/sizeof(elf_symbol)); i++)
@@ -47,6 +53,8 @@ char *kernel_lookup_symbol(uint32_t addr)
 
 void load_elf_segment(elf_header *image, elf_phead *phead)
 {
+  // Load an elf segment into memory.
+  // Assumes the segment is loadable.
 
   uint32_t flags = MM_FLAG_READ | MM_FLAG_WRITE | MM_FLAG_CANSHARE;
   uint32_t type = MM_TYPE_DATA;
@@ -60,6 +68,8 @@ void load_elf_segment(elf_header *image, elf_phead *phead)
 
 void load_elf(elf_header *image)
 {
+  // Load an elf image to into memory.
+  // Does not free memory areas but only overwrites or adds new ones.
 
   elf_phead *program_head = (elf_phead *)((uintptr_t)image + image->elf_phoff);
 
@@ -74,6 +84,8 @@ void load_elf(elf_header *image)
   {
     if(program_head[i].p_type == 0x1)
     {
+      // If the current segment is loadable, load it and adjust
+      // code area pointers accordingly.
       uintptr_t start = program_head[i].p_vaddr;
       uintptr_t end = start + program_head[i].p_memsz;
      if(start < mm->code_start)

@@ -1,7 +1,12 @@
+
+; This line is required since newlib is not assembler safe.
+; Shame on you, newlib maintainers!
 #define _STDINT_H
+
 #include <arch.h>
 #include <idt.h>
 
+; Reload IDT
 [global idt_flush:function idt_flush.end-idt_flush]
 idt_flush:
   mov eax, [esp+4]
@@ -9,6 +14,7 @@ idt_flush:
   ret
 .end:
 
+; Reload TSS
 [global tss_flush:function tss_flush.end-tss_flush]
 tss_flush:
   mov eax, [esp+4]
@@ -17,6 +23,7 @@ tss_flush:
   ret
 .end
 
+; ISR stubs
 INTNOERR 0
 INTNOERR 1
 INTNOERR 2
@@ -72,6 +79,8 @@ INTNOERR 130
 
 [extern idt_handler]
 
+; Common ISR stub
+; Push all registers to stack and jump to c
 [global int_stub:function int_stub.end-int_stub]
 int_stub:
   pusha
@@ -86,6 +95,8 @@ int_stub:
   mov esp, eax
 .end
 
+; Return from interrupt
+; Pop all registers and perform iret
 [global int_return:function int_return.end-int_return]
 int_return:
   pop eax

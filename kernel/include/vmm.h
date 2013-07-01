@@ -48,6 +48,8 @@ typedef uintptr_t page_dir_t;
 
 page_dir_t kernel_pd;
 semaphore_t kernel_pd_sem;
+semaphore_t exdir_sem;
+semaphore_t temp_sem; // VMM_TEMPn addresses
 
 void vmm_pd_set(page_dir_t pd);
 uintptr_t vmm_page_get(uintptr_t page);

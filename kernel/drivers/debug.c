@@ -14,6 +14,8 @@ uint8_t text_style;
 
 void kdbg_init()
 {
+  // Setup screen for printing during kernel development.
+
   scrn_x = scrn_y = 0;
   text_style = VGA_STYLE(GRAY, BLACK);
   memset((uint8_t *)vidmem, 0x0, SCRN_W*SCRN_H*2);
@@ -34,6 +36,8 @@ void kdbg_getpos(uint32_t *x, uint32_t *y)
 
 void kdbg_scroll()
 {
+  // Automatically scroll screen until the last row is clear.
+
   while (scrn_y > SCRN_H-1)
   {
     uint32_t i;
@@ -58,7 +62,7 @@ void kdbg_printf(char *str, ...)
   uint32_t num;
   while(*str)
   {
-    if(*str == '\n')
+    if(*str == '\n') // Newline
     {
       scrn_x = 0;
       scrn_y++;
@@ -68,30 +72,30 @@ void kdbg_printf(char *str, ...)
       str++;
       switch(*str)
       {
-        case 'b':
+        case 'b': // binary number
           num = va_arg(args, uint32_t);
           kdbg_num2str(num, 2, buf);
           kdbg_printf(buf);
           kdbg_printf("b");
           break;
-        case 'o':
+        case 'o': // octal number
           num = va_arg(args, uint32_t);
           kdbg_num2str(num, 8, buf);
           kdbg_printf("0");
           kdbg_printf(buf);
           break;
-        case 'd':
+        case 'd': // decimal number
           num = va_arg(args, uint32_t);
           kdbg_num2str(num, 10, buf);
           kdbg_printf(buf);
           break;
-        case 'x':
+        case 'x': // hexadecimal number
           num = va_arg(args, uint32_t);
           kdbg_num2str(num, 16, buf);
           kdbg_printf("0x");
           kdbg_printf(buf);
           break;
-        case 's':
+        case 's': // string
           kdbg_printf(va_arg(args, char *));
           break;
         default:
@@ -107,6 +111,7 @@ void kdbg_printf(char *str, ...)
     }
     else
     {
+      // Ignore non-printable characters
       ;
     }
     if(scrn_x >= SCRN_W)
@@ -123,6 +128,9 @@ void kdbg_printf(char *str, ...)
 
 int kdbg_num2str(uint32_t num, uint32_t base, char *buf)
 {
+  // Converts number num to a string in base base and puts it in buf.
+  // Does not add pre- or suffixes.
+
   if(num == 0)
   {
     buf[0] = '0';
@@ -141,6 +149,7 @@ int kdbg_num2str(uint32_t num, uint32_t base, char *buf)
     num /= base;
   }
 
+  // Flip string around
   for(i--, j=0; j<i; j++,i--)
   {
     swap(buf[i],buf[j]);
@@ -153,6 +162,7 @@ int kdbg_num2str(uint32_t num, uint32_t base, char *buf)
 
 void print_stack_trace()
 {
+  // Pretty much deprecated to gdb and backtrace
   uint32_t *ebp, *eip;
 
   debug("\n");
