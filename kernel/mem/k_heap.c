@@ -8,6 +8,9 @@
 #include <synch.h>
 #include <k_debug.h>
 
+#include <stdlib.h>
+#include <errno.h>
+
 uintptr_t heap_top = KERNEL_HEAP_START;
 chunk_t *heap_first = 0;
 semaphore_t heap_sem;
@@ -80,6 +83,8 @@ void glue_chunk(chunk_t *c)
 
 void kfree(void *a)
 {
+  free(a);
+  return;
   assert((uint32_t)a >= KERNEL_HEAP_START && (uint32_t)a < KERNEL_HEAP_END);
 
   spin_lock(&heap_sem);
@@ -90,6 +95,7 @@ void kfree(void *a)
 
 void *kmalloc(uint32_t size)
 {
+  return malloc(size);
   size += sizeof(chunk_t);
   chunk_t *cur_chunk = heap_first;
   chunk_t *prev_chunk = 0;
@@ -136,6 +142,8 @@ void *kcalloc(uint32_t size)
 
 void *kvalloc(uint32_t size)
 {
+  void *ret = valloc(size);
+  return valloc(size);
   void *pos = kmalloc(size + PAGE_SIZE);
   split_chunk(chunk_head(pos), PAGE_SIZE - ((uint32_t) pos % PAGE_SIZE));
 

@@ -19,6 +19,8 @@
 #include <synch.h>
 #include <vfs.h>
 
+#include <stdio.h>
+
 void _idle(void)
 {
   // Idle task. Runs when there are no others on the run queue.
@@ -50,6 +52,8 @@ registers_t *kinit(mboot_info_t *mboot, uint32_t mboot_magic)
   syscall_init();
   process_init((void(*)(void))&_idle);
 
+  kheap_setup = 1;
+
 
   mboot_mod_t *mods = (mboot_mod_t *)(assert_higher(mboot->mods_addr));
   mods->mod_start = assert_higher(mods->mod_start);
@@ -61,6 +65,11 @@ registers_t *kinit(mboot_info_t *mboot, uint32_t mboot_magic)
 
   new_area(current->proc, USER_STACK_TOP, USER_STACK_TOP, MM_FLAG_WRITE | MM_FLAG_GROWSDOWN | MM_FLAG_ADDONUSE, MM_TYPE_STACK);
 
+  fopen("/dev/debug", "w");
+  fopen("/dev/debug", "w");
+  fopen("/dev/debug", "w");
+
+  printf("Printf from kernel!\n");
 
   return switch_kernel_thread(0);
 }

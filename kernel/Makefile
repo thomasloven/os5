@@ -29,7 +29,7 @@ all: $(DEPENDENCIES) $(TARGET)
 
 $(TARGET): $(OBJECTS)
 	@echo "   \033[32mln\033[0m     " $(TARGET)
-	@$(LD) $(LDFLAGS) -o $(TARGET) $+ $(LIBPATH)
+	@$(LD) $(LDFLAGS) -o $(TARGET) $+ $(BUILDDIR)/lib/i386-elf/lib/libc.a
 
 $(BUILDDIR)/$(SUBDIR)/%.d: %.c
 	@echo "    \033[31mdep\033[0m " $*".c"

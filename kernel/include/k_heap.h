@@ -18,6 +18,7 @@ void *kcalloc(uint32_t size);
 void *kvalloc(uint32_t size);
 void kfree(void *a);
 
+int kheap_setup;
 
 #endif
 

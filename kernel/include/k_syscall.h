@@ -18,7 +18,12 @@ typedef registers_t *(*syscall_t)(registers_t *);
 
 typedef uintptr_t* process_stack;
 #define init_pstack() \
-  (uintptr_t *)(r->useresp + 0x4)
+  (r->cs & 0x3)? \
+  (uintptr_t *)(r->useresp + 0x4): \
+  (uintptr_t *)(&r->ss)
+
+#define is_kernel() \
+  (!(r->cs & 0x3))
 
 
 registers_t *syscall_handler(registers_t *r);
@@ -35,5 +40,10 @@ KDECL_SYSCALL(yield);
 
 KDECL_SYSCALL(open);
 KDECL_SYSCALL(write);
+
+
+void *sbrk(int incr);
+int open(const char *name, int flags, int mode);
+int write(int file, char *ptr, int len);
 
 #endif

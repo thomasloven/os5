@@ -15,6 +15,8 @@ SECTIONS {
     *(.data)
     *(.rodata)
     *(.rodata.str1.1)
+    *(.rodata.cst4)
+    *(.rodata.cst8)
     . = ALIGN(4096);
   }
   .bss : AT(ADDR(.bss) - 0xC0000000)
