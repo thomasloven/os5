@@ -2,7 +2,6 @@
 #include <syscall.h>
 #include <k_debug.h>
 #include <procmm.h>
-#include <k_heap.h>
 #include <vmm.h>
 
 #include <errno.h>

@@ -5,9 +5,10 @@
 #include <lists.h>
 #include <pmm.h>
 #include <vmm.h>
-#include <k_heap.h>
 #include <synch.h>
 #include <k_debug.h>
+
+#include <stdlib.h>
 
 semaphore_t procmm_sem;
 
@@ -22,7 +23,7 @@ mem_area_t *alloc_area(uintptr_t start, uintptr_t end,
   uintptr_t flags, uintptr_t type, process_t *owner)
 {
   // Helper function. Allocate a new memory area and prepare it
-  mem_area_t *ma = kmalloc(sizeof(mem_area_t));
+  mem_area_t *ma = malloc(sizeof(mem_area_t));
   ma->start = start;
   ma->end = end;
   ma->flags = flags;
@@ -101,7 +102,7 @@ void free_area(mem_area_t *ma)
 
   remove_from_list(ma->mem);
   remove_from_list(ma->copies);
-  kfree(ma);
+  free(ma);
 }
 
 mem_area_t *split_area(mem_area_t *ma, uintptr_t start, uintptr_t end)

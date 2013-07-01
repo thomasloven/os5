@@ -1,7 +1,6 @@
 #include <stdint.h>
 #include <process.h>
 #include <memory.h>
-#include <k_heap.h>
 #include <thread.h>
 #include <lists.h>
 #include <vmm.h>
@@ -9,13 +8,15 @@
 #include <k_debug.h>
 #include <scheduler.h>
 
+#include <stdlib.h>
+
 uint32_t next_pid = 1;
 
 list_head_t process_list;
 
 process_t *alloc_process()
 {
-  process_t *p = kmalloc(sizeof(process_t));
+  process_t *p = malloc(sizeof(process_t));
   memset(p, 0, sizeof(process_t));
 
   p->pid = next_pid++;
@@ -76,7 +77,7 @@ void free_process(process_t *proc)
 
   procmm_exit(proc);
 
-  kfree(proc);
+  free(proc);
 }
 
 void exit_process(process_t *proc, uint32_t exit_code)

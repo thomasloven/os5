@@ -1,9 +1,10 @@
 #include <vfs.h>
 #include <trees.h>
 #include <string.h>
-#include <k_heap.h>
 #include <lists.h>
 #include <k_debug.h>
+
+#include <stdlib.h>
 
 tree_t vfs_tree;
 fs_node_t *root_node;
@@ -55,7 +56,7 @@ fs_node_t *vfs_finddir(fs_node_t *node, char *name)
 
 char *strdup(const char *s)
 {
-  char *d = kmalloc(strlen(s) + 1);
+  char *d = malloc(strlen(s) + 1);
   if(d != 0)
     strcpy(d,s);
   return d;
@@ -64,10 +65,10 @@ char *strdup(const char *s)
 void vfs_init()
 {
   vfs_tree.size = 0;
-  tree_node_t *root_tn = vfs_tree.root = kmalloc(sizeof(tree_node_t));
+  tree_node_t *root_tn = vfs_tree.root = malloc(sizeof(tree_node_t));
 
   init_tree_node(root_tn);
-  vfs_entry_t *root = root_tn->item = kmalloc(sizeof(vfs_entry_t));
+  vfs_entry_t *root = root_tn->item = malloc(sizeof(vfs_entry_t));
 
   root->name = strdup("[root]");
   root->node = 0;
@@ -156,9 +157,9 @@ void vfs_mount(char *path, fs_node_t *mount_root)
     }
     if(!found)
     {
-      tree_node_t *new = kmalloc(sizeof(tree_node_t));
+      tree_node_t *new = malloc(sizeof(tree_node_t));
       init_tree_node(new);
-      vfs_entry_t *n = new->item = kmalloc(sizeof(vfs_entry_t));
+      vfs_entry_t *n = new->item = malloc(sizeof(vfs_entry_t));
       n->name = strdup(i);
       n->node = 0;
 

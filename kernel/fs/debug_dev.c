@@ -1,7 +1,8 @@
 #include <vfs.h>
 #include <k_debug.h>
-#include <k_heap.h>
 #include <string.h>
+
+#include <stdlib.h>
 
 uint32_t read_debug(fs_node_t *node, uint32_t offset, uint32_t size, char *buffer)
 {
@@ -26,7 +27,7 @@ void close_debug(fs_node_t *node)
 
 fs_node_t *debug_dev_init()
 {
-  fs_node_t *node = kmalloc(sizeof(fs_node_t));
+  fs_node_t *node = malloc(sizeof(fs_node_t));
   memset(node, 0, sizeof(fs_node_t));
   strcpy(node->name, "debug");
   node->read = &read_debug;

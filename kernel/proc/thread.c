@@ -5,10 +5,11 @@
 #include <pmm.h>
 #include <idt.h>
 #include <vmm.h>
-#include <k_heap.h>
 #include <memory.h>
 #include <scheduler.h>
 #include <process.h>
+
+#include <stdlib.h>
 
 // If this line throws an error, the size of the kernel thread stack has grown too small. Please change MIN_THREAD_STACK_SIZE or thread_t in thread.h
 // Or rather yet, change how the stack is allocated so that it works for all sizes...
@@ -28,7 +29,7 @@ thread_info_t *current_thread_info()
 
 thread_t *alloc_thread()
 {
-  thread_info_t *th_info = kvalloc(sizeof(thread_info_t));
+  thread_info_t *th_info = valloc(sizeof(thread_info_t));
   memset(&th_info->tcb, 0, sizeof(thread_t));
 
   th_info->tcb.tid = next_tid++;
@@ -48,7 +49,7 @@ void free_thread(thread_t *th)
   remove_from_list(th->process_threads);
 
   thread_info_t *th_info = thinfo_from_tcb(th);
-  kfree(th_info);
+  free(th_info);
 }
 
 thread_t *new_thread(void (*func)(void), uint8_t user)

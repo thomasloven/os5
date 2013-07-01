@@ -3,7 +3,6 @@
 #include <pmm.h>
 #include <vmm.h>
 #include <multiboot.h>
-#include <k_heap.h>
 #include <idt.h>
 #include <arch.h>
 #include <memory.h>
@@ -51,8 +50,6 @@ registers_t *kinit(mboot_info_t *mboot, uint32_t mboot_magic)
   vfs_init();
   syscall_init();
   process_init((void(*)(void))&_idle);
-
-  kheap_setup = 1;
 
 
   mboot_mod_t *mods = (mboot_mod_t *)(assert_higher(mboot->mods_addr));
