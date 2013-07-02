@@ -192,8 +192,8 @@ registers_t *idt_handler(registers_t *r)
     // If there is an assigned handler for the interrupt
 
     // Enable all interrupts but the one we just got
-    mask_int(INT2IRQ(r->int_no));
-    enable_interrupts();
+    /* mask_int(INT2IRQ(r->int_no)); */
+    /* enable_interrupts(); */
 
     // Run the assigned interrupts handler
     registers_t *ret = int_handlers[r->int_no](r);
@@ -207,7 +207,7 @@ registers_t *idt_handler(registers_t *r)
     }
 
     // Reenable the handled interrupt
-    unmask_int(INT2IRQ(r->int_no));
+    /* unmask_int(INT2IRQ(r->int_no)); */
 
     return ret;
   } else {

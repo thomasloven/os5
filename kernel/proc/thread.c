@@ -8,6 +8,7 @@
 #include <memory.h>
 #include <scheduler.h>
 #include <process.h>
+#include <arch.h>
 
 #include <stdlib.h>
 
