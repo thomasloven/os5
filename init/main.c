@@ -10,9 +10,6 @@
 
 int main()
 {
-  fopen("/dev/debug", "w");
-  fopen("/dev/debug", "w");
-  fopen("/dev/debug", "w");
 
   printf("This is the init process.\n");
 
@@ -35,22 +32,15 @@ int main()
     if(pid)
     {
       printf("A\n");
-      FILE *fp = fopen("/tmp/pipe", "r");
-      char line[128];
-      printf("Opened pipe, reading...\n");
-      fgets(line, sizeof(line), fp);
-      fputs(line, stdout);
-      fflush(stdout);
       printf("Returned %x!\n", _syscall_waitpid(pid));
+      printf("Reading from keyboard!\n");
+      char line[128];
+      fgets(line, sizeof(line), stdin);
+      fputs(line, stdout);
+      printf("Read from keyboard\n");
     } else {
       printf("B\n");
       printf(" Childs Child.\n");
-      FILE *fp2 = fopen("/tmp/pipe", "w");
-      printf("B opened pipe, writing...\n");
-      fputs("Hello, pipe.\n", fp2);
-      _syscall_yield();
-      /*printf("\n Childs child!");*/
-      /*for(;;);*/
       return 0;
     }
 

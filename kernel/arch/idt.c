@@ -181,10 +181,6 @@ registers_t *idt_handler(registers_t *r)
     if(INT2IRQ(r->int_no) > 8)
       outb(SPIC_CMD_PORT, PIC_EOI);
     outb(MPIC_CMD_PORT, PIC_EOI);
-
-    // XXX 
-    if(INT2IRQ(r->int_no) != 0)
-      debug("!");
   } 
 
   if(int_handlers[r->int_no])

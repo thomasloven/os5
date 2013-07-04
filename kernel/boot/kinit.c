@@ -17,6 +17,7 @@
 #include <k_syscall.h>
 #include <synch.h>
 #include <vfs.h>
+#include <keyboard.h>
 
 #include <stdio.h>
 
@@ -51,6 +52,8 @@ registers_t *kinit(mboot_info_t *mboot, uint32_t mboot_magic)
   syscall_init();
   process_init((void(*)(void))&_idle);
 
+  keyboard_init();
+
 
   mboot_mod_t *mods = (mboot_mod_t *)(assert_higher(mboot->mods_addr));
   mods->mod_start = assert_higher(mods->mod_start);
@@ -62,7 +65,7 @@ registers_t *kinit(mboot_info_t *mboot, uint32_t mboot_magic)
 
   new_area(current->proc, USER_STACK_TOP, USER_STACK_TOP, MM_FLAG_WRITE | MM_FLAG_GROWSDOWN | MM_FLAG_ADDONUSE, MM_TYPE_STACK);
 
-  fopen("/dev/debug", "w");
+  fopen("/dev/kbd", "w");
   fopen("/dev/debug", "w");
   fopen("/dev/debug", "w");
 

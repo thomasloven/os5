@@ -42,6 +42,7 @@
 #define INT_SCHEDULE  0x82
 
 #define IRQ_TIMER 0
+#define IRQ_KBD 1
 
 
 #ifndef __ASSEMBLER__

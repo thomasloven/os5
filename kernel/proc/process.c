@@ -115,7 +115,7 @@ process_t *process_init(void (*func)(void))
 
   thread_t *th = new_thread(func,0);
   append_to_list(proc->threads, th->process_threads);
-  remove_from_list(th->tasks);
+  /* scheduler_remove(th); */
   th->proc = proc;
 
   th->r.eflags = EFL_INT;
