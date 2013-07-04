@@ -54,6 +54,7 @@ registers_t *kinit(mboot_info_t *mboot, uint32_t mboot_magic)
 
   keyboard_init();
 
+  vfs_print_tree();
 
   mboot_mod_t *mods = (mboot_mod_t *)(assert_higher(mboot->mods_addr));
   mods->mod_start = assert_higher(mods->mod_start);
@@ -69,8 +70,7 @@ registers_t *kinit(mboot_info_t *mboot, uint32_t mboot_magic)
   fopen("/dev/debug", "w");
   fopen("/dev/debug", "w");
 
-  printf("Printf from kernel!\n");
+  printf("\nPrintf from kernel!\n");
 
   return switch_kernel_thread(0);
 }
-

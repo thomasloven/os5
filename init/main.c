@@ -16,7 +16,7 @@ int main()
   uint16_t pid = fork();
   if(pid)
   {
-    printf("Inint parent. Pid:%x", getpid());
+    printf("Init parent. Pid:%x", getpid());
     fflush(stdout);
     uint16_t retval = _syscall_waitpid(pid);
     printf("Child (pid:%x) returned with %x", pid, retval);

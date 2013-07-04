@@ -73,15 +73,8 @@ void vfs_init()
   root->name = strdup("[root]");
   root->node = 0;
 
-
   fs_node_t *dbg = debug_dev_init();
   vfs_mount("/dev/debug", dbg);
-  vfs_mount("/dev/file/path",0);
-  
-  vfs_mount("/tmp/pipe", new_pipe(4));
-  vfs_print_tree();
-
-
 }
 
 fs_node_t *vfs_find_node(const char *path)
@@ -185,6 +178,12 @@ void vfs_print_tree_rec(tree_node_t *node, int level)
     debug(" ");
   vfs_entry_t *entry = node->item;
   debug("%s", entry->name);
+  if(entry->node)
+  {
+    fs_node_t *fn = entry->node;
+    if(fn->name)
+      debug("->%s", fn->name);
+  }
   list_t *l;
   for_each_in_list(&node->children, l)
   {
