@@ -81,7 +81,7 @@ void vfs_init()
 
 }
 
-fs_node_t *vfs_find_node(char *path)
+fs_node_t *vfs_find_node(const char *path)
 {
   char *p = strdup(path);
   char *i = p;

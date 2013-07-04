@@ -1,6 +1,5 @@
 #include <vfs.h>
 #include <k_syscall.h>
-#include <syscall.h>
 #include <arch.h>
 #include <thread.h>
 #include <process.h>
@@ -11,6 +10,71 @@
 
 #undef errno
 extern int errno;
+
+int close(int file)
+{
+  errno = 0;
+  return -1;
+}
+KDEF_SYSCALL(close, r)
+{
+  process_stack stack = init_pstack();
+  r->eax = close(stack[0]);
+  r->ebx = errno;
+  return r;
+}
+
+int fstat(int file, struct stat *st)
+{
+  st->st_mode = S_IFCHR;
+  return -1;
+}
+KDEF_SYSCALL(fstat, r)
+{
+  process_stack stack = init_pstack();
+  r->eax = fstat(stack[0], (struct stat *) stack[1]);
+  r->ebx = errno;
+  return r;
+}
+
+int isatty(int file)
+{
+  errno = 0;
+  return 1;
+}
+KDEF_SYSCALL(isatty, r)
+{
+  process_stack stack = init_pstack();
+  r->eax = isatty(stack[0]);
+  r->ebx = errno;
+  return r;
+}
+
+int link(char *old, char *new)
+{
+  errno = EMLINK;
+  return -1;
+}
+KDEF_SYSCALL(link, r)
+{
+  process_stack stack = init_pstack();
+  r->eax = link((char *)stack[0], (char *)stack[1]);
+  r->ebx = errno;
+  return r;
+}
+
+int lseek(int file, int ptr, int dir)
+{
+  errno = 0;
+  return 0;
+}
+KDEF_SYSCALL(lseek, r)
+{
+  process_stack stack = init_pstack();
+  r->eax = lseek(stack[0], stack[1], stack[2]);
+  r->ebx = errno;
+  return r;
+}
 
 int open(const char *name, int flags, int mode)
 {
@@ -48,16 +112,53 @@ int open(const char *name, int flags, int mode)
   return fd;
 
 }
-
 KDEF_SYSCALL(open, r)
 {
-
   process_stack stack = init_pstack();
-  r->eax = open((char *)stack[0], stack[1], stack[2]);
+  r->eax = open((const char *)stack[0], stack[1], stack[2]);
   r->ebx = errno;
   return r;
 }
 
+int read(int file, char *ptr, int len)
+{
+  errno = 0;
+  return 0;
+}
+KDEF_SYSCALL(read, r)
+{
+  process_stack stack = init_pstack();
+  r->eax = read(stack[0], (char *)stack[1], stack[2]);
+  r->ebx = errno;
+  return r;
+}
+
+int stat(const char *file, struct stat *st)
+{
+  st->st_mode = S_IFCHR;
+  errno = 0;
+  return 0;
+}
+KDEF_SYSCALL(stat, r)
+{
+  process_stack stack = init_pstack();
+  r->eax = stat((const char *)stack[0], (struct stat *)stack[1]);
+  r->ebx = errno;
+  return r;
+}
+
+int unlink(char *name)
+{
+  errno = ENOENT;
+  return -1;
+}
+KDEF_SYSCALL(unlink, r)
+{
+  process_stack stack = init_pstack();
+  r->eax = unlink((char *)stack[0]);
+  r->ebx = errno;
+  return r;
+}
 
 int write(int file, char *ptr, int len)
 {
@@ -72,38 +173,10 @@ int write(int file, char *ptr, int len)
 
   return vfs_write(node, 0, len, (char *)ptr);
 }
-
-
 KDEF_SYSCALL(write, r)
 {
   process_stack stack = init_pstack();
   r->eax = write(stack[0], (char *)stack[1], stack[2]);
-  r->ebx = SYSCALL_OK;
+  r->ebx = errno;
   return r;
-}
-
-int fstat(int file, struct stat *st)
-{
-  st->st_mode = S_IFCHR;
-  return -1;
-}
-
-int close(int file)
-{
-  return -1;
-}
-
-int isatty(int file)
-{
-  return 1;
-}
-
-int lseek(int file, int ptr, int dir)
-{
-  return 0;
-}
-
-int read(int file, char *ptr, int len)
-{
-  return 0;
 }

@@ -11,6 +11,7 @@
 #include <arch.h>
 
 #include <stdlib.h>
+#include <malloc.h>
 
 // If this line throws an error, the size of the kernel thread stack has grown too small. Please change MIN_THREAD_STACK_SIZE or thread_t in thread.h
 // Or rather yet, change how the stack is allocated so that it works for all sizes...

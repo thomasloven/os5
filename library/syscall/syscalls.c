@@ -24,7 +24,9 @@ int close(int file)
   _syscall_printf("\n Syscall close(%x)", file);
 #endif
 
-  return -1;
+  int ret = _syscall_close(file);
+  errno = syscall_errno;
+  return ret;
 }
 
 char *__env[1] = { 0 };
@@ -35,8 +37,11 @@ int execve(char *name, char **argv, char **env)
 #ifndef NDEBUG
   _syscall_printf("\n Syscall execve(%s, %x, %x)", name, argv, env);
 #endif
-  errno = ENOMEM;
-  return -1;
+  /* errno = ENOMEM; */
+  /* return -1; */
+  int ret = _syscall_execve(name, argv, env);
+  errno = syscall_errno;
+  return ret;
 }
 
 int fork()
@@ -44,7 +49,9 @@ int fork()
 #ifndef NDEBUG
   _syscall_printf("\n Syscall fork()");
 #endif
-  return _syscall_fork();
+  int ret = _syscall_fork();
+  errno = syscall_errno;
+  return ret;
 }
 
 int fstat(int file, struct stat *st)
@@ -52,8 +59,11 @@ int fstat(int file, struct stat *st)
 #ifndef NDEBUG
   _syscall_printf("\n Syscall fstat(%x, %x)",file, st);
 #endif
-  st->st_mode = S_IFCHR;
-  return -1;
+  /* st->st_mode = S_IFCHR; */
+  /* return -1; */
+  int ret = _syscall_fstat(file, st);
+  errno = syscall_errno;
+  return ret;
 }
 
 int getpid()
@@ -61,7 +71,10 @@ int getpid()
 #ifndef NDEBUG
   _syscall_printf("\n Syscall getpid()");
 #endif
-  return _syscall_getpid();
+
+  int ret = _syscall_getpid();
+  errno = syscall_errno;
+  return ret;
 }
 
 int isatty(int file)
@@ -69,7 +82,10 @@ int isatty(int file)
 #ifndef NDEBUG
   _syscall_printf("\n Syscall isatty(%x)", file);
 #endif
-  return 1;
+  /* return 1; */
+  int ret = _syscall_isatty(file);
+  errno = syscall_errno;
+  return ret;
 }
 
 int kill(int pid, int sig)
@@ -77,8 +93,11 @@ int kill(int pid, int sig)
 #ifndef NDEBUG
   _syscall_printf("\n Syscall kill(%x, %x)", pid, sig);
 #endif
-  errno = EINVAL;
-  return -1;
+  /* errno = EINVAL; */
+  /* return -1; */
+  int ret = _syscall_kill(pid, sig);
+  errno = syscall_errno;
+  return ret;
 }
 
 int link(char *old, char *new)
@@ -86,8 +105,11 @@ int link(char *old, char *new)
 #ifndef NDEBUG
   _syscall_printf("\n Syscall link(%s, %s)", old, new);
 #endif
-  errno=EMLINK;
-  return -1;
+  /* errno=EMLINK; */
+  /* return -1; */
+  int ret = _syscall_link(old, new);
+  errno = syscall_errno;
+  return ret;
 }
 
 int lseek(int file, int ptr, int dir)
@@ -95,7 +117,10 @@ int lseek(int file, int ptr, int dir)
 #ifndef NDEBUG
   _syscall_printf("\n Syscall lseek(%x, %x, %x)", file, ptr, dir);
 #endif
-  return 0;
+  /* return 0; */
+  int ret = _syscall_lseek(file, ptr, dir);
+  errno = syscall_errno;
+  return ret;
 }
 
 int open(const char *name, int flags, int mode)
@@ -103,7 +128,9 @@ int open(const char *name, int flags, int mode)
 #ifndef NDEBUG
   _syscall_printf("\n Syscall open(%s %x %x)", name, flags, mode);
 #endif
-  return _syscall_open(name, flags, mode);
+  int ret = _syscall_open(name, flags, mode);
+  errno = syscall_errno;
+  return ret;
 }
 
 int read(int file, char *ptr, int len)
@@ -111,7 +138,10 @@ int read(int file, char *ptr, int len)
 #ifndef NDEBUG
   _syscall_printf("\n Syscall read(%x, %x, %x)", file, ptr, len);
 #endif
-  return 0;
+  /* return 0; */
+  int ret = _syscall_read(file, ptr, len);
+  errno = syscall_errno;
+  return ret;
 }
 
 void *sbrk(int incr)
@@ -119,7 +149,9 @@ void *sbrk(int incr)
 #ifndef NDEBUG
   _syscall_printf("\n Syscall sbrk(%x)", incr);
 #endif
-  return (void *)_syscall_sbrk(incr);
+  void *ret = (void *)_syscall_sbrk(incr);
+  errno = syscall_errno;
+  return ret;
 }
 
 int stat(const char *file, struct stat *st)
@@ -127,8 +159,11 @@ int stat(const char *file, struct stat *st)
 #ifndef NDEBUG
   _syscall_printf("\n Syscall stat(%s, %x)", file, st);
 #endif
-  st->st_mode = S_IFCHR;
-  return 0;
+  /* st->st_mode = S_IFCHR; */
+  /* return 0; */
+  int ret = _syscall_stat(file, st);
+  errno = syscall_errno;
+  return ret;
 }
 
 clock_t times(struct tms *buf)
@@ -136,7 +171,10 @@ clock_t times(struct tms *buf)
 #ifndef NDEBUG
   _syscall_printf("\n Syscall times(%x)", buf);
 #endif
-  return -1;
+  /* return -1; */
+  clock_t ret = (clock_t)_syscall_times(buf);
+  errno = syscall_errno;
+  return ret;
 }
 
 int unlink(char *name)
@@ -144,8 +182,11 @@ int unlink(char *name)
 #ifndef NDEBUG
   _syscall_printf("\n Syscall unlink(%s)", name);
 #endif
-  errno=ENOENT;
-  return -1;
+  /* errno=ENOENT; */
+  /* return -1; */
+  int ret = _syscall_unlink(name);
+  errno = syscall_errno;
+  return ret;
 }
 
 int wait(int *status)
@@ -153,8 +194,11 @@ int wait(int *status)
 #ifndef NDEBUG
   _syscall_printf("\n Syscall wait(%x)", status);
 #endif
-  errno = ECHILD;
-  return -1;
+  /* errno = ECHILD; */
+  /* return -1; */
+  int ret = _syscall_wait(status);
+  errno = syscall_errno;
+  return ret;
 }
 
 int write(int file, char *ptr, int len)
@@ -163,6 +207,7 @@ int write(int file, char *ptr, int len)
 #ifndef NDEBUG
   _syscall_printf("\n Syscall write()");
 #endif
-  len = _syscall_write(file, ptr, len);
-  return len;
+  int ret = _syscall_write(file, ptr, len);
+  errno = syscall_errno;
+  return ret;
 }

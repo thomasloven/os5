@@ -21,7 +21,7 @@ int main()
   {
     printf("Inint parent. Pid:%x", getpid());
     fflush(stdout);
-    uint16_t retval = _syscall_wait(pid);
+    uint16_t retval = _syscall_waitpid(pid);
     printf("Child (pid:%x) returned with %x", pid, retval);
     fflush(stdout);
     for(;;);
@@ -35,7 +35,7 @@ int main()
     if(pid)
     {
       printf("A\n");
-      printf("Returned %x!\n", _syscall_wait(pid));
+      printf("Returned %x!\n", _syscall_waitpid(pid));
     } else {
       printf("B\n");
       printf(" Childs Child.\n");

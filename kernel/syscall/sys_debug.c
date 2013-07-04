@@ -1,5 +1,4 @@
 #include <k_syscall.h>
-#include <syscall.h>
 #include <arch.h>
 #include <k_debug.h>
 #include <synch.h>

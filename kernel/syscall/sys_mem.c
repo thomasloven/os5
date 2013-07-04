@@ -1,5 +1,4 @@
 #include <k_syscall.h>
-#include <syscall.h>
 #include <k_debug.h>
 #include <procmm.h>
 #include <vmm.h>
