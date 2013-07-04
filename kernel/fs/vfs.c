@@ -77,6 +77,9 @@ void vfs_init()
   fs_node_t *dbg = debug_dev_init();
   vfs_mount("/dev/debug", dbg);
   vfs_mount("/dev/file/path",0);
+  
+  vfs_mount("/tmp/pipe", new_pipe(4));
+  vfs_print_tree();
 
 
 }

@@ -4,6 +4,8 @@
 
 #else
 
+#include <stdint.h>
+
 typedef uintptr_t semaphore_t;
 
 void spin_lock(semaphore_t *lock);

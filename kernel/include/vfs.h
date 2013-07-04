@@ -1,8 +1,10 @@
 #pragma once
-
+#include <synch.h>
+#include <lists.h>
 
 #ifndef __ASSEMBLER__
 #include <stdint.h>
+
 
 struct fs_node;
 
@@ -42,6 +44,18 @@ typedef struct vfs_entry
   fs_node_t *node;
 } vfs_entry_t;
 
+typedef struct vfs_pipe
+{
+  char *buffer;
+  uint32_t size;
+  uint32_t read_pos;
+  uint32_t write_pos;
+  uint32_t users;
+  semaphore_t semaphore;
+  list_head_t waiting;
+
+} vfs_pipe_t;
+
 uint32_t vfs_read(fs_node_t *node, uint32_t offset, uint32_t size, char *buffer);
 uint32_t vfs_write(fs_node_t *node, uint32_t offset, uint32_t size, char *buffer);
 void vfs_open(fs_node_t *node, uint32_t flags);
@@ -56,5 +70,6 @@ fs_node_t *vfs_find_node(const char *path);
 void vfs_print_tree();
 
 fs_node_t *debug_dev_init();
+fs_node_t *new_pipe(uint32_t size);
 
 #endif

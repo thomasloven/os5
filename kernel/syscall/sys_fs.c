@@ -122,8 +122,10 @@ KDEF_SYSCALL(open, r)
 
 int read(int file, char *ptr, int len)
 {
+  process_t *p = current->proc;
+  fs_node_t *node = p->fd[file].node;
   errno = 0;
-  return 0;
+  return vfs_read(node, 0, len, ptr);
 }
 KDEF_SYSCALL(read, r)
 {

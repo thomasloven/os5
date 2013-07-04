@@ -98,6 +98,11 @@ void kdbg_printf(char *str, ...)
         case 's': // string
           kdbg_printf(va_arg(args, char *));
           break;
+        case 'c': // char
+          num = va_arg(args, char);
+          kdbg_putch(num, text_style);
+          scrn_x++;
+          break;
         default:
           str--;
           kdbg_putch(*str, text_style);

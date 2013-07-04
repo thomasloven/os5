@@ -35,10 +35,19 @@ int main()
     if(pid)
     {
       printf("A\n");
+      FILE *fp = fopen("/tmp/pipe", "r");
+      char line[128];
+      printf("Opened pipe, reading...\n");
+      fgets(line, sizeof(line), fp);
+      fputs(line, stdout);
+      fflush(stdout);
       printf("Returned %x!\n", _syscall_waitpid(pid));
     } else {
       printf("B\n");
       printf(" Childs Child.\n");
+      FILE *fp2 = fopen("/tmp/pipe", "w");
+      printf("B opened pipe, writing...\n");
+      fputs("Hello, pipe.\n", fp2);
       _syscall_yield();
       /*printf("\n Childs child!");*/
       /*for(;;);*/
