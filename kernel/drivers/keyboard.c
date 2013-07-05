@@ -5,6 +5,7 @@
 #include <k_debug.h>
 
 #include <stdio.h>
+#include <fcntl.h>
 
 unsigned char kbd_map[128] = 
 {
@@ -71,6 +72,7 @@ unsigned char kbd_mapS[128] =
 };
 
 fs_node_t *keyboard_pipe;
+fs_node_t *keyboard_raw;
 char kbd_state = 0;
 
 unsigned char keyboard_decode(unsigned char scancode)
@@ -97,25 +99,32 @@ unsigned char keyboard_decode(unsigned char scancode)
 registers_t *keyboard_handler(registers_t *r)
 {
   unsigned char code[2] = { 0, '\0'};
-
+  unsigned char scancode;
   while(inb(KBD_STATUS_PORT) & 0x2);
 
-  code[0] = keyboard_decode(inb(KBD_DATA_PORT));
+  scancode = inb(KBD_DATA_PORT);
+  code[0] = keyboard_decode(scancode);
   if(code[0])
   {
     vfs_write(keyboard_pipe, 0, 1, (char *)code);
     fputc((int)code[0], stdout);
     fflush(stdout);
   }
+  code[0] = scancode;
+  vfs_write(keyboard_raw, 0, 1, (char *)code);
 
   return r;
 }
 
 void keyboard_init()
 {
-
   keyboard_pipe = new_pipe(1024);
   vfs_mount("/dev/kbd", keyboard_pipe);
+  vfs_open(keyboard_pipe, O_WRONLY);
+
+  keyboard_raw = new_pipe(1024);
+  vfs_mount("/dev/kbdraw", keyboard_raw);
+  vfs_open(keyboard_raw, O_WRONLY);
 
   register_int_handler(IRQ2INT(IRQ_KBD), keyboard_handler);
 
