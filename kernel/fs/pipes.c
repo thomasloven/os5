@@ -37,12 +37,18 @@ uint32_t read_pipe(fs_node_t *node, uint32_t offset, uint32_t size, char *buffer
   while(read == 0)
   {
     spin_lock(&pipe->semaphore);
-    while(pipe_unread_bytes(pipe) > 0 && read < size)
-    {
-      buffer[read++] = pipe->buffer[pipe->read_pos++];
-      if(pipe->read_pos == pipe->size)
-        pipe->read_pos = 0;
-    }
+      if(pipe->users == 1)
+      {
+        buffer[read++] = EOF;
+        spin_unlock(&pipe->semaphore);
+        return read;
+      }
+      while(pipe_unread_bytes(pipe) > 0 && read < size)
+      {
+        buffer[read++] = pipe->buffer[pipe->read_pos++];
+        if(pipe->read_pos == pipe->size)
+          pipe->read_pos = 0;
+      }
     spin_unlock(&pipe->semaphore);
     scheduler_wake(&pipe->waiting);
     if(read == 0)
@@ -62,11 +68,27 @@ uint32_t write_pipe(fs_node_t *node, uint32_t offset, uint32_t size, char *buffe
   while(written < size)
   {
     spin_lock(&pipe->semaphore);
-      while(pipe_unwritten_bytes(pipe) > 0 && written < size)
+      if(pipe->users == 1)
       {
-        pipe->buffer[pipe->write_pos++] = buffer[written++];
-        if(pipe->write_pos == pipe->size)
-          pipe->write_pos = 0;
+        // Write without bothering about overwriting
+        while(written < size)
+        {
+          pipe->buffer[pipe->write_pos++] = buffer[written++];
+          if(pipe->write_pos == pipe->size)
+            pipe->write_pos = 0;
+          // Make the read pointer follow along
+          if(pipe->write_pos == pipe->read_pos)
+            pipe->read_pos++;
+          if(pipe->read_pos == pipe->size)
+            pipe->read_pos = 0;
+        }
+      } else {
+        while(pipe_unwritten_bytes(pipe) > 0 && written < size)
+        {
+          pipe->buffer[pipe->write_pos++] = buffer[written++];
+          if(pipe->write_pos == pipe->size)
+            pipe->write_pos = 0;
+        }
       }
     spin_unlock(&pipe->semaphore);
     scheduler_wake(&pipe->waiting);
@@ -81,11 +103,20 @@ uint32_t write_pipe(fs_node_t *node, uint32_t offset, uint32_t size, char *buffe
 
 void open_pipe(fs_node_t *node, uint32_t flags)
 {
+  vfs_pipe_t *pipe = (vfs_pipe_t *)node->device;
+  pipe->users = pipe->users + 1;
   return;
 }
 
 void close_pipe(fs_node_t *node)
 {
+  vfs_pipe_t *pipe = (vfs_pipe_t *)node->device;
+  pipe->users = pipe->users - 1;
+  
+  if(pipe->users == 0)
+  {
+    // Destroy pipe now
+  }
   return;
 }
 

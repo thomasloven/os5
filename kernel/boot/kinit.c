@@ -66,7 +66,7 @@ registers_t *kinit(mboot_info_t *mboot, uint32_t mboot_magic)
 
   new_area(current->proc, USER_STACK_TOP, USER_STACK_TOP, MM_FLAG_WRITE | MM_FLAG_GROWSDOWN | MM_FLAG_ADDONUSE, MM_TYPE_STACK);
 
-  fopen("/dev/kbd", "w");
+  fopen("/dev/kbd", "r");
   fopen("/dev/debug", "w");
   fopen("/dev/debug", "w");
 
