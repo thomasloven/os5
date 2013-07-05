@@ -26,18 +26,21 @@ int main()
   } else {
 
     printf("  I am the child! I have pid %x\n", getpid());
+    printf("Reading from keyboard\nStop with 'exit'\n");
 
+    char line[128];
     fflush(stdout);
+    while(strcmp(line, "exit\n"))
+    {
+      fgets(line, sizeof(line), stdin);
+      fputs(line, stdout);
+    }
+    printf("Finished reading from keyboard\n");
     pid = fork();
     if(pid)
     {
       printf("A\n");
       printf("Returned %x!\n", _syscall_waitpid(pid));
-      printf("Reading from keyboard!\n");
-      char line[128];
-      fgets(line, sizeof(line), stdin);
-      fputs(line, stdout);
-      printf("Read from keyboard\n");
     } else {
       printf("B\n");
       printf(" Childs Child.\n");
