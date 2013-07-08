@@ -29,14 +29,9 @@ int main()
     FILE *tarfile = fopen("/tarfs/hello.txt", "r");
 
     char line[128];
-    fgets(line, sizeof(line), tarfile);
-    printf("Read from file: %s", line);
-    fgets(line, sizeof(line), tarfile);
-    printf("Read from file: %s", line);
-    fgets(line, sizeof(line), tarfile);
-    printf("Read from file: %s", line);
-    fgets(line, sizeof(line), tarfile);
-    printf("Read from file: %s", line);
+
+    while(fgets(line, sizeof(line), tarfile) != NULL)
+      printf("Read from file: %s", line);
     fclose(tarfile);
     printf("Reading from keyboard\nStop with 'exit'\n");
     fflush(stdout);

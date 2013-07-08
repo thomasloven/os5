@@ -173,7 +173,9 @@ int read(int file, char *ptr, int len)
   process_t *p = current->proc;
   fs_node_t *node = p->fd[file].node;
   errno = 0;
-  return vfs_read(node, 0, len, ptr);
+  int ret = vfs_read(node, p->fd[file].offset, len, ptr);
+  p->fd[file].offset += ret;
+  return ret;
 }
 KDEF_SYSCALL(read, r)
 {
