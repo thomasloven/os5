@@ -57,15 +57,15 @@ registers_t *kinit(mboot_info_t *mboot, uint32_t mboot_magic)
 
 
   mboot_mod_t *mods = (mboot_mod_t *)(assert_higher(mboot->mods_addr));
-  mods->mod_start = assert_higher(mods->mod_start);
+  elf_header *init_module = assert_higher((elf_header *)mods[0].mod_start);
 
-  tar_header_t *tarfs_location = (tar_header_t *)mods->mod_start;
+  tar_header_t *tarfs_location = assert_higher((tar_header_t *)mods[1].mod_start);
 
   vfs_mount("/tarfs", tarfs_init(tarfs_location));
 
   vfs_print_tree();
 
-  load_elf((elf_header *)mods->mod_start);
+  load_elf(init_module);
 
   thread_t *init = new_thread((void(*)(void))current->proc->mm.code_entry,1);
   init->proc = current->proc;
