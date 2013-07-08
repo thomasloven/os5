@@ -145,7 +145,7 @@ fs_node_t *vfs_find_node(const char *path)
       }
       return 0;
     }
-    i += strlen(i);
+    i += strlen(i) + 1;
   }
   vfs_entry_t *entry = node->item;
   return entry->node;
@@ -197,7 +197,7 @@ void vfs_mount(char *path, fs_node_t *mount_root)
       node = new;
     }
 
-    i += strlen(i);
+    i += strlen(i) + 1;
   }
   vfs_entry_t *entry = node->item;
   entry->node = mount_root;
