@@ -26,8 +26,22 @@ KDEF_SYSCALL(close, r)
 
 int fstat(int file, struct stat *st)
 {
-  st->st_mode = S_IFCHR;
-  return -1;
+  /* st->st_mode = S_IFCHR; */
+  process_t *p = current->proc;
+  fs_node_t *node = p->fd[file].node;
+  debug("FSTAT(%x)", file);
+  st->st_dev = 0;
+  st->st_ino = node->inode;
+  st->st_mode = node->mode;
+  st->st_nlink = 0;
+  st->st_uid = 0;
+  st->st_gid = 0;
+  st->st_rdev = 0;
+  st->st_size = node->length;
+  st->st_atime = 0;
+  st->st_mtime = 0;
+  st->st_ctime = 0;
+  return 0;
 }
 KDEF_SYSCALL(fstat, r)
 {
@@ -39,6 +53,7 @@ KDEF_SYSCALL(fstat, r)
 
 int isatty(int file)
 {
+  debug("ISATTY");
   errno = 0;
   return 1;
 }
@@ -65,8 +80,41 @@ KDEF_SYSCALL(link, r)
 
 int lseek(int file, int ptr, int dir)
 {
+  /* debug("LSEEK(%x, %x, %x)", file, ptr, dir); */
+  process_t *p = current->proc;
+  if(!p->fd[file].node)
+  {
+    errno = EBADF;
+    return -1;
+    // ERROR!
+  }
+  if(dir != 0 && dir != 1 && dir != 2)
+  {
+    errno = EINVAL;
+    return -1;
+  }
+  if((int)p->fd[file].offset + ptr < 0)
+  {
+    errno = EINVAL;
+    return -1;
+  }
+  
+  fs_node_t *node = p->fd[file].node;
+  if(dir == 0) // SEEK_SET
+  {
+    p->fd[file].offset = ptr;
+  }
+  if(dir == 1) // SEEK_CUR
+  {
+    p->fd[file].offset += ptr;
+  }
+  if(dir == 2) // SEEK_END
+  {
+    p->fd[file].offset = node->length + ptr;
+  }
+  debug("#");
   errno = 0;
-  return 0;
+  return p->fd[file].offset;
 }
 KDEF_SYSCALL(lseek, r)
 {
@@ -137,6 +185,7 @@ KDEF_SYSCALL(read, r)
 
 int stat(const char *file, struct stat *st)
 {
+  debug("STAT(%s, %x)", file, st);
   st->st_mode = S_IFCHR;
   errno = 0;
   return 0;

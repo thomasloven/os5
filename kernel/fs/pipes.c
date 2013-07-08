@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <sys/stat.h>
 
 
 // Pipes are implemented as a circular buffer.
@@ -151,6 +152,7 @@ fs_node_t *new_pipe(uint32_t size)
   node->readdir = 0;
   node->finddir = 0;
   node->device = (void *)pipe;
+  node->mode = S_IFCHR;
 
   return node;
 }

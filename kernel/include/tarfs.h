@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stdint.h>
+
 #ifndef __ASSEMBLER__
 typedef struct
 {
@@ -20,6 +22,12 @@ typedef struct
   unsigned char device_minor[8];
   unsigned char prefix[155];
 }__attribute__((packed)) tar_header_t;
+
+typedef struct
+{
+  char *name;
+  tar_header_t *tar;
+} tarfs_entry_t;
 
 #define TAR_TYPE_FILE 0
 #define TAR_TYPE_LINK 1

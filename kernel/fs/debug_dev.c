@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include <stdlib.h>
+#include <sys/stat.h>
 
 uint32_t read_debug(fs_node_t *node, uint32_t offset, uint32_t size, char *buffer)
 {
@@ -37,5 +38,6 @@ fs_node_t *debug_dev_init()
   node->close = &close_debug;
   node->readdir = 0;
   node->finddir = 0;
+  node->mode = S_IFCHR;
   return node;
 }

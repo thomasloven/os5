@@ -26,10 +26,19 @@ int main()
   } else {
 
     printf("  I am the child! I have pid %x\n", getpid());
-    fopen("/tarfs/hello.txt", "r");
-    printf("Reading from keyboard\nStop with 'exit'\n");
+    FILE *tarfile = fopen("/tarfs/hello.txt", "r");
 
     char line[128];
+    fgets(line, sizeof(line), tarfile);
+    printf("Read from file: %s", line);
+    fgets(line, sizeof(line), tarfile);
+    printf("Read from file: %s", line);
+    fgets(line, sizeof(line), tarfile);
+    printf("Read from file: %s", line);
+    fgets(line, sizeof(line), tarfile);
+    printf("Read from file: %s", line);
+    fclose(tarfile);
+    printf("Reading from keyboard\nStop with 'exit'\n");
     fflush(stdout);
     while(strcmp(line, "exit\n"))
     {

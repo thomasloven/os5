@@ -19,6 +19,7 @@ typedef struct fs_node
 {
   char name[256];
   void *device;
+  uint32_t mode;
   uint32_t flags;
   uint32_t inode;
   uint32_t length;
@@ -71,5 +72,7 @@ void vfs_print_tree();
 
 fs_node_t *debug_dev_init();
 fs_node_t *new_pipe(uint32_t size);
+
+char *strdup(const char *s);
 
 #endif
