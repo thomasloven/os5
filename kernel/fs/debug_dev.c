@@ -11,6 +11,7 @@ uint32_t read_debug(fs_node_t *node, uint32_t offset, uint32_t size, char *buffe
 
 uint32_t write_debug(fs_node_t *node, uint32_t offset, uint32_t size, char *buffer)
 {
+  // print everything to screen
   debug("%s",buffer);
   return size;
 }

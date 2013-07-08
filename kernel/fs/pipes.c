@@ -9,6 +9,7 @@
 #include <stdio.h>
 
 
+// Pipes are implemented as a circular buffer.
 // One byte is wasted here...
 // Or used as buffer, if you're an optimist
 uint32_t pipe_unread_bytes(vfs_pipe_t *pipe)
@@ -39,18 +40,22 @@ uint32_t read_pipe(fs_node_t *node, uint32_t offset, uint32_t size, char *buffer
     spin_lock(&pipe->semaphore);
       if(pipe->users == 1)
       {
+        // If noone is writing to the pipe just return EOF
         buffer[read++] = EOF;
         spin_unlock(&pipe->semaphore);
         return read;
       }
       while(pipe_unread_bytes(pipe) > 0 && read < size)
       {
+        // Read as much as is available
         buffer[read++] = pipe->buffer[pipe->read_pos++];
-        if(pipe->read_pos == pipe->size)
+        if(pipe->read_pos == pipe->size) // XXX This is where the byte is wasted
           pipe->read_pos = 0;
       }
     spin_unlock(&pipe->semaphore);
     scheduler_wake(&pipe->waiting);
+    
+    // If nothing at all has been read, sleep untill there is some data available
     if(read == 0)
     {
       scheduler_sleep(current, &pipe->waiting);
@@ -70,21 +75,24 @@ uint32_t write_pipe(fs_node_t *node, uint32_t offset, uint32_t size, char *buffe
     spin_lock(&pipe->semaphore);
       if(pipe->users == 1)
       {
-        // Write without bothering about overwriting
+        // If noone is reading from the pipe,
+        // write everything without bothering about overwriting
         while(written < size)
         {
           pipe->buffer[pipe->write_pos++] = buffer[written++];
-          if(pipe->write_pos == pipe->size)
+          if(pipe->write_pos == pipe->size) // XXX And here
             pipe->write_pos = 0;
           // Make the read pointer follow along
-          if(pipe->write_pos == pipe->read_pos)
+          if(pipe->write_pos == pipe->read_pos) // XXX And here
             pipe->read_pos++;
           if(pipe->read_pos == pipe->size)
             pipe->read_pos = 0;
         }
       } else {
+        // If someone is reading from the pipe
         while(pipe_unwritten_bytes(pipe) > 0 && written < size)
         {
+          // Write as much as there is room for
           pipe->buffer[pipe->write_pos++] = buffer[written++];
           if(pipe->write_pos == pipe->size)
             pipe->write_pos = 0;
@@ -94,6 +102,7 @@ uint32_t write_pipe(fs_node_t *node, uint32_t offset, uint32_t size, char *buffe
     scheduler_wake(&pipe->waiting);
     if(written < size)
     {
+      // Go to sleep if not everything was written
       scheduler_sleep(current, &pipe->waiting);
       schedule();
     }

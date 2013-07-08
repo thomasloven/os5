@@ -79,16 +79,23 @@ unsigned char keyboard_decode(unsigned char scancode)
 {
   if(scancode & 0x80)
   {
+    // Release key
     scancode = scancode & 0x7F;
     if(scancode == 0x2A || scancode == 0x36)
+    {
+      // Release shift
       kbd_state = 0;
+    }
     return 0;
   } else {
+    // Press key
     if(scancode == 0x2A || scancode == 0x36)
     {
+      // Shift key
       kbd_state = 1;
       return 0;
     }
+    
     if(kbd_state == 1)
       return kbd_mapS[scancode];
     else
@@ -103,10 +110,14 @@ registers_t *keyboard_handler(registers_t *r)
   while(inb(KBD_STATUS_PORT) & 0x2);
 
   scancode = inb(KBD_DATA_PORT);
+  
+  // Write ascii to /dev/kbd and the raw scancode
+  // to /dev/kbdraw
   code[0] = keyboard_decode(scancode);
   if(code[0])
   {
     vfs_write(keyboard_pipe, 0, 1, (char *)code);
+    // Echo key to stdout
     fputc((int)code[0], stdout);
     fflush(stdout);
   }

@@ -73,15 +73,21 @@ void vfs_init()
   root->name = strdup("[root]");
   root->node = 0;
 
+  // /dev/debug writes to the terminal
   fs_node_t *dbg = debug_dev_init();
   vfs_mount("/dev/debug", dbg);
 }
 
+
 fs_node_t *vfs_find_node(const char *path)
 {
+  // Returns the fs_node at the specified path if it exists.
+  // Completes the vfs tree on the way. 
+  
   char *p = strdup(path);
   char *i = p;
 
+  // Tokenize file path
   uint32_t path_length = strlen(path);
   while(i < p + path_length)
   {
@@ -92,17 +98,22 @@ fs_node_t *vfs_find_node(const char *path)
   p[path_length] = '\0';
   i = p + 1;
 
+  // Search vfs tree
   tree_node_t *node = vfs_tree.root;
   while(i < p + path_length)
   {
+    // For each part of the path...
     int found = 0;
     list_t *l;
     for_each_in_list(&node->children, l)
     {
+      // Check if the file or directory we want is in the vfs tree
+      // already
       tree_node_t *tn = list_entry(l, tree_node_t, siblings);
       vfs_entry_t *entry = tn->item;
       if(!strcmp(entry->name, i))
       {
+        // If found, move on to the next part
         found = 1;
         node = tn;
         break;
@@ -153,6 +164,7 @@ void vfs_mount(char *path, fs_node_t *mount_root)
     }
     if(!found)
     {
+      // If a node on the way is not found, just create it
       tree_node_t *new = malloc(sizeof(tree_node_t));
       init_tree_node(new);
       vfs_entry_t *n = new->item = malloc(sizeof(vfs_entry_t));
