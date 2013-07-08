@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if tmux info | grep $TTY ; then
-  tmux split-window -h 'qemu-system-i386 -kernel build/kernel/kernel -initrd build/init/init -curses -monitor telnet:localhost:4444,server -s -S'
+  tmux split-window -h 'qemu-system-i386 -kernel build/kernel/kernel -initrd "build/init/init,build/tarfs.tar" -curses -monitor telnet:localhost:4444,server -s -S'
   tmux select-pane -L
   tmux split-window -v 'i386-elf-gdb'
   tmux select-pane -U
@@ -24,5 +24,5 @@ if tmux info | grep $TTY ; then
   done
   tmux kill-pane -a
 else
-  qemu-system-i386 -kernel build/kernel/kernel -initrd build/init/init -display curses -monitor stdio -s -S
+  qemu-system-i386 -kernel build/kernel/kernel -initrd "build/init/init,build/tarfs.tar" -display curses -monitor stdio -s -S
 fi

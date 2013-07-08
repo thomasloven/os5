@@ -121,6 +121,28 @@ fs_node_t *vfs_find_node(const char *path)
     }
     if(!found)
     {
+      // File or directory was not found in the vfs tree
+      // Ask the current node for it
+      vfs_entry_t *parent = (vfs_entry_t *)node->item;
+      fs_node_t *fnode = parent->node;
+      debug("\n Node not found!");
+      debug(" has finddir");
+      fs_node_t *next = fnode->finddir(fnode, i);
+      if(next)
+      {
+        debug("finddir returned");
+        // The parent has the child we're looking for. Add it to the
+        // tree
+        tree_node_t *new = malloc(sizeof(tree_node_t));
+        init_tree_node(new);
+        vfs_entry_t *n = new->item = malloc(sizeof(vfs_entry_t));
+        n->name = strdup(i);
+        n->node = next;
+
+        tree_make_child(node, new);
+        node = new;
+        break;
+      }
       return 0;
     }
     i += strlen(i);

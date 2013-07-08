@@ -35,7 +35,7 @@ export ASFLAGS CPPFLAGS CCFLAGS LDFLAGS DEPFLAGS ARFLAGS
 
 #.SILENT:
 
-.PHONY: $(DIRS) clean emul default
+.PHONY: $(DIRS) clean emul default tarfs
 .DEFAULT: all emul
 
 default: all
@@ -46,6 +46,9 @@ $(DIRS):
 	@echo "  \033[35mMAKE\033[0m    " $@
 	-@mkdir -p $(BUILDDIR)/$@
 	@cd $@; $(MAKE) $(MFLAGS)
+
+tarfs:
+	tar -cf $(BUILDDIR)/tarfs.tar tarfs/*
 
 clean:
 	@for DIR in $(DIRS); do echo "  \033[35mCLEAN\033[0m   " $$DIR; cd $(BUILDROOT)/$$DIR; make clean; done;

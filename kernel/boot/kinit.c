@@ -18,6 +18,7 @@
 #include <synch.h>
 #include <vfs.h>
 #include <keyboard.h>
+#include <tarfs.h>
 
 #include <stdio.h>
 
@@ -54,10 +55,15 @@ registers_t *kinit(mboot_info_t *mboot, uint32_t mboot_magic)
 
   keyboard_init();
 
-  vfs_print_tree();
 
   mboot_mod_t *mods = (mboot_mod_t *)(assert_higher(mboot->mods_addr));
   mods->mod_start = assert_higher(mods->mod_start);
+
+  tar_header_t *tarfs_location = (tar_header_t *)mods->mod_start;
+
+  vfs_mount("/tarfs", tarfs_init(tarfs_location));
+
+  vfs_print_tree();
 
   load_elf((elf_header *)mods->mod_start);
 

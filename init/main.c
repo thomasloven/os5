@@ -26,6 +26,7 @@ int main()
   } else {
 
     printf("  I am the child! I have pid %x\n", getpid());
+    fopen("/tarfs/hello.txt", "r");
     printf("Reading from keyboard\nStop with 'exit'\n");
 
     char line[128];
