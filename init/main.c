@@ -26,19 +26,25 @@ int main()
   } else {
 
     printf("  I am the child! I have pid %x\n", getpid());
-    FILE *tarfile = fopen("/tarfs/hello.txt", "r");
+
 
     char line[128];
 
-    while(fgets(line, sizeof(line), tarfile) != NULL)
-      printf("Read from file: %s", line);
-    fclose(tarfile);
     printf("Reading from keyboard\nStop with 'exit'\n");
     fflush(stdout);
     while(strcmp(line, "exit\n"))
     {
-      fgets(line, sizeof(line), stdin);
+      fgets(line, 128, stdin);
       fputs(line, stdout);
+      if(!strcmp(line, "open\n"))
+      {
+        printf(line);
+        char *line2 = malloc(128);
+        volatile FILE *tarfile = fopen("/tarfs/hello.txt", "r"); // XXX Opening this file causes a page fault when this process exits?
+        while(fgets(line2, 128, tarfile) != NULL)
+          printf("Read from file: %s", line2);
+        fclose(tarfile);
+      }
     }
     printf("Finished reading from keyboard\n");
     pid = fork();
