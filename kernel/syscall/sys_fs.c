@@ -13,8 +13,12 @@ extern int errno;
 
 int close(int file)
 {
+  /* debug("(%d)CLOSE(%x)", current->proc->pid, file); */
+  process_t *p = current->proc;
+  vfs_close(p->fd[file].node);
+  p->fd[file].node = 0;
   errno = 0;
-  return -1;
+  return 0;
 }
 KDEF_SYSCALL(close, r)
 {
@@ -29,7 +33,7 @@ int fstat(int file, struct stat *st)
   /* st->st_mode = S_IFCHR; */
   process_t *p = current->proc;
   fs_node_t *node = p->fd[file].node;
-  debug("FSTAT(%x)", file);
+  /* debug("FSTAT(%x)", file); */
   st->st_dev = 0;
   st->st_ino = node->inode;
   st->st_mode = node->mode;
@@ -53,7 +57,7 @@ KDEF_SYSCALL(fstat, r)
 
 int isatty(int file)
 {
-  debug("ISATTY");
+  /* debug("ISATTY(%x)", file); */
   errno = 0;
   return 1;
 }
@@ -112,7 +116,6 @@ int lseek(int file, int ptr, int dir)
   {
     p->fd[file].offset = node->length + ptr;
   }
-  debug("#");
   errno = 0;
   return p->fd[file].offset;
 }
@@ -187,7 +190,7 @@ KDEF_SYSCALL(read, r)
 
 int stat(const char *file, struct stat *st)
 {
-  debug("STAT(%s, %x)", file, st);
+  /* debug("STAT(%s, %x)", file, st); */
   st->st_mode = S_IFCHR;
   errno = 0;
   return 0;
@@ -224,7 +227,9 @@ int write(int file, char *ptr, int len)
 
   errno = 0;
 
-  return vfs_write(node, 0, len, (char *)ptr);
+  int ret =  vfs_write(node, p->fd[file].offset, len, (char *)ptr);
+  p->fd[file].offset += ret;
+  return ret;
 }
 KDEF_SYSCALL(write, r)
 {
