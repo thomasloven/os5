@@ -311,6 +311,7 @@ uint32_t procmm_handle_page_fault(uintptr_t address, uint32_t flags)
           // This is the only copy
           // Unset CopyOnWrite flag
           inside->flags = inside->flags & ~MM_FLAG_COW;
+          inside->flags = inside->flags | MM_FLAG_WRITE;
           // Enable write on area
           vmm_page_set(address & PAGE_MASK, pval | PAGE_WRITE);
           return 0;
@@ -323,6 +324,7 @@ uint32_t procmm_handle_page_fault(uintptr_t address, uint32_t flags)
 
           // Unset CopyOnWrite flag
           inside->flags = inside->flags & ~MM_FLAG_COW;
+          inside->flags = inside->flags | MM_FLAG_WRITE;
           
           // Remove from list of copies
           remove_from_list(inside->copies);

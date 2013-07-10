@@ -133,10 +133,10 @@ process_t *fork_process()
   process_t *parent = current->proc;
   process_t *child = alloc_process();
 
-  // Clone page directory
-  child->pd = vmm_clone_pd();
   // Clone memory map (copy on write for everything)
   procmm_fork(parent, child);
+  // Clone page directory
+  child->pd = vmm_clone_pd();
   // Clone file descriptors
   memcopy(child->fd, parent->fd, sizeof(file_desc_t)*256);
 
