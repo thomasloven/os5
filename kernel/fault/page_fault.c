@@ -64,7 +64,7 @@ registers_t *page_fault_handler(registers_t *r)
       debug("\n Code: %x (%s,%s,%s)", r->err_code, \
           (r->err_code & 0x4)?"user":"kernel", \
           (r->err_code & 0x2)?"write":"read", \
-          (r->err_code & 0x1)?"non-present":"protection");
+          (r->err_code & 0x1)?"protection":"non-present");
       debug("\n From thread: %x", current->tid);
       debug("\n From process: %x", current->proc->pid);
       print_registers(r);
