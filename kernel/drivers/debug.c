@@ -5,12 +5,23 @@
 #include <common.h>
 #include <ctype.h>
 #include <elf.h>
+#include <idt.h>
 
 uint16_t *vidmem = (uint16_t *)VIDMEM;
 
 uint32_t scrn_x, scrn_y;
 
 uint8_t text_style;
+
+void kdbg_setcursor()
+{
+  unsigned short position = scrn_y*80 + scrn_x;
+
+  outb(0x3D4, 0x0F);
+  outb(0x3D5, (unsigned char)(position & 0xFF));
+  outb(0x3D4, 0x0E);
+  outb(0x3D5, (unsigned char)(position >> 8) & 0xF);
+}
 
 void kdbg_init()
 {
@@ -125,6 +136,7 @@ void kdbg_printf(char *str, ...)
       scrn_y++;
     }
     kdbg_scroll();
+    kdbg_setcursor();
     str++;
   }
   va_end(args);
