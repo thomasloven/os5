@@ -146,6 +146,11 @@ int open(const char *name, int flags, int mode)
 
   // Open the file
   fs_node_t *node = vfs_find_node(name);
+  if(!node)
+  {
+    errno = ENOENT;
+    return -1;
+  }
   vfs_open(node, flags);
   p->fd[fd].node = node;
   p->fd[fd].offset = 0;

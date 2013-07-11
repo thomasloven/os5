@@ -32,18 +32,34 @@ int main()
 
     printf("Reading from keyboard\nStop with 'exit'\n");
     fflush(stdout);
-    while(strcmp(line, "exit\n"))
+    while(strcmp(line, "exit"))
     {
+      printf("\n$ ");
+      fflush(stdout);
       fgets(line, 128, stdin);
-      fputs(line, stdout);
-      if(!strcmp(line, "open\n"))
+      /* fputs(line, stdout); */
+      int i;
+      int len = (int)strlen(line);
+      for(i = 0; i < len; i++)
       {
-        printf("%s", line);
+        if(line[i] == ' ')
+          line[i] = '\0';
+        if(line[i] == '\n')
+          line[i] = '\0';
+      }
+      if(!strcmp(line, "open"))
+      {
+        char *fname = (char *)((uintptr_t)line + strlen(line) + 1);
         char *line2 = malloc(128);
-        FILE *tarfile = fopen("/tarfs/hello.txt", "r");
+        FILE *tarfile = fopen(fname, "r");
+        if(tarfile)
+        {
         while(fgets(line2, 128, tarfile) != NULL)
-          printf("Read from file: %s", line2);
+          printf("%s", line2);
         fclose(tarfile);
+        } else {
+          printf("No such file");
+        }
       }
     }
     printf("Finished reading from keyboard\n");

@@ -125,23 +125,24 @@ fs_node_t *vfs_find_node(const char *path)
       // Ask the current node for it
       vfs_entry_t *parent = (vfs_entry_t *)node->item;
       fs_node_t *fnode = parent->node;
-      debug("\n Node not found!");
-      debug(" has finddir");
-      fs_node_t *next = fnode->finddir(fnode, i);
-      if(next)
+      if(!fnode) return 0; // XXX This shouldn't be needed when something is mounted to /
+      if(fnode->finddir)
       {
-        debug("finddir returned");
-        // The parent has the child we're looking for. Add it to the
-        // tree
-        tree_node_t *new = malloc(sizeof(tree_node_t));
-        init_tree_node(new);
-        vfs_entry_t *n = new->item = malloc(sizeof(vfs_entry_t));
-        n->name = strdup(i);
-        n->node = next;
+        fs_node_t *next = fnode->finddir(fnode, i);
+        if(next)
+        {
+          // The parent has the child we're looking for. Add it to the
+          // tree
+          tree_node_t *new = malloc(sizeof(tree_node_t));
+          init_tree_node(new);
+          vfs_entry_t *n = new->item = malloc(sizeof(vfs_entry_t));
+          n->name = strdup(i);
+          n->node = next;
 
-        tree_make_child(node, new);
-        node = new;
-        break;
+          tree_make_child(node, new);
+          node = new;
+          break;
+        }
       }
       return 0;
     }

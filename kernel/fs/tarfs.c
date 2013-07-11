@@ -167,7 +167,6 @@ struct dirent *tar_readdir(fs_node_t *node, uint32_t index)
 
 fs_node_t *tar_finddir(fs_node_t *node, char *name)
 {
-  debug("In tar finddir");
   tree_node_t *tn = (tree_node_t *)node->device;
   list_t *l;
   for_each_in_list(&tn->children, l)
