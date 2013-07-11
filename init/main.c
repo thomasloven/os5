@@ -38,9 +38,9 @@ int main()
       fputs(line, stdout);
       if(!strcmp(line, "open\n"))
       {
-        printf(line);
+        printf("%s", line);
         char *line2 = malloc(128);
-        volatile FILE *tarfile = fopen("/tarfs/hello.txt", "r"); // XXX Opening this file causes a page fault when this process exits?
+        FILE *tarfile = fopen("/tarfs/hello.txt", "r");
         while(fgets(line2, 128, tarfile) != NULL)
           printf("Read from file: %s", line2);
         fclose(tarfile);

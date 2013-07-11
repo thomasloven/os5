@@ -13,7 +13,6 @@ extern int errno;
 
 int close(int file)
 {
-  /* debug("(%d)CLOSE(%x)", current->proc->pid, file); */
   process_t *p = current->proc;
   vfs_close(p->fd[file].node);
   p->fd[file].node = 0;
@@ -30,10 +29,8 @@ KDEF_SYSCALL(close, r)
 
 int fstat(int file, struct stat *st)
 {
-  /* st->st_mode = S_IFCHR; */
   process_t *p = current->proc;
   fs_node_t *node = p->fd[file].node;
-  /* debug("FSTAT(%x)", file); */
   st->st_dev = 0;
   st->st_ino = node->inode;
   st->st_mode = node->mode;
@@ -57,7 +54,6 @@ KDEF_SYSCALL(fstat, r)
 
 int isatty(int file)
 {
-  /* debug("ISATTY(%x)", file); */
   errno = 0;
   return 1;
 }
@@ -84,7 +80,6 @@ KDEF_SYSCALL(link, r)
 
 int lseek(int file, int ptr, int dir)
 {
-  /* debug("LSEEK(%x, %x, %x)", file, ptr, dir); */
   process_t *p = current->proc;
   if(!p->fd[file].node)
   {
@@ -129,8 +124,6 @@ KDEF_SYSCALL(lseek, r)
 
 int open(const char *name, int flags, int mode)
 {
-  // open as called by both kernel and usermode programs
-
   process_t *p = current->proc;
 
   // Find a free descriptor
@@ -158,10 +151,7 @@ int open(const char *name, int flags, int mode)
   p->fd[fd].offset = 0;
 
   errno = 0;
-
-  // Return the file descriptor index
   return fd;
-
 }
 KDEF_SYSCALL(open, r)
 {
@@ -190,7 +180,6 @@ KDEF_SYSCALL(read, r)
 
 int stat(const char *file, struct stat *st)
 {
-  /* debug("STAT(%s, %x)", file, st); */
   st->st_mode = S_IFCHR;
   errno = 0;
   return 0;

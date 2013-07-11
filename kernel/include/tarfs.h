@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include <vfs.h>
 
 #ifndef __ASSEMBLER__
 typedef struct
@@ -37,4 +38,7 @@ typedef struct
 #define TAR_TYPE_DIR 5
 #define TAR_TYPE_FIFO 6
 #define TAR_TYPE_CONT 7
+
+fs_node_t *tarfs_init(tar_header_t *tar);
+
 #endif

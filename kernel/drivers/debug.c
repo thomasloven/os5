@@ -99,8 +99,8 @@ void kdbg_printf(char *str, ...)
           kdbg_printf(va_arg(args, char *));
           break;
         case 'c': // char
-          num = va_arg(args, char);
-          kdbg_putch(num, text_style);
+          num = va_arg(args, uint32_t);
+          kdbg_putch((char)num, text_style);
           scrn_x++;
           break;
         default:
