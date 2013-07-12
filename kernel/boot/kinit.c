@@ -61,9 +61,7 @@ registers_t *kinit(mboot_info_t *mboot, uint32_t mboot_magic)
 
   tar_header_t *tarfs_location = assert_higher((tar_header_t *)mods[1].mod_start);
 
-  vfs_mount("/tarfs", tarfs_init(tarfs_location));
-
-  vfs_print_tree();
+  vfs_mount("/", tarfs_init(tarfs_location));
 
   load_elf(init_module);
 

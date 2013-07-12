@@ -40,7 +40,6 @@ void tartree_add_node(tree_t *tree, tar_header_t *tar, char *path)
   uint32_t current_level = 0;
   while(current_level < path_levels)
   {
-    debug("Searching for %s", i);
     int found = 0;
     list_t *l;
     for_each_in_list(&node->children, l)
@@ -122,6 +121,7 @@ tree_t *build_tar_tree(tar_header_t *tar)
   return tree;
 
 }
+
 
 uint32_t read_tar(fs_node_t *node, uint32_t offset, uint32_t size, char *buffer)
 {
