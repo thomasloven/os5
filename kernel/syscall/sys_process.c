@@ -3,8 +3,11 @@
 #include <k_debug.h>
 #include <scheduler.h>
 #include <thread.h>
+#include <vmm.h>
+#include <procmm.h>
 
 #include <errno.h>
+#include <strings.h>
 
 #undef errno
 extern int errno;
@@ -32,14 +35,31 @@ KDEF_SYSCALL(exit, r)
 
 int execve(char *name, char **argv, char **env)
 {
-  errno = ENOMEM;
-  return -1;
+  // Find the executable
+  // Clear memory areas
+  // Load new areas
+  /* debug("EXECVE(%s, %x, %x)", name, argv, env); */
+  fs_node_t *executable = vfs_find_node(name);
+  uint32_t ex_size = executable->length;
+  procmm_removeall(current->proc);
+  load_elf2(executable);
+  errno = 0;
+  return 0;
 }
 KDEF_SYSCALL(execve, r)
 {
+  thread_t *ct = current;
   process_stack stack = init_pstack();
   r->eax = execve((char *)stack[0], (char **)stack[1], (char **)stack[2]);
   r->ebx = errno;
+  if(r->eax != -1)
+  {
+    current->r.eax = current->r.ebx = current->r.ecx = current->r.edx = 0;
+    current->r.eip = current->proc->mm.code_entry;
+    current->r.useresp = current->r.ebp = USER_STACK_TOP;
+    current->kernel_thread = current;
+    new_area(current->proc, USER_STACK_TOP, USER_STACK_TOP, MM_FLAG_WRITE | MM_FLAG_GROWSDOWN | MM_FLAG_ADDONUSE, MM_TYPE_STACK);
+  }
   return r;
 }
 
