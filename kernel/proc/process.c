@@ -139,6 +139,17 @@ process_t *fork_process()
   child->pd = vmm_clone_pd();
   // Clone file descriptors
   memcopy(child->fd, parent->fd, sizeof(file_desc_t)*256);
+  int i;
+  for(i  = 0; i < 256; i++)
+  {
+    if(child->fd[i].node)
+    {
+      fs_node_t *pnode = child->fd[i].node;
+      fs_node_t *cnode = child->fd[i].node = malloc(sizeof(fs_node_t));
+      memcpy(cnode, pnode, sizeof(fs_node_t));
+      vfs_open(cnode, child->fd[i].flags);
+    }
+  }
 
   // Fix the family
   child->parent = parent;

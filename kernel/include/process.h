@@ -29,6 +29,7 @@ typedef struct
 {
   fs_node_t *node;
   uint32_t offset;
+  uint32_t flags;
 } file_desc_t;
 
 typedef struct process_struct

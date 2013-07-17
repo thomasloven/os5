@@ -154,6 +154,7 @@ int open(const char *name, int flags, int mode)
   vfs_open(node, flags);
   p->fd[fd].node = node;
   p->fd[fd].offset = 0;
+  p->fd[fd].flags = flags;
 
   errno = 0;
   return fd;
