@@ -3,11 +3,6 @@ set path=$SCRPATH/**
 
 let NERDTreeIgnore = ['\.o$']
 
-call rainbow_parenthsis#LoadRound()
-call rainbow_parenthsis#LoadSquare()
-call rainbow_parenthsis#LoadBraces()
-call rainbow_parenthsis#LoadChevrons()
-call rainbow_parenthsis#Activate()
 
 let g:syntastic_c_include_dirs = [ 'library/include', 'kernel/include' ]
 "let g:syntastic_c_checker = 'clang -fsyntax-only -Wall -Wextra -pedantic'

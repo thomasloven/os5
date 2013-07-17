@@ -137,7 +137,7 @@ uint32_t read_tar(fs_node_t *node, uint32_t offset, uint32_t size, char *buffer)
   offset = offset + (uint32_t)tar + 512;
 
   memcpy(buffer, (void *)offset, size);
-  if(size == tar_size(tar->size - offset))
+  if(size == tar_size(tar->size) - offset)
   {
     buffer[size] = EOF;
   }
