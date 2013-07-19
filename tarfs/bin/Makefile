@@ -1,6 +1,6 @@
 BUILDROOT := /Users/thomas/Dropbox/osdev/os5
 BUILDDIR := $(BUILDROOT)/build
-LIBDIR := $(BUILDROOT)/libary
+LIBDIR := $(BUILDROOT)/library
 
 AS := nasm
 CPP := clang -E
@@ -13,8 +13,8 @@ CPPFLAGS := -B /usr/local/Cellar/binutils/2.23.2/i386-elf/bin
 CPPFLAGS += -Wall -Wextra -pedantic -m32 -O0 -std=c99 -finline-functions
 CPPFLAGS += -fno-stack-protector -ffreestanding -Wno-unused-function
 CPPFLAGS += -Wno-unused-parameter -g -Wno-gnu
-CPPFLAGS += -I$(LIBDIR)/include
 CPPFLAGS += -I$(BUILDDIR)/lib/i386-elf/include
+CPPFLAGS += -I$(LIBDIR)/include
 CPPFLAGS += -nostdlib
 
 CFLAGS := -target i386-pc-linux -mno-sse -mno-mmx
