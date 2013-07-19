@@ -77,7 +77,6 @@ elf_t kernel_elf;
 void  kernel_elf_init(mboot_info_t *mboot);
 char *kernel_lookup_symbol(uint32_t addr);
 
-void load_elf(elf_header *image);
-void load_elf2(fs_node_t *file);
+void load_elf(fs_node_t *file);
 
 #endif

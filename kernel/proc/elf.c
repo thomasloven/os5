@@ -53,22 +53,8 @@ char *kernel_lookup_symbol(uint32_t addr)
   return 0;
 }
 
-void load_elf_segment(elf_header *image, elf_phead *phead)
-{
-  // Load an elf segment into memory.
-  // Assumes the segment is loadable.
 
-  uint32_t flags = MM_FLAG_READ | MM_FLAG_WRITE | MM_FLAG_CANSHARE;
-  uint32_t type = MM_TYPE_DATA;
-  new_area(current->proc, phead->p_vaddr, phead->p_vaddr + phead->p_memsz, flags, type);
-
-  if(phead->p_memsz == 0) return;
-
-  memcopy(phead->p_vaddr, ((uintptr_t)image + phead->p_offset), phead->p_filesz);
-  memset(phead->p_vaddr + phead->p_filesz, 0, phead->p_memsz-phead->p_filesz);
-}
-
-void load_elf_segment2(fs_node_t *file, elf_phead *phead)
+void load_elf_segment(fs_node_t *file, elf_phead *phead)
 {
   uint32_t flags = MM_FLAG_READ | MM_FLAG_WRITE | MM_FLAG_CANSHARE;
   uint32_t type = MM_TYPE_DATA;
@@ -79,42 +65,8 @@ void load_elf_segment2(fs_node_t *file, elf_phead *phead)
   memset(phead->p_vaddr + phead->p_filesz, 0, phead->p_memsz-phead->p_filesz);
 }
 
-void load_elf(elf_header *image)
-{
-  // Load an elf image to into memory.
-  // Does not free memory areas but only overwrites or adds new ones.
 
-  elf_phead *program_head = (elf_phead *)((uintptr_t)image + image->elf_phoff);
-
-  process_t *p = current->proc;
-  process_mem_t *mm = &p->mm;
-
-  mm->code_start = ~0x0;
-  mm->code_end = 0x0;
-
-  uint32_t i;
-  for(i=0; i < image->elf_phnum; i++)
-  {
-    if(program_head[i].p_type == 0x1)
-    {
-      // If the current segment is loadable, load it and adjust
-      // code area pointers accordingly.
-      uintptr_t start = program_head[i].p_vaddr;
-      uintptr_t end = start + program_head[i].p_memsz;
-     if(start < mm->code_start)
-        mm->code_start = start;
-      if(end > mm->code_end)
-        mm->code_end = end;
-
-      load_elf_segment(image, &program_head[i]);
-    }
-  }
-
-  mm->data_end = mm->code_end;
-  mm->code_entry = image->elf_entry;
-}
-
-void load_elf2(fs_node_t *file)
+void load_elf(fs_node_t *file)
 {
   elf_header *head = malloc(sizeof(elf_header));
   vfs_read(file, 0, sizeof(elf_header), (char *)head);
@@ -141,7 +93,7 @@ void load_elf2(fs_node_t *file)
       if(end > mm->code_end)
         mm->code_end = end;
 
-      load_elf_segment2(file, &program_head[i]);
+      load_elf_segment(file, &program_head[i]);
     }
   }
 
