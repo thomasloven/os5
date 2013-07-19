@@ -57,7 +57,6 @@ registers_t *kinit(mboot_info_t *mboot, uint32_t mboot_magic)
 
 
   mboot_mod_t *mods = (mboot_mod_t *)(assert_higher(mboot->mods_addr));
-  elf_header *init_module = assert_higher((elf_header *)mods[0].mod_start);
 
   tar_header_t *tarfs_location = assert_higher((tar_header_t *)mods[1].mod_start);
 

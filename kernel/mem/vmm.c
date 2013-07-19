@@ -91,7 +91,7 @@ void vmm_page_touch(uintptr_t page, uint32_t flags)
 
     // Clear the new page table
     vmm_flush_tlb((uintptr_t)&page_tables[vmm_table_idx(page)] & PAGE_MASK);
-    memset((uintptr_t)&page_tables[vmm_table_idx(page)] & PAGE_MASK, 0, \
+    memset((void *)((uintptr_t)&page_tables[vmm_table_idx(page)] & PAGE_MASK), 0, \
     PAGE_SIZE);
   }
 }
@@ -176,7 +176,7 @@ void vmm_expage_touch(uintptr_t page, uint32_t flags)
   {
     expage_directory[vmm_dir_idx(page)] = pmm_alloc_page() | flags;
     vmm_flush_tlb((uintptr_t)&expage_tables[vmm_table_idx(page)] & PAGE_MASK);
-    memset((uintptr_t)&expage_tables[vmm_table_idx(page)] & PAGE_MASK, 0, \
+    memset((void *)((uintptr_t)&expage_tables[vmm_table_idx(page)] & PAGE_MASK), 0, \
     PAGE_SIZE);
   }
 }
@@ -200,7 +200,7 @@ void vmm_clear_page(uintptr_t page)
   spin_lock(&temp_sem);
     uintptr_t old = vmm_page_get(VMM_TEMP1);
     vmm_page_set(VMM_TEMP1, vmm_page_val(page, PAGE_PRESENT | PAGE_WRITE));
-    memset(VMM_TEMP1, 0, PAGE_SIZE),
+    memset((void *)VMM_TEMP1, 0, PAGE_SIZE),
     vmm_page_set(VMM_TEMP1, old);
   spin_unlock(&temp_sem);
 }
@@ -216,7 +216,7 @@ void vmm_copy_page(uintptr_t src, uintptr_t dst)
     vmm_page_set(VMM_TEMP2, vmm_page_val(dst, PAGE_PRESENT | PAGE_WRITE));
 
     // There's probably an x86 instruction to do this faster?
-    memcopy(VMM_TEMP2, VMM_TEMP1, PAGE_SIZE);
+    memcpy((void *)VMM_TEMP2, (const void *)VMM_TEMP1, PAGE_SIZE);
 
     vmm_page_set(VMM_TEMP1, old_temp1);
     vmm_page_set(VMM_TEMP2, old_temp2);
@@ -234,7 +234,7 @@ page_dir_t vmm_new_pd()
     // Clear page directory.
     uintptr_t old = vmm_page_get(VMM_TEMP1);
     vmm_page_set(VMM_TEMP1, vmm_page_val(pd, PAGE_PRESENT | PAGE_WRITE));
-    memset(VMM_TEMP1, 0, PAGE_SIZE);
+    memset((void *)VMM_TEMP1, 0, PAGE_SIZE);
 
     // Make page directory recursive.
     uint32_t *pdir = (uint32_t *)VMM_TEMP1;

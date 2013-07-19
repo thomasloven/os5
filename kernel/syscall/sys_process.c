@@ -5,6 +5,7 @@
 #include <thread.h>
 #include <vmm.h>
 #include <procmm.h>
+#include <elf.h>
 
 #include <errno.h>
 #include <strings.h>
@@ -40,23 +41,26 @@ int execve(char *name, char **argv, char **env)
   // Load new areas
   /* debug("EXECVE(%s, %x, %x)", name, argv, env); */
   fs_node_t *executable = vfs_find_node(name);
-  uint32_t ex_size = executable->length;
+  if(!executable)
+  {
+    errno = ENOENT;
+    return -1;
+  }
   procmm_removeall(current->proc);
   load_elf(executable);
     current->r.eax = current->r.ebx = current->r.ecx = current->r.edx = 0;
     new_area(current->proc, USER_STACK_TOP, USER_STACK_TOP, MM_FLAG_WRITE | MM_FLAG_GROWSDOWN | MM_FLAG_ADDONUSE, MM_TYPE_STACK);
     current->r.useresp = current->r.ebp = USER_STACK_TOP;
-    current->kernel_thread = current;
+    current->kernel_thread = (registers_t *)current;
   errno = 0;
   return 0;
 }
 KDEF_SYSCALL(execve, r)
 {
-  thread_t *ct = current;
   process_stack stack = init_pstack();
   r->eax = execve((char *)stack[0], (char **)stack[1], (char **)stack[2]);
   r->ebx = errno;
-  if(r->eax != -1)
+  if(r->eax != (uint32_t)-1)
   {
     current->r.eip = current->proc->mm.code_entry;
   }

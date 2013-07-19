@@ -1,7 +1,6 @@
 #include <elf.h>
 #include <multiboot.h>
 #include <vmm.h>
-#include <k_strings.h>
 #include <procmm.h>
 #include <memory.h>
 #include <k_debug.h>
@@ -62,7 +61,7 @@ void load_elf_segment(fs_node_t *file, elf_phead *phead)
 
   if(phead->p_memsz == 0) return;
   vfs_read(file, phead->p_offset, phead->p_filesz, (char *)phead->p_vaddr);
-  memset(phead->p_vaddr + phead->p_filesz, 0, phead->p_memsz-phead->p_filesz);
+  memset((void *)(phead->p_vaddr + phead->p_filesz), 0, phead->p_memsz-phead->p_filesz);
 }
 
 
