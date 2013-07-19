@@ -319,7 +319,7 @@ uint32_t procmm_handle_page_fault(uintptr_t address, uint32_t flags)
           // Copy page
           vmm_page_set(VMM_TEMP1, pval);
           vmm_page_set(address & PAGE_MASK, vmm_page_val(pmm_alloc_page(), pval & PAGE_FLAG_MASK | PAGE_WRITE));
-          memcopy(address & PAGE_MASK, VMM_TEMP1, PAGE_SIZE);
+          memcpy((void *)(address & PAGE_MASK), (const void *)VMM_TEMP1, PAGE_SIZE);
           vmm_page_set(VMM_TEMP1, 0);
 
           // Unset CopyOnWrite flag
@@ -377,7 +377,7 @@ uint32_t procmm_handle_page_fault(uintptr_t address, uint32_t flags)
 void procmm_fork(process_t *parent, process_t *child)
 {
   // Copy memory information
-  memcopy(&child->mm, &parent->mm, sizeof(process_mem_t));
+  memcpy(&child->mm, &parent->mm, sizeof(process_mem_t));
   init_list(child->mm.mem);
 
   // Share all areas

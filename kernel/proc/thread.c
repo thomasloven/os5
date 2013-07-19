@@ -86,7 +86,7 @@ thread_t *clone_thread(thread_t *th)
   thread_t *new = alloc_thread();
 
   uint32_t tid = new->tid;
-  memcopy(new, th, sizeof(thread_t));
+  memcpy(new, th, sizeof(thread_t));
   new->tid = tid;
 
   init_list(new->tasks);

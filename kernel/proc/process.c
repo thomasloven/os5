@@ -154,7 +154,7 @@ process_t *fork_process()
   // Clone page directory
   child->pd = vmm_clone_pd();
   // Clone file descriptors
-  memcopy(child->fd, parent->fd, sizeof(file_desc_t)*256);
+  memcpy(child->fd, parent->fd, sizeof(file_desc_t)*256);
   int i;
   for(i  = 0; i < 256; i++)
   {
