@@ -2,7 +2,7 @@ BUILDROOT := $(PWD)
 BUILDDIR := $(BUILDROOT)/build
 LIBDIR := $(BUILDROOT)/library
 
-DIRS := library kernel init
+DIRS := library kernel
 
 AS := nasm
 CPP := clang -E

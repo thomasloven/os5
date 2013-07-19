@@ -49,4 +49,5 @@ uint32_t procmm_handle_page_fault(uintptr_t address, uint32_t flags);
 
 void procmm_fork(process_t *parent, process_t *child);
 void procmm_exit(process_t *proc);
+void procmm_removeall(process_t *proc);
 #endif

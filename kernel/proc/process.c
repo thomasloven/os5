@@ -73,6 +73,22 @@ void free_process(process_t *proc)
     init->child = ch;
   }
 
+  // Remove from list of process tree
+  process_t *parent = proc->parent;
+  if(parent->child == proc)
+  {
+    if(proc->younger_sibling)
+      parent->child = proc->younger_sibling;
+    else if(proc->older_sibling)
+      parent->child = proc->older_sibling;
+    else
+      parent->child = 0;
+  }
+  if(proc->older_sibling)
+    proc->older_sibling->younger_sibling = proc->younger_sibling;
+  if(proc->younger_sibling)
+    proc->younger_sibling->older_sibling = proc->older_sibling;
+
   remove_from_list(proc->proc_list);
 
   procmm_exit(proc);
@@ -139,6 +155,17 @@ process_t *fork_process()
   child->pd = vmm_clone_pd();
   // Clone file descriptors
   memcopy(child->fd, parent->fd, sizeof(file_desc_t)*256);
+  int i;
+  for(i  = 0; i < 256; i++)
+  {
+    if(child->fd[i].node)
+    {
+      fs_node_t *pnode = child->fd[i].node;
+      fs_node_t *cnode = child->fd[i].node = malloc(sizeof(fs_node_t));
+      memcpy(cnode, pnode, sizeof(fs_node_t));
+      vfs_open(cnode, child->fd[i].flags);
+    }
+  }
 
   // Fix the family
   child->parent = parent;

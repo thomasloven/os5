@@ -60,6 +60,16 @@ int main()
         } else {
           printf("No such file");
         }
+     } else if(!strcmp(line, "run")) {
+        char *fname = (char *)((uintptr_t)line + strlen(line) + 1);
+        pid = fork();
+        if(pid)
+        {
+          _syscall_waitpid(pid);
+        } else {
+          execve(fname, 0, 0);
+          return 1;
+        }
       }
     }
     printf("Finished reading from keyboard\n");

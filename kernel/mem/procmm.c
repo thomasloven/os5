@@ -400,3 +400,25 @@ void procmm_exit(process_t *proc)
     free_area(ma);
   }
 }
+
+void procmm_removeall(process_t *proc)
+{
+  list_t *i = proc->mm.mem.next;
+  while(i != &proc->mm.mem)
+  {
+    mem_area_t *ma = list_entry(i, mem_area_t, mem);
+    i = i->next;
+
+    spin_lock(&proc->pd_sem);
+      page_dir_t old = vmm_exdir_set(proc->pd);
+      uint32_t j = ma->start;
+      while (j < ma->end)
+      {
+        vmm_expage_set(j, 0);
+        j += PAGE_SIZE;
+      }
+      vmm_exdir_set(old);
+    spin_unlock(&proc->pd_sem);
+    free_area(ma);
+  }
+}
