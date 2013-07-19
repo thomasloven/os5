@@ -42,7 +42,11 @@ int execve(char *name, char **argv, char **env)
   fs_node_t *executable = vfs_find_node(name);
   uint32_t ex_size = executable->length;
   procmm_removeall(current->proc);
-  load_elf2(executable);
+  load_elf(executable);
+    current->r.eax = current->r.ebx = current->r.ecx = current->r.edx = 0;
+    new_area(current->proc, USER_STACK_TOP, USER_STACK_TOP, MM_FLAG_WRITE | MM_FLAG_GROWSDOWN | MM_FLAG_ADDONUSE, MM_TYPE_STACK);
+    current->r.useresp = current->r.ebp = USER_STACK_TOP;
+    current->kernel_thread = current;
   errno = 0;
   return 0;
 }
@@ -54,11 +58,7 @@ KDEF_SYSCALL(execve, r)
   r->ebx = errno;
   if(r->eax != -1)
   {
-    current->r.eax = current->r.ebx = current->r.ecx = current->r.edx = 0;
     current->r.eip = current->proc->mm.code_entry;
-    current->r.useresp = current->r.ebp = USER_STACK_TOP;
-    current->kernel_thread = current;
-    new_area(current->proc, USER_STACK_TOP, USER_STACK_TOP, MM_FLAG_WRITE | MM_FLAG_GROWSDOWN | MM_FLAG_ADDONUSE, MM_TYPE_STACK);
   }
   return r;
 }
