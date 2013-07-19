@@ -73,6 +73,22 @@ void free_process(process_t *proc)
     init->child = ch;
   }
 
+  // Remove from list of process tree
+  process_t *parent = proc->parent;
+  if(parent->child == proc)
+  {
+    if(proc->younger_sibling)
+      parent->child = proc->younger_sibling;
+    else if(proc->older_sibling)
+      parent->child = proc->older_sibling;
+    else
+      parent->child = 0;
+  }
+  if(proc->older_sibling)
+    proc->older_sibling->younger_sibling = proc->younger_sibling;
+  if(proc->younger_sibling)
+    proc->younger_sibling->older_sibling = proc->older_sibling;
+
   remove_from_list(proc->proc_list);
 
   procmm_exit(proc);
