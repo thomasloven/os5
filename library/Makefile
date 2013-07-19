@@ -32,7 +32,7 @@ $(BUILDDIR)/$(SUBDIR)/%.d: %.S
 
 $(BUILDDIR)/$(SUBDIR)/%.o: %.c
 	@echo "  \033[33m gcc\033[0m    " $<
-	@$(CC) $(CCFLAGS) -c $< -o $@
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
 
 %.o: %.s
 	@echo "   \033[33mnasm\033[0m   " $<
