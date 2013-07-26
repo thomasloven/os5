@@ -10,8 +10,10 @@
 
 int main()
 {
+  setenv("HOME","/",1);
 
   printf("This is the init process.\n");
+  printf("Environment HOME: %s\n", getenv("HOME"));
 
   uint16_t pid = fork();
   if(pid)
