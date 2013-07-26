@@ -1,7 +1,3 @@
-BUILDROOT := /Users/thomas/Dropbox/osdev/os5
-BUILDDIR := $(BUILDROOT)/build
-LIBDIR := $(BUILDROOT)/library
-
 AS := nasm
 CPP := clang -E
 CC := clang
@@ -20,7 +16,17 @@ CPPFLAGS += -nostdlib
 CFLAGS := -target i386-pc-linux -mno-sse -mno-mmx
 CFLAGS += -ggdb
 
-LIBPATH := $(BUILDDIR)/library/clib.a $(BUILDDIR)/lib/i386-elf/lib/libc.a 
-
 LDFLAGS := -B/usr/local/Cellar/binutils/2.23.2/i386-elf -target i386-pc-linux
 LDLIBS := $(LIBPATH) $(LIBPATH)
+
+VPATH := ../src
+
+
+TARGETS := $(shell find ../src -name "*.c")
+TARGETS := $(notdir $(TARGETS))
+TARGETS := $(patsubst %.c, %, $(TARGETS))
+
+all: $(TARGETS)
+
+clean:
+	-rm $(TARGETS) 2>/dev/null
