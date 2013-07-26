@@ -59,14 +59,16 @@ int execve(char *name, char **argv, char **env)
     while(argv[argc++]);
     argc--;
 
-    temp_argv = calloc(argc, sizeof(char *));
+    temp_argv = calloc(argc+1, sizeof(char *));
 
     unsigned int i = 0;
     while(argv[i])
     {
+      debug("saving %s",argv[i]);
       temp_argv[i] = strdup(argv[i]);
       i++;
     }
+    argv[i+1] = 0;
   }
 
   // Clear all process memory areas

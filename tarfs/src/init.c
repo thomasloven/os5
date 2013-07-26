@@ -73,14 +73,15 @@ int main()
         {
           _syscall_waitpid(pid);
         } else {
-          char **argv = calloc(argc, sizeof(char *));
+          char **argv = calloc(argc+1, sizeof(char *));
           char *pos = line;
           for(i = 0; i < argc; i++)
           {
             argv[i] = pos;
             pos = pos + strlen(pos) + 1;
           }
-          execve(fname, argv, 0);
+          argv[argc+1] = 0;
+          execve(fname, argv, environ);
           return 1;
         }
       }
