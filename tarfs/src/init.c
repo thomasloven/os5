@@ -40,10 +40,14 @@ int main()
       /* fputs(line, stdout); */
       int i;
       int len = (int)strlen(line);
+      int argc = 1;
       for(i = 0; i < len; i++)
       {
         if(line[i] == ' ')
+        {
           line[i] = '\0';
+          argc++;
+        }
         if(line[i] == '\n')
           line[i] = '\0';
       }
@@ -67,7 +71,14 @@ int main()
         {
           _syscall_waitpid(pid);
         } else {
-          execve(fname, 0, 0);
+          char **argv = calloc(argc, sizeof(char *));
+          char *pos = line;
+          for(i = 0; i < argc; i++)
+          {
+            argv[i] = pos;
+            pos = pos + strlen(pos) + 1;
+          }
+          execve(fname, argv, 0);
           return 1;
         }
       }

@@ -9,6 +9,8 @@
 
 #include <errno.h>
 #include <strings.h>
+#include <string.h>
+#include <malloc.h>
 
 #undef errno
 extern int errno;
@@ -46,12 +48,63 @@ int execve(char *name, char **argv, char **env)
     errno = ENOENT;
     return -1;
   }
+  // Save environment in kernel space
+  // TODO
+
+  // Save arguments in kernel space
+  unsigned int argc = 0;
+  char **temp_argv;
+  if(argv)
+  {
+    while(argv[argc++]);
+    argc--;
+
+    temp_argv = calloc(argc, sizeof(char *));
+
+    unsigned int i = 0;
+    while(argv[i])
+    {
+      temp_argv[i] = strdup(argv[i]);
+      i++;
+    }
+  }
+
+  // Clear all process memory areas
   procmm_removeall(current->proc);
+
+  // Load executable
   load_elf(executable);
-    current->r.eax = current->r.ebx = current->r.ecx = current->r.edx = 0;
-    new_area(current->proc, USER_STACK_TOP, USER_STACK_TOP, MM_FLAG_WRITE | MM_FLAG_GROWSDOWN | MM_FLAG_ADDONUSE, MM_TYPE_STACK);
-    current->r.useresp = current->r.ebp = USER_STACK_TOP;
-    current->kernel_thread = (registers_t *)current;
+
+  // Reset thread registers and state
+  current->r.eax = current->r.ebx = current->r.ecx = current->r.edx = 0;
+
+  // Add an area for the process stack
+  new_area(current->proc, USER_STACK_TOP, USER_STACK_TOP, MM_FLAG_WRITE | MM_FLAG_GROWSDOWN | MM_FLAG_ADDONUSE, MM_TYPE_STACK);
+  current->kernel_thread = (registers_t *)current;
+  uint32_t *pos = (uint32_t *)USER_STACK_TOP;
+
+  // Restore environment
+  // TODO
+
+  // Restore arguments
+  if(argv)
+  {
+    pos = pos - argc*sizeof(char *)/sizeof(uint32_t) - 1;
+    argv = (char **)pos;
+    int i = 0;
+    while(temp_argv[i])
+    {
+      pos = pos - strlen(temp_argv[i])/sizeof(uint32_t) - 1;
+      memcpy(pos, temp_argv[i], strlen(temp_argv[i]) + 1);
+      argv[i] = pos;
+      i++;
+    }
+
+  }
+  current->r.useresp = current->r.ebp = (uint32_t)pos;
+  current->r.ecx = argv;
+  current->r.edx = argc;
+
   errno = 0;
   return 0;
 }

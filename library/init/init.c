@@ -4,9 +4,9 @@
 int main();
 void _init_signal();
 
-void _init()
+void _init(int argc, char **argv)
 {
   _init_signal();
-  exit(main());
+  exit(main(argc, argv));
   for(;;);
 }

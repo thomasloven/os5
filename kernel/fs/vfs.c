@@ -54,13 +54,13 @@ fs_node_t *vfs_finddir(fs_node_t *node, char *name)
     return (fs_node_t *)0;
 }
 
-char *strdup(const char *s)
-{
-  char *d = malloc(strlen(s) + 1);
-  if(d != 0)
-    strcpy(d,s);
-  return d;
-}
+/* char *strdup(const char *s) */
+/* { */
+/*   char *d = malloc(strlen(s) + 1); */
+/*   if(d != 0) */
+/*     strcpy(d,s); */
+/*   return d; */
+/* } */
 
 void vfs_init()
 {
