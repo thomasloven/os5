@@ -36,6 +36,7 @@ void kdbg_scroll();
 void kdbg_putch(uint8_t c, uint8_t style);
 void kdbg_setpos(uint32_t x, uint32_t y);
 void kdbg_getpos(uint32_t *x, uint32_t *y);
+void kdbg_puts(char *str);
 void kdbg_printf(char *str, ...);
 
 int kdbg_num2str(uint32_t num, uint32_t base, char *buf);
