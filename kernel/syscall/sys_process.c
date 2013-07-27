@@ -48,8 +48,24 @@ int execve(char *name, char **argv, char **env)
     errno = ENOENT;
     return -1;
   }
+
   // Save environment in kernel space
-  // TODO
+  unsigned int envc = 0;
+  char **temp_env;
+  if(env)
+  {
+    while(env[envc++]);
+
+    temp_env = calloc(envc, sizeof(char *));
+
+    unsigned int i = 0;
+    while(env[i])
+    {
+      temp_env[i] = strdup(env[i]);
+      i++;
+    }
+    temp_env[envc] = 0;
+  }
 
   // Save arguments in kernel space
   unsigned int argc = 0;
@@ -57,18 +73,16 @@ int execve(char *name, char **argv, char **env)
   if(argv)
   {
     while(argv[argc++]);
-    argc--;
 
-    temp_argv = calloc(argc+1, sizeof(char *));
+    temp_argv = calloc(argc, sizeof(char *));
 
     unsigned int i = 0;
     while(argv[i])
     {
-      debug("saving %s",argv[i]);
       temp_argv[i] = strdup(argv[i]);
       i++;
     }
-    argv[i+1] = 0;
+    argv[argc] = 0;
   }
 
   // Clear all process memory areas
@@ -83,10 +97,23 @@ int execve(char *name, char **argv, char **env)
   // Add an area for the process stack
   new_area(current->proc, USER_STACK_TOP, USER_STACK_TOP, MM_FLAG_WRITE | MM_FLAG_GROWSDOWN | MM_FLAG_ADDONUSE, MM_TYPE_STACK);
   current->kernel_thread = (registers_t *)current;
-  uint32_t *pos = (uint32_t *)USER_STACK_TOP;
+  uint32_t *pos = (uint32_t *)USER_STACK_TOP; // uint32_t since the stack should be word alligned
 
   // Restore environment
-  // TODO
+  if (env)
+  {
+    pos = pos - envc*sizeof(char *)/sizeof(uint32_t) - 1;
+    env = (char **)pos;
+    int i = 0;
+    while(temp_env[i])
+    {
+      pos = pos - strlen(temp_env[i])/sizeof(uint32_t) - 2;
+      memcpy(pos, temp_env[i], strlen(temp_env[i]));
+      env[i] = (char *)pos;
+      i++;
+    }
+    env[envc] = 0;
+  }
 
   // Restore arguments
   if(argv)
@@ -96,16 +123,21 @@ int execve(char *name, char **argv, char **env)
     int i = 0;
     while(temp_argv[i])
     {
-      pos = pos - strlen(temp_argv[i])/sizeof(uint32_t) - 1;
-      memcpy(pos, temp_argv[i], strlen(temp_argv[i]) + 1);
-      argv[i] = pos;
+      pos = pos - strlen(temp_argv[i])/sizeof(uint32_t) - 2;
+      memcpy(pos, temp_argv[i], strlen(temp_argv[i]));
+      argv[i] = (char *)pos;
       i++;
     }
-
+    argv[argc] = 0;
   }
+
+  pos = pos - 3;
+  pos[0] = (uint32_t)argc-1;
+  pos[1] = (uint32_t)argv;
+  pos[2] = (uint32_t)env;
+
   current->r.useresp = current->r.ebp = (uint32_t)pos;
-  current->r.ecx = argv;
-  current->r.edx = argc;
+  current->r.ecx = (uint32_t)pos;
 
   errno = 0;
   return 0;

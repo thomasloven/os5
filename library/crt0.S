@@ -4,6 +4,5 @@
 
 _start:
   push ecx
-  push edx
   call _init
   jmp $
