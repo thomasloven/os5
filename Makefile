@@ -36,7 +36,7 @@ export BUILDROOT BUILDDIR LIBDIR LIBPATH1 LIBPATH
 export AS CPP CC LD DEP AR
 export ASFLAGS CPPFLAGS CFLAGS LDFLAGS LDLIBS DEPFLAGS ARFLAGS
 
-.SILENT:
+# .SILENT:
 
 .PHONY: kernel kernel-clean library library-clean tarfs tarfs-clean clean-all emul
 .DEFAULT: all emul

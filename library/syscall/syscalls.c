@@ -29,8 +29,8 @@ int close(int file)
   return ret;
 }
 
-char *__env[1] = { 0 };
-char **environ = __env;
+/* char *__env[1] = { 0 }; */
+/* char **environ = __env; */
 
 int execve(char *name, char **argv, char **env)
 {

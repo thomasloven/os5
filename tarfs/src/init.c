@@ -10,8 +10,10 @@
 
 int main()
 {
+  setenv("HOME","/",1);
 
   printf("This is the init process.\n");
+  printf("Environment HOME: %s\n", getenv("HOME"));
 
   uint16_t pid = fork();
   if(pid)
@@ -40,10 +42,14 @@ int main()
       /* fputs(line, stdout); */
       int i;
       int len = (int)strlen(line);
+      int argc = 1;
       for(i = 0; i < len; i++)
       {
         if(line[i] == ' ')
+        {
           line[i] = '\0';
+          argc++;
+        }
         if(line[i] == '\n')
           line[i] = '\0';
       }
@@ -67,7 +73,15 @@ int main()
         {
           _syscall_waitpid(pid);
         } else {
-          execve(fname, 0, 0);
+          char **argv = calloc(argc+1, sizeof(char *));
+          char *pos = line;
+          for(i = 0; i < argc; i++)
+          {
+            argv[i] = pos;
+            pos = pos + strlen(pos) + 1;
+          }
+          argv[argc+1] = 0;
+          execve(fname, argv, environ);
           return 1;
         }
       }

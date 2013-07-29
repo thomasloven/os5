@@ -11,7 +11,7 @@ CPPFLAGS += -fno-stack-protector -ffreestanding -Wno-unused-function
 CPPFLAGS += -Wno-unused-parameter -g -Wno-gnu
 CPPFLAGS += -I$(BUILDDIR)/lib/i386-elf/include
 CPPFLAGS += -I$(LIBDIR)/include
-CPPFLAGS += -nostdlib
+CPPFLAGS += -nostdlib -U__STRICT_ANSI__ -Wno-attributes
 
 CFLAGS := -target i386-pc-linux -mno-sse -mno-mmx
 CFLAGS += -ggdb

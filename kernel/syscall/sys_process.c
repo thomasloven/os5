@@ -9,6 +9,8 @@
 
 #include <errno.h>
 #include <strings.h>
+#include <string.h>
+#include <malloc.h>
 
 #undef errno
 extern int errno;
@@ -46,12 +48,97 @@ int execve(char *name, char **argv, char **env)
     errno = ENOENT;
     return -1;
   }
+
+  // Save environment in kernel space
+  unsigned int envc = 0;
+  char **temp_env;
+  if(env)
+  {
+    while(env[envc++]);
+
+    temp_env = calloc(envc, sizeof(char *));
+
+    unsigned int i = 0;
+    while(env[i])
+    {
+      temp_env[i] = strdup(env[i]);
+      i++;
+    }
+    temp_env[envc] = 0;
+  }
+
+  // Save arguments in kernel space
+  unsigned int argc = 0;
+  char **temp_argv;
+  if(argv)
+  {
+    while(argv[argc++]);
+
+    temp_argv = calloc(argc, sizeof(char *));
+
+    unsigned int i = 0;
+    while(argv[i])
+    {
+      temp_argv[i] = strdup(argv[i]);
+      i++;
+    }
+    argv[argc] = 0;
+  }
+
+  // Clear all process memory areas
   procmm_removeall(current->proc);
+
+  // Load executable
   load_elf(executable);
-    current->r.eax = current->r.ebx = current->r.ecx = current->r.edx = 0;
-    new_area(current->proc, USER_STACK_TOP, USER_STACK_TOP, MM_FLAG_WRITE | MM_FLAG_GROWSDOWN | MM_FLAG_ADDONUSE, MM_TYPE_STACK);
-    current->r.useresp = current->r.ebp = USER_STACK_TOP;
-    current->kernel_thread = (registers_t *)current;
+
+  // Reset thread registers and state
+  current->r.eax = current->r.ebx = current->r.ecx = current->r.edx = 0;
+
+  // Add an area for the process stack
+  new_area(current->proc, USER_STACK_TOP, USER_STACK_TOP, MM_FLAG_WRITE | MM_FLAG_GROWSDOWN | MM_FLAG_ADDONUSE, MM_TYPE_STACK);
+  current->kernel_thread = (registers_t *)current;
+  uint32_t *pos = (uint32_t *)USER_STACK_TOP; // uint32_t since the stack should be word alligned
+
+  // Restore environment
+  if (env)
+  {
+    pos = pos - envc*sizeof(char *)/sizeof(uint32_t) - 1;
+    env = (char **)pos;
+    int i = 0;
+    while(temp_env[i])
+    {
+      pos = pos - strlen(temp_env[i])/sizeof(uint32_t) - 2;
+      memcpy(pos, temp_env[i], strlen(temp_env[i]));
+      env[i] = (char *)pos;
+      i++;
+    }
+    env[envc] = 0;
+  }
+
+  // Restore arguments
+  if(argv)
+  {
+    pos = pos - argc*sizeof(char *)/sizeof(uint32_t) - 1;
+    argv = (char **)pos;
+    int i = 0;
+    while(temp_argv[i])
+    {
+      pos = pos - strlen(temp_argv[i])/sizeof(uint32_t) - 2;
+      memcpy(pos, temp_argv[i], strlen(temp_argv[i]));
+      argv[i] = (char *)pos;
+      i++;
+    }
+    argv[argc] = 0;
+  }
+
+  pos = pos - 3;
+  pos[0] = (uint32_t)argc-1;
+  pos[1] = (uint32_t)argv;
+  pos[2] = (uint32_t)env;
+
+  current->r.useresp = current->r.ebp = (uint32_t)pos;
+  current->r.ecx = (uint32_t)pos;
+
   errno = 0;
   return 0;
 }

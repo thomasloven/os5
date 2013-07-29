@@ -65,6 +65,36 @@ void kdbg_putch(uint8_t c, uint8_t style)
   vidmem[scrn_y*SCRN_W+scrn_x] = c | (style << 0x8);
 }
 
+void kdbg_puts(char *str)
+{
+  while(*str)
+  {
+    if(*str == '\n')
+    {
+      scrn_x = 0;
+      scrn_y++;
+    } else if(isprint((unsigned char)*str))
+    {
+
+      kdbg_putch(*str, text_style);
+      scrn_x++;
+    }
+    else
+    {
+      // Ignore non-printable characters
+      ;
+    }
+    if(scrn_x >= SCRN_W)
+    {
+      scrn_x = 0;
+      scrn_y++;
+    }
+    kdbg_scroll();
+    kdbg_setcursor();
+    str++;
+  }
+}
+
 void kdbg_printf(char *str, ...)
 {
   va_list args;
