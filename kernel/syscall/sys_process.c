@@ -108,11 +108,11 @@ int execve(char *name, char **argv, char **env)
     while(temp_env[i])
     {
       pos = pos - strlen(temp_env[i])/sizeof(uint32_t) - 2;
-      memcpy(pos, temp_env[i], strlen(temp_env[i]));
+      memcpy(pos, temp_env[i], strlen(temp_env[i])+1);
       env[i] = (char *)pos;
       i++;
     }
-    env[envc] = 0;
+    env[envc-1] = 0;
   }
 
   // Restore arguments
