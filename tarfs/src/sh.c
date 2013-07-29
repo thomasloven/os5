@@ -4,10 +4,59 @@
 #include <string.h>
 #include <unistd.h>
 #include <syscall.h>
+#include <ctype.h>
 
 #define BUF_SIZE 1024
 
 extern char **environ;
+
+char *parse_command(char *buffer)
+{
+  char buffer2[BUF_SIZE];
+  char *p = buffer;
+  char *p2 = buffer2;
+
+  int i = 0;
+  char env[64];
+  while(*p)
+  {
+    if(p2 > &buffer2[BUF_SIZE])
+      return 0;
+    switch(*p)
+    {
+      case '$':
+        p++;
+        i = 0;
+        while((*p != '\0') && isalnum(*p) && (i < 64))
+        {
+          env[i++] = *p++;
+        }
+        env[i] = '\0';
+
+        char *var = getenv(env);
+        if(var)
+        {
+          for(i = 0; i < strlen(var); i++)
+          {
+            *p2 = var[i];
+            p2++;
+          }
+          p2--;
+        }
+        break;
+      case '\n':
+        *p2 = '\0';
+        break;
+      default:
+        *p2 = *p;
+    }
+
+    p++;
+    p2++;
+  }
+  *p2 = '\0';
+  return buffer2;
+}
 
 char **tokenize_command(char *line)
 {
@@ -103,11 +152,12 @@ int main(int argc, char **argv)
     if(len > 1)
     {
       line[len-1] = '\0';
-      char **tokens = tokenize_command(line);
+      char *line2 = parse_command(line);
+      char **tokens = tokenize_command(line2);
 
-      if(strchr(line, '='))
+      if(strchr(line2, '='))
       {
-        putenv(line);
+        putenv(line2);
         continue;
       }
 
