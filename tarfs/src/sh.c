@@ -2,13 +2,16 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include <unistd.h>
+#include <syscall.h>
 
 #define BUF_SIZE 1024
 
 extern char **environ;
 
-char **tokenize_command(char *command)
+char **tokenize_command(char *line)
 {
+  char *command = strdup(line);
   int numtokens = 1;
   int i = 0;
   while(command[i])
@@ -48,7 +51,7 @@ void print_prompt()
   }
 }
 
-int execvp(char *file, char **argv)
+int execvp(const char *file, char *const argv[])
 {
   int i = 0;
   int addpath = 1;
@@ -81,8 +84,7 @@ int execvp(char *file, char **argv)
     }
   }
 
-  printf("Command not found: %s\n", file);
-  return 0;
+  return -1;
 
 }
 
@@ -103,13 +105,21 @@ int main(int argc, char **argv)
       line[len-1] = '\0';
       char **tokens = tokenize_command(line);
 
+      if(strchr(line, '='))
+      {
+        putenv(line);
+        continue;
+      }
+
       int pid = fork();
       if(pid)
       {
         _syscall_waitpid(pid);
 
       } else {
-        execvp(tokens[0], tokens);
+        if(execvp(tokens[0], tokens))
+          printf("%s: command not found: %s\n", argv[0], tokens[0]);
+        free(tokens);
         return -1;
       }
     }

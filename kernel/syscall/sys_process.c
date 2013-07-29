@@ -124,11 +124,11 @@ int execve(char *name, char **argv, char **env)
     while(temp_argv[i])
     {
       pos = pos - strlen(temp_argv[i])/sizeof(uint32_t) - 2;
-      memcpy(pos, temp_argv[i], strlen(temp_argv[i]));
+      memcpy(pos, temp_argv[i], strlen(temp_argv[i])+1);
       argv[i] = (char *)pos;
       i++;
     }
-    argv[argc] = 0;
+    argv[argc-1] = 0;
   }
 
   pos = pos - 3;
