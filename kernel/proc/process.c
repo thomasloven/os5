@@ -24,6 +24,7 @@ process_t *alloc_process()
   init_list(p->threads);
   init_list(p->proc_list);
   init_list(p->waiting);
+  init_list(p->signal_queue);
 
   append_to_list(process_list, p->proc_list);
 
@@ -105,7 +106,7 @@ void exit_process(process_t *proc, uint32_t exit_code)
     thread_t *th = list_entry(i, thread_t, process_threads);
     i = i->next;
     if(th != current)
-    free_thread(th);
+      free_thread(th);
   }
 
   proc->state = PROC_STATE_FINISHED;
@@ -154,9 +155,9 @@ process_t *fork_process()
   // Clone page directory
   child->pd = vmm_clone_pd();
   // Clone file descriptors
-  memcpy(child->fd, parent->fd, sizeof(file_desc_t)*256);
+  memcpy(child->fd, parent->fd, sizeof(file_desc_t)*NUM_FILEDES);
   int i;
-  for(i  = 0; i < 256; i++)
+  for(i  = 0; i < NUM_FILEDES; i++)
   {
     if(child->fd[i].node)
     {
@@ -166,6 +167,8 @@ process_t *fork_process()
       vfs_open(cnode, child->fd[i].flags);
     }
   }
+  // Copy signal handler table
+  memcpy(child->signal_handler, parent->signal_handler, sizeof(uintptr_t)*NUM_SIGNALS);
 
   // Fix the family
   child->parent = parent;

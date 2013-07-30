@@ -71,3 +71,6 @@ DEF_SYSCALL(waitpid, SYSCALL_WAITPID)
 [global _syscall_yield]
 DEF_SYSCALL(yield, SYSCALL_YIELD)
 
+[global _syscall_signal]
+DEF_SYSCALL(signal, SYSCALL_SIGNAL)
+

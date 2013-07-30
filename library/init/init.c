@@ -10,7 +10,7 @@ char *__env[1] = { 0 };
 
 void _init(uint32_t *args)
 {
-  _init_signal();
+  /* _init_signal(); */
 
   int argc;
   char **argv;

@@ -27,6 +27,8 @@
 #define SYSCALL_WAITPID 0x14
 #define SYSCALL_YIELD 0x15
 
+#define SYSCALL_SIGNAL 0x16
+
 
 #define SYSCALL_OK 0x00
 #define ERROR_NOSYSCALL 0x01
@@ -79,6 +81,8 @@ int waitpid(int pid);
 KDECL_SYSCALL(waitpid);
 void yield();
 KDECL_SYSCALL(yield);
+void *signal(int sig, void *handler);
+KDECL_SYSCALL(signal);
 
 // sys_mem.c
 void *sbrk(int incr);

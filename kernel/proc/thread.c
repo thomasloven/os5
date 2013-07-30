@@ -9,6 +9,8 @@
 #include <scheduler.h>
 #include <process.h>
 #include <arch.h>
+#include <vmm.h>
+
 
 #include <stdlib.h>
 #include <malloc.h>
@@ -38,13 +40,13 @@ thread_t *alloc_thread()
 
   init_list(th_info->tcb.tasks);
   init_list(th_info->tcb.process_threads);
+  init_list(th_info->tcb.waiting);
 
   return &th_info->tcb;
 }
 
 void free_thread(thread_t *th)
 {
-
   scheduler_remove(th);
 
   remove_from_list(th->tasks);
@@ -97,6 +99,55 @@ thread_t *clone_thread(thread_t *th)
   return new;
 }
 
+void clean_threads(process_t *p)
+{
+  list_t *i = (&p->threads)->next;
+  while (i != &p->threads)
+  {
+    thread_t *th = list_entry(i, thread_t, process_threads);
+    i = i->next;
+    if(th->state == THREAD_STATE_FINISHED && th !=current)
+    {
+      free_thread(th);
+    }
+  }
+}
+
+void return_from_signal(registers_t *r)
+{
+  thread_t *th = current;
+  scheduler_wake(&th->waiting);
+  th->state = THREAD_STATE_FINISHED;
+  schedule();
+}
+
+thread_t *handle_signals(thread_t *th)
+{
+  if(!list_empty(th->proc->signal_queue))
+  {
+    // There are signals that need handling.
+    signal_t *signal = list_entry(th->proc->signal_queue.next, signal_t, queue);
+    void *handler = th->proc->signal_handler[signal->sig];
+    thread_t *h = new_thread((void (*)(void))handler, 1);
+
+    append_to_list(th->proc->threads, h->process_threads);
+    h->proc = th->proc;
+    uint32_t *stack = (uint32_t *)th->r.useresp;
+    *--stack = signal->sig; // Signal handler argument
+    *--stack = SIGNAL_RETURN_ADDRESS; // Signal handler return address
+    h->r.useresp = h->r.ebp = (uint32_t)stack;
+    remove_from_list(signal->queue);
+
+    scheduler_sleep(th, &h->waiting);
+
+    scheduler_insert(h);
+    schedule();
+
+
+  }
+  return th;
+}
+
 registers_t *switch_kernel_thread(registers_t *r)
 {
   if(r && r != &boot_thread->tcb.r)
@@ -113,6 +164,10 @@ registers_t *switch_kernel_thread(registers_t *r)
     scheduler_remove(next);
 
   switch_process(next->proc);
+
+  clean_threads(next->proc);
+
+  next = handle_signals(next);
 
   kernel_booted = TRUE;
 
