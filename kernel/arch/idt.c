@@ -196,8 +196,10 @@ registers_t *idt_handler(registers_t *r)
 
     // If we return to a user mode thread, the TCB needs to be set up
     // appropriately and interrupts should be enabled.
+    // Also handle signals here.
     if ((ret->cs & 0x3) == 0x3)
     {
+      ret = (registers_t *)handle_signals((thread_t *)ret);
       set_kernel_stack(stack_from_tcb(((thread_t *)ret)));
       ret->eflags |= EFL_INT;
     }

@@ -8,6 +8,9 @@
 
 #ifndef __ASSEMBLER__
 
+#define NUM_FILEDES 256
+#define NUM_SIGNALS 256
+
 struct thread_struct;
 
 
@@ -51,8 +54,18 @@ typedef struct process_struct
 
   process_mem_t mm;
 
-  file_desc_t fd[256];
+  file_desc_t fd[NUM_FILEDES];
+
+  void *signal_handler[NUM_SIGNALS];
+  list_head_t signal_queue;
 } process_t;
+
+typedef struct
+{
+  uint32_t sig;
+  uint32_t sender;
+  list_head_t queue;
+} signal_t;
 
 #define PROC_STATE_RUNNING 0x1
 #define PROC_STATE_WAITING 0x2

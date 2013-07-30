@@ -97,6 +97,17 @@ thread_t *clone_thread(thread_t *th)
   return new;
 }
 
+thread_t *handle_signals(thread_t *th)
+{
+  if(!list_empty(th->proc->signal_queue))
+  {
+    // There are signals that need handling.
+    signal_t *signal = list_entry(th->proc->signal_queue.next, signal_t, queue);
+    debug("Need to handle signal %d", signal->sig);
+  }
+  return th;
+}
+
 registers_t *switch_kernel_thread(registers_t *r)
 {
   if(r && r != &boot_thread->tcb.r)
@@ -113,6 +124,8 @@ registers_t *switch_kernel_thread(registers_t *r)
     scheduler_remove(next);
 
   switch_process(next->proc);
+
+  next = handle_signals(next);
 
   kernel_booted = TRUE;
 
