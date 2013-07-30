@@ -54,6 +54,11 @@ registers_t *page_fault_handler(registers_t *r)
 
   } else {
 
+    if(fault_address == 0xFFFFAA55)
+    {
+      return_from_signal(r);
+    }
+
     // Processor was in user mode
     // This should just kill the process, or at least send it a signal,
     // once those are implemented.

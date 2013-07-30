@@ -24,6 +24,8 @@
 #define SYSCALL_WAITPID 0x14
 #define SYSCALL_YIELD 0x15
 
+#define SYSCALL_SIGNAL 0x16
+
 #define SYSCALL_OK 0x00
 #define ERROR_NOSYSCALL 0x01
 
@@ -31,6 +33,7 @@
 #include <stdint.h>
 #include <sys/stat.h>
 #include <sys/times.h>
+#include <signal.h>
 
 int syscall_errno;
 
@@ -68,6 +71,8 @@ DECL_SYSCALL3(write, int, char *, int);
 DECL_SYSCALL1E(printf, char *);
 DECL_SYSCALL1(waitpid, int);
 DECL_SYSCALL0(yield);
+
+DECL_SYSCALL2(signal, int, sighandler_t);
 
 
 #else

@@ -37,6 +37,8 @@ void syscall_init()
   KREG_SYSCALL(waitpid, SYSCALL_WAITPID);
   KREG_SYSCALL(yield, SYSCALL_YIELD);
 
+  KREG_SYSCALL(signal, SYSCALL_SIGNAL);
+
 }
 
 registers_t *syscall_handler(registers_t *r)

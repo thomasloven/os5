@@ -52,6 +52,7 @@ mem_area_t *new_area(process_t *p, uintptr_t start,
     if((a = find_including(p, i)))
     {
       debug("\n AREA COLLISION! %x %x %x", a->start, a->end, start);
+      for(;;);
       return 0;
     }
     i += PAGE_SIZE;

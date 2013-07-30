@@ -2,6 +2,7 @@
 #include <sys/stat.h>
 #include <sys/times.h>
 #include <errno.h>
+#include <signal.h>
 
 #undef errno
 extern int errno;
@@ -208,6 +209,13 @@ int write(int file, char *ptr, int len)
   _syscall_printf("\n Syscall write()");
 #endif
   int ret = _syscall_write(file, ptr, len);
+  errno = syscall_errno;
+  return ret;
+}
+
+sighandler_t my_signal(int signum, sighandler_t handler)
+{
+  sighandler_t ret = _syscall_signal(signum, handler);
   errno = syscall_errno;
   return ret;
 }

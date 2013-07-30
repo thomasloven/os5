@@ -38,6 +38,7 @@ thread_t *alloc_thread()
 
   init_list(th_info->tcb.tasks);
   init_list(th_info->tcb.process_threads);
+  init_list(th_info->tcb.waiting);
 
   return &th_info->tcb;
 }
@@ -97,13 +98,36 @@ thread_t *clone_thread(thread_t *th)
   return new;
 }
 
+void return_from_signal(registers_t *r)
+{
+  thread_t *th = current;
+  scheduler_wake(&th->waiting);
+  th->state = THREAD_STATE_FINISHED;
+  schedule();
+}
+
 thread_t *handle_signals(thread_t *th)
 {
   if(!list_empty(th->proc->signal_queue))
   {
     // There are signals that need handling.
     signal_t *signal = list_entry(th->proc->signal_queue.next, signal_t, queue);
-    debug("Need to handle signal %d", signal->sig);
+    void *handler = th->proc->signal_handler[signal->sig];
+    thread_t *h = new_thread(handler, 1);
+
+    h->proc = th->proc;
+    uint32_t *stack = th->r.useresp;
+    *--stack = signal->sig; // Signal handler argument
+    *--stack = 0xFFFFAA55; // Signal handler return address
+    h->r.useresp = h->r.ebp = stack;
+    remove_from_list(signal->queue);
+
+    scheduler_sleep(th, &h->waiting);
+
+    scheduler_insert(h);
+    schedule();
+
+
   }
   return th;
 }

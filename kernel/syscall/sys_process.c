@@ -184,7 +184,7 @@ KDEF_SYSCALL(getpid, r)
 
 int kill(int pid, int sig)
 {
-  debug("KILL(%d, %d)", pid, sig);
+  /* debug("KILL(%d, %d)", pid, sig); */
   process_t *r = get_process(pid);
   process_t *s = current->proc;
 
@@ -255,9 +255,17 @@ KDEF_SYSCALL(yield, r)
 
 void *signal(int sig, void *handler)
 {
+  /* debug("SIGNAL(%d %x)", sig, handler); */
   process_t *p = current->proc;
   void *old = p->signal_handler[sig];
   p->signal_handler[sig] = handler;
   return old;
+}
+KDEF_SYSCALL(signal, r)
+{
+  process_stack stack = init_pstack();
+  r->eax = signal(stack[0], stack[1]);
+  r->ebx = errno;
+  return r;
 }
 
