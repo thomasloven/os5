@@ -66,8 +66,6 @@ registers_t *kinit(mboot_info_t *mboot, uint32_t mboot_magic)
   fopen("/dev/debug", "w");
   fopen("/dev/debug", "w");
 
-  printf("\nPrintf from kernel!\n");
-
   execve("/bin/init",0,0);
 
   thread_t *init = new_thread((void(*)(void))current->proc->mm.code_entry,1);

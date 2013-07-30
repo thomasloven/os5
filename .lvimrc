@@ -12,3 +12,4 @@ let g:syntastic_c_check_header = 1
 
 let g:ctrlp_custom_ignore = 'newlib'
 call unite#custom#source('file_rec/async', 'ignore_pattern', 'newlib\|build')
+call unite#custom#source('file_rec', 'ignore_pattern', 'newlib\|build')
