@@ -106,7 +106,7 @@ void exit_process(process_t *proc, uint32_t exit_code)
     thread_t *th = list_entry(i, thread_t, process_threads);
     i = i->next;
     if(th != current)
-    free_thread(th);
+      free_thread(th);
   }
 
   proc->state = PROC_STATE_FINISHED;

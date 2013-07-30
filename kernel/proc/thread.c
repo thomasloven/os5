@@ -45,7 +45,6 @@ thread_t *alloc_thread()
 
 void free_thread(thread_t *th)
 {
-
   scheduler_remove(th);
 
   remove_from_list(th->tasks);
@@ -98,6 +97,20 @@ thread_t *clone_thread(thread_t *th)
   return new;
 }
 
+void clean_threads(process_t *p)
+{
+  list_t *i = (&p->threads)->next;
+  while (i != &p->threads)
+  {
+    thread_t *th = list_entry(i, thread_t, process_threads);
+    i = i->next;
+    if(th->state == THREAD_STATE_FINISHED && th !=current)
+    {
+      free_thread(th);
+    }
+  }
+}
+
 void return_from_signal(registers_t *r)
 {
   thread_t *th = current;
@@ -115,6 +128,7 @@ thread_t *handle_signals(thread_t *th)
     void *handler = th->proc->signal_handler[signal->sig];
     thread_t *h = new_thread(handler, 1);
 
+    append_to_list(th->proc->threads, h->process_threads);
     h->proc = th->proc;
     uint32_t *stack = th->r.useresp;
     *--stack = signal->sig; // Signal handler argument
@@ -148,6 +162,8 @@ registers_t *switch_kernel_thread(registers_t *r)
     scheduler_remove(next);
 
   switch_process(next->proc);
+
+  clean_threads(next->proc);
 
   next = handle_signals(next);
 
