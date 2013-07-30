@@ -215,7 +215,7 @@ int write(int file, char *ptr, int len)
 
 sighandler_t my_signal(int signum, sighandler_t handler)
 {
-  sighandler_t ret = _syscall_signal(signum, handler);
+  sighandler_t ret = (sighandler_t)_syscall_signal(signum, handler);
   errno = syscall_errno;
   return ret;
 }

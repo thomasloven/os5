@@ -54,7 +54,7 @@ registers_t *page_fault_handler(registers_t *r)
 
   } else {
 
-    if(fault_address == 0xFFFFAA55)
+    if(fault_address == SIGNAL_RETURN_ADDRESS)
     {
       return_from_signal(r);
     }

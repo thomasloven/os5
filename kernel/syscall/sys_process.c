@@ -264,7 +264,7 @@ void *signal(int sig, void *handler)
 KDEF_SYSCALL(signal, r)
 {
   process_stack stack = init_pstack();
-  r->eax = signal(stack[0], stack[1]);
+  r->eax = (uint32_t)signal(stack[0], (void *)stack[1]);
   r->ebx = errno;
   return r;
 }

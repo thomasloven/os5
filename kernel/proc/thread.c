@@ -9,6 +9,8 @@
 #include <scheduler.h>
 #include <process.h>
 #include <arch.h>
+#include <vmm.h>
+
 
 #include <stdlib.h>
 #include <malloc.h>
@@ -126,14 +128,14 @@ thread_t *handle_signals(thread_t *th)
     // There are signals that need handling.
     signal_t *signal = list_entry(th->proc->signal_queue.next, signal_t, queue);
     void *handler = th->proc->signal_handler[signal->sig];
-    thread_t *h = new_thread(handler, 1);
+    thread_t *h = new_thread((void (*)(void))handler, 1);
 
     append_to_list(th->proc->threads, h->process_threads);
     h->proc = th->proc;
-    uint32_t *stack = th->r.useresp;
+    uint32_t *stack = (uint32_t *)th->r.useresp;
     *--stack = signal->sig; // Signal handler argument
-    *--stack = 0xFFFFAA55; // Signal handler return address
-    h->r.useresp = h->r.ebp = stack;
+    *--stack = SIGNAL_RETURN_ADDRESS; // Signal handler return address
+    h->r.useresp = h->r.ebp = (uint32_t)stack;
     remove_from_list(signal->queue);
 
     scheduler_sleep(th, &h->waiting);

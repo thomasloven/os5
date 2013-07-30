@@ -10,9 +10,9 @@
 
 extern char **environ;
 
+  char buffer2[BUF_SIZE];
 char *parse_command(char *buffer)
 {
-  char buffer2[BUF_SIZE];
   char *p = buffer;
   char *p2 = buffer2;
 
@@ -27,7 +27,7 @@ char *parse_command(char *buffer)
       case '$':
         p++;
         i = 0;
-        while((*p != '\0') && isalnum(*p) && (i < 64))
+        while((*p != '\0') && isalnum((int)*p) && (i < 64))
         {
           env[i++] = *p++;
         }
@@ -36,7 +36,7 @@ char *parse_command(char *buffer)
         char *var = getenv(env);
         if(var)
         {
-          for(i = 0; i < strlen(var); i++)
+          for(i = 0; i < (int)strlen(var); i++)
           {
             *p2 = var[i];
             p2++;
