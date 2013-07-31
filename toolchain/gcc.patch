@@ -1,0 +1,74 @@
+diff --git a/config.sub b/config.sub
+index 707e9e2..2caadab 100755
+--- a/config.sub
++++ b/config.sub
+@@ -1359,7 +1359,7 @@ case $os in
+ 	      | -sym* | -kopensolaris* | -plan9* \
+ 	      | -amigaos* | -amigados* | -msdos* | -newsos* | -unicos* | -aof* \
+ 	      | -aos* | -aros* \
+-	      | -nindy* | -vxsim* | -vxworks* | -ebmon* | -hms* | -mvs* \
++	      | -myos* | -nindy* | -vxsim* | -vxworks* | -ebmon* | -hms* | -mvs* \
+ 	      | -clix* | -riscos* | -uniplus* | -iris* | -rtu* | -xenix* \
+ 	      | -hiux* | -386bsd* | -knetbsd* | -mirbsd* | -netbsd* \
+ 	      | -bitrig* | -openbsd* | -solidbsd* \
+diff --git a/gcc/config.gcc b/gcc/config.gcc
+index efb74f7..7b13d16 100644
+--- a/gcc/config.gcc
++++ b/gcc/config.gcc
+@@ -576,6 +576,12 @@ tm_defines="$tm_defines LIBC_GLIBC=1 LIBC_UCLIBC=2 LIBC_BIONIC=3"
+ 
+ # Common parts for widely ported systems.
+ case ${target} in
++*-*-myos*)
++  extra_parts="crtbegin.o crtend.o"
++  gas=yes
++  gnu_ld=yes
++  default_use_cxa_atexit=yes
++  ;;
+ *-*-darwin*)
+   tmake_file="t-darwin ${cpu_type}/t-darwin"
+   tm_file="${tm_file} darwin.h"
+@@ -839,6 +845,11 @@ case ${target} in
+ esac
+ 
+ case ${target} in
++i[3-7]86-*-myos*)
++	tm_file="${tm_file} i386/unix.h i386/att.h dbxelf.h elfos.h i386/i386elf.h myos.h"
++	tmake_file="i386/t-i386elf t-svr4"
++	use_fixproto=yes
++	;;
+ aarch64*-*-elf)
+ 	tm_file="${tm_file} dbxelf.h elfos.h newlib-stdint.h"
+ 	tm_file="${tm_file} aarch64/aarch64-elf.h aarch64/aarch64-elf-raw.h"
+diff --git a/gcc/config/myos.h b/gcc/config/myos.h
+new file mode 100644
+index 0000000..36bb00f
+--- /dev/null
++++ b/gcc/config/myos.h
+@@ -0,0 +1,11 @@
++#undef TARGET_OS_CPP_BUILTINS
++#define TARGET_OS_CPP_BUILTINS()  \
++  do {  \
++    builtin_define_std ("myos");  \
++    builtin_define_std ("unix");  \
++    builtin_assert ("system=myos");  \
++    builtin_assert ("system=unix");  \
++  } while(0);
++
++//#undef TARGET_VERSION
++//#define TARGET_VERSION fprintf(stderr, " (i386 myos)");
+diff --git a/libgcc/config.host b/libgcc/config.host
+index 9c47e1b..7e7dcfc 100644
+--- a/libgcc/config.host
++++ b/libgcc/config.host
+@@ -1148,6 +1148,10 @@ mep*-*-*)
+ 	tmake_file="mep/t-mep t-fdpbit"
+ 	extra_parts="crtbegin.o crtend.o"
+ 	;;
++i[3-7]86-*-myos*)
++	extra_parts="crtbegin.o crtend.o"
++	tmake_file="$tmake_file i386/t-crtstuff"
++	;;
+ *)
+ 	echo "*** Configuration ${host} not supported" 1>&2
+ 	exit 1

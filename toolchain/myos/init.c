@@ -1,8 +1,7 @@
 #include <stdint.h>
-#include <syscall.h>
+#include "syscalls.h"
 #include <stdlib.h>
 int main();
-void _init_signal();
 
 extern char **environ;
 

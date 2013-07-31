@@ -81,13 +81,13 @@ DECL_SYSCALL2(signal, int, sighandler_t);
   _syscall_##name: \
   defsyscall num
 
-%macro defsyscall 1
-  mov [syscall_temp], ebx
-  mov eax, %1
-  int 0x80
-  mov [syscall_errno], ebx
-  mov ebx, [syscall_temp]
+.macro defsyscall num
+  mov %ebx,(syscall_temp)
+  mov \num, %eax
+  int $0x80
+  mov %ebx, (syscall_errno)
+  mov (syscall_temp), %ebx
   ret
-%endmacro
+.endm
 
 #endif
