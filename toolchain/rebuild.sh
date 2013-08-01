@@ -20,7 +20,7 @@ function rebuild_binutils {
   mkdir -p build-binutils
   pushd build-binutils
     ../binutils/configure --target=$TARGET --prefix=$PREFIX
-    make
+    make -j 100
     make install
   popd
 }
@@ -39,9 +39,9 @@ function rebuild_gcc {
   mkdir -p build-gcc
   pushd build-gcc
     ../gcc/configure --target=$TARGET --prefix=$PREFIX --disable-nls --enable-languages=c,c++
-    make all-gcc
+    make all-gcc -j 100
     make install-gcc
-    make all-target-libgcc
+    make all-target-libgcc -j 100
     make install-target-libgcc
   popd
 }
@@ -58,7 +58,7 @@ function prepare_newlib {
     mkdir -p build-automake
     pushd build-automake
       ../automake-1.12/configure --prefix=/usr/local/Cellar/automake/1.12
-      make all
+      make all -j 100
       make install
     popd
   fi
@@ -68,7 +68,7 @@ function prepare_newlib {
     mkdir -p build-autoconf
     pushd build-autoconf
       ../autoconf-2.64/configure --prefix=/usr/local/Cellar/autoconf/2.64
-      make all
+      make all -j 100
       make install
     popd
   fi
@@ -102,7 +102,7 @@ function rebuild_newlib_kernel {
   mkdir -p build-newlib
   pushd build-newlib
     ../newlib/configure --target=$TARGET --prefix=$PREFIX
-    make
+    make -j 100
     make install
   popd
 
@@ -118,12 +118,11 @@ function rebuild_newlib {
   pushd build-newlib
     rm -rf *
     ../newlib/configure --target=$TARGET --prefix=$PREFIX
-    make
+    make -j 100
     make install
   popd
 }
 
-set -e
 
 export TARGET=i586-pc-myos
 export PREFIX=/usr/local/Cellar/osdev/1.0
@@ -133,12 +132,12 @@ export PATCHDIR=`pwd`/toolchain
 mkdir -p ~/osdev
 pushd ~/osdev
 
-# rebuild_binutils
-# brew link osdev
-# rebuild_gcc
-# brew unlink osdev
-# brew link osdev
-# prepare_newlib
-# rebuild_newlib_kernel
+rebuild_binutils
+brew link osdev
+rebuild_gcc
+brew unlink osdev
+brew link osdev
+prepare_newlib
+rebuild_newlib_kernel
 rebuild_newlib
 
