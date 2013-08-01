@@ -7,12 +7,9 @@ CC := i586-pc-myos-gcc
 LD := i586-pc-myos-gcc
 DEP := i586-pc-myos-gcc -MM
 
-ASFLAGS := -f elf
-
 
 export BUILDROOT BUILDDIR
 export AS CPP CC LD DEP AR
-export ASFLAGS
 
 # .SILENT:
 
@@ -24,7 +21,7 @@ default: all
 all: kernel tarfs
     
 kernel:
-	$(MAKE) -C kernel
+	$(MAKE) -C build/kernel -f ../../kernel/Makefile
 kernel-clean:
 	$(MAKE) clean -C kernel
 

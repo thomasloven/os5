@@ -45,13 +45,13 @@ uint32_t eflags, useresp, ss;
 
 #ifdef __ASSEMBLER__
 
-%macro SetSegments 2
-  mov e%2, %1
-  mov ds, %2
-  mov es, %2
-  mov fs, %2
-  mov gs, %2
-  mov ss, %2
-%endmacro
+.macro SetSegments val reg
+  mov \val, %e\reg
+  mov %\reg, %ds
+  mov %\reg, %es
+  mov %\reg, %fs
+  mov %\reg, %gs
+  mov %\reg, %ss
+.endm
 
 #endif

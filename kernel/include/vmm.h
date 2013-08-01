@@ -36,7 +36,7 @@
 
 #ifdef __ASSEMBLER__
 
-#define vmm_flush_tlb(page) invlpg[page]
+#define vmm_flush_tlb(page) invlpg (page)
 
 #else
 
