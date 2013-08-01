@@ -5,6 +5,7 @@
 #include <k_debug.h>
 #include <vfs.h>
 #include <stdlib.h>
+#include <string.h>
 
 void kernel_elf_init(mboot_info_t *mboot)
 {

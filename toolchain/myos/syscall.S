@@ -1,5 +1,6 @@
 #include "syscalls.h"
 
+.align 4
 .global syscall_errno
 syscall_errno:
   .int 0x00000000

@@ -6,6 +6,7 @@
 #include <vmm.h>
 #include <synch.h>
 #include <k_debug.h>
+#include <string.h>
 
 #include <stdlib.h>
 

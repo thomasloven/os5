@@ -8,6 +8,7 @@
 #include <scheduler.h>
 
 #include <stdlib.h>
+#include <string.h>
 
 uint32_t next_pid = 1;
 

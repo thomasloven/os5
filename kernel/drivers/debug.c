@@ -5,6 +5,7 @@
 #include <ctype.h>
 #include <elf.h>
 #include <idt.h>
+#include <string.h>
 
 uint16_t *vidmem = (uint16_t *)VIDMEM;
 

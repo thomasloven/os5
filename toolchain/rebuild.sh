@@ -114,7 +114,7 @@ function rebuild_newlib {
     cp -r $PATCHDIR/myos/* .
   popd
 
-  mkdir -pbuild-newlib
+  mkdir -p build-newlib
   pushd build-newlib
     rm -rf *
     ../newlib/configure --target=$TARGET --prefix=$PREFIX
@@ -139,6 +139,6 @@ pushd ~/osdev
 # brew unlink osdev
 # brew link osdev
 # prepare_newlib
-rebuild_newlib_kernel
+# rebuild_newlib_kernel
 rebuild_newlib
 

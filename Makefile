@@ -23,13 +23,13 @@ all: kernel tarfs
 kernel:
 	$(MAKE) -C build/kernel -f ../../kernel/Makefile
 kernel-clean:
-	$(MAKE) clean -C kernel
+	$(MAKE) clean -C build/kernel -f ../../kernel/Makefile
 
 tarfs:
-	$(MAKE) -C tarfs/bin
+	$(MAKE) -C tarfs/bin -f ../src/Makefile
 	tar -cf $(BUILDDIR)/tarfs.tar tarfs/*
 tarfs-clean:
-	$(MAKE) clean -C tarfs/bin
+	$(MAKE) clean -C tarfs/bin -f ../src/Makefile
 	rm $(BUILDDIR)/tarfs.tar
 
 tags:

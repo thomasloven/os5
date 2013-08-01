@@ -5,6 +5,7 @@
 #include <lists.h>
 
 #include <k_debug.h>
+#include <string.h>
 
 syscall_t syscall_handlers[NUM_SYSCALLS];
 
