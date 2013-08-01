@@ -2,7 +2,6 @@
 #include <stdint.h>
 #include <arch.h>
 #include <k_debug.h>
-#include <memory.h>
 #include <thread.h>
 
 idt_entry_t idt[NUM_INTERRUPTS];

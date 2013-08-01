@@ -5,7 +5,6 @@
 #include <multiboot.h>
 #include <idt.h>
 #include <arch.h>
-#include <memory.h>
 #include <debug.h>
 #include <thread.h>
 #include <scheduler.h>

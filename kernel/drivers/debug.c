@@ -1,6 +1,5 @@
 #include <stdint.h>
 #include <k_debug.h>
-#include <memory.h>
 #include <stdarg.h>
 #include <common.h>
 #include <ctype.h>

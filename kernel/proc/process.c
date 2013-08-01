@@ -1,6 +1,5 @@
 #include <stdint.h>
 #include <process.h>
-#include <memory.h>
 #include <thread.h>
 #include <lists.h>
 #include <vmm.h>

@@ -1,23 +1,11 @@
 AS := nasm
-CPP := clang -E
-CC := clang
-LD := i386-elf-ld
+CPP := i586-pc-myos-gcc -E
+CC := i586-pc-myos-gcc
+LD := i586-pc-myos-gcc
 
 ASFLAGS := -f elf
 
-CPPFLAGS := -B /usr/local/Cellar/binutils/2.23.2/i386-elf/bin
-CPPFLAGS += -Wall -Wextra -pedantic -m32 -O0 -std=c99 -finline-functions
-CPPFLAGS += -fno-stack-protector -ffreestanding -Wno-unused-function
-CPPFLAGS += -Wno-unused-parameter -g -Wno-gnu
-CPPFLAGS += -I$(BUILDDIR)/lib/i386-elf/include
-CPPFLAGS += -I$(LIBDIR)/include
-CPPFLAGS += -nostdlib -U__STRICT_ANSI__ -Wno-attributes
-
-CFLAGS := -target i386-pc-linux -mno-sse -mno-mmx
 CFLAGS += -ggdb
-
-LDFLAGS := -B/usr/local/Cellar/binutils/2.23.2/i386-elf -target i386-pc-linux
-LDLIBS := $(LIBPATH) $(LIBPATH)
 
 VPATH := ../src
 

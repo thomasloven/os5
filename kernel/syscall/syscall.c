@@ -3,7 +3,6 @@
 #include <arch.h>
 #include <idt.h>
 #include <lists.h>
-#include <memory.h>
 
 #include <k_debug.h>
 

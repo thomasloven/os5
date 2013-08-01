@@ -2,7 +2,6 @@
 #include <multiboot.h>
 #include <vmm.h>
 #include <procmm.h>
-#include <memory.h>
 #include <k_debug.h>
 #include <vfs.h>
 #include <stdlib.h>
