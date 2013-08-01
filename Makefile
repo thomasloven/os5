@@ -12,10 +12,11 @@ ASFLAGS := -f elf
 
 export BUILDROOT BUILDDIR
 export AS CPP CC LD DEP AR
+export ASFLAGS
 
 # .SILENT:
 
-.PHONY: kernel kernel-clean tarfs tarfs-clean clean emul
+.PHONY: kernel kernel-clean tarfs tarfs-clean clean emul tags
 .DEFAULT: all emul
 
 default: all
@@ -32,9 +33,13 @@ tarfs:
 	tar -cf $(BUILDDIR)/tarfs.tar tarfs/*
 tarfs-clean:
 	$(MAKE) clean -C tarfs/bin
+	rm $(BUILDDIR)/tarfs.tar
+
+tags:
+	ctags -R .
 
 clean: kernel-clean tarfs-clean
 
 emul:
-	@tools/qemul.sh
+	@util/qemul.sh
 

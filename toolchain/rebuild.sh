@@ -17,9 +17,7 @@ function rebuild_binutils {
     git apply $PATCHDIR/binutils.patch
   popd
 
-  if [ ! -d build-binutils ]; then
-    mkdir build-binutils
-  fi
+  mkdir -p build-binutils
   pushd build-binutils
     ../binutils/configure --target=$TARGET --prefix=$PREFIX
     make
@@ -38,9 +36,7 @@ function rebuild_gcc {
     git apply $PATCHDIR/gcc.patch
   popd
 
-  if [ ! -d build-gcc ]; then
-    mkdir build-gcc
-  fi
+  mkdir -p build-gcc
   pushd build-gcc
     ../gcc/configure --target=$TARGET --prefix=$PREFIX --disable-nls --enable-languages=c,c++
     make all-gcc
@@ -59,9 +55,7 @@ function prepare_newlib {
   if [ ! -d /usr/local/Cellar/automake/1.12 ]; then
     curl -O http://ftp.gnu.org/gnu/automake/automake-1.12.tar.gz
     tar -zxf automake-1.12.tar.gz
-    if [ ! -d build-automake ]; then
-      mkdir build-automake
-    fi
+    mkdir -p build-automake
     pushd build-automake
       ../automake-1.12/configure --prefix=/usr/local/Cellar/automake/1.12
       make all
@@ -71,9 +65,7 @@ function prepare_newlib {
   if [ ! -d /usr/local/Cellar/autoconf/2.64 ]; then
     curl -O http://ftp.gnu.org/gnu/autoconf/autoconf-2.64.tar.gz
     tar -zxf autoconf-2.64.tar.gz
-    if [ ! -d build-autoconf ]; then
-      mkdir build-autoconf
-    fi
+    mkdir -p build-autoconf
     pushd build-autoconf
       ../autoconf-2.64/configure --prefix=/usr/local/Cellar/autoconf/2.64
       make all
@@ -107,9 +99,7 @@ function rebuild_newlib_kernel {
     cp $PATCHDIR/myos-kernel/* .
   popd
 
-  if [ ! -d build-newlib ]; then
-    mkdir build-newlib
-  fi
+  mkdir -p build-newlib
   pushd build-newlib
     ../newlib/configure --target=$TARGET --prefix=$PREFIX
     make
@@ -124,9 +114,7 @@ function rebuild_newlib {
     cp -r $PATCHDIR/myos/* .
   popd
 
-  if [ ! -d build-newlib ]; then
-    mkdir build-newlib
-  fi
+  mkdir -pbuild-newlib
   pushd build-newlib
     rm -rf *
     ../newlib/configure --target=$TARGET --prefix=$PREFIX
@@ -142,9 +130,7 @@ export PREFIX=/usr/local/Cellar/osdev/1.0
 
 export PATCHDIR=`pwd`/toolchain
 
-if [ ! -d ~/osdev ]; then
-  mkdir ~/osdev
-fi
+mkdir -p ~/osdev
 pushd ~/osdev
 
 # rebuild_binutils
