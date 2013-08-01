@@ -2,7 +2,7 @@
 .extern _init
 .extern _exit
 _start:
-  push ecx
+  push %ecx
   call _init
   call _exit
   .wait: hlt

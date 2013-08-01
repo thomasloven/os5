@@ -83,7 +83,7 @@ DECL_SYSCALL2(signal, int, sighandler_t);
 
 .macro defsyscall num
   mov %ebx,(syscall_temp)
-  mov \num, %eax
+  mov $\num, %eax
   int $0x80
   mov %ebx, (syscall_errno)
   mov (syscall_temp), %ebx

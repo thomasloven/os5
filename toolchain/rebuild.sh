@@ -17,9 +17,11 @@ function rebuild_binutils {
     git apply $PATCHDIR/binutils.patch
   popd
 
-  mkdir build-binutils
+  if [ ! -d build-binutils ]; then
+    mkdir build-binutils
+  fi
   pushd build-binutils
-    ../binutils/configure --target=$TARGET --prefix=$PREFIX/1.0
+    ../binutils/configure --target=$TARGET --prefix=$PREFIX
     make
     make install
   popd
@@ -36,44 +38,57 @@ function rebuild_gcc {
     git apply $PATCHDIR/gcc.patch
   popd
 
-  mkdir build-gcc
+  if [ ! -d build-gcc ]; then
+    mkdir build-gcc
+  fi
   pushd build-gcc
-    ../gcc/configure --target=$TARGET --prefix=$PREFIX/1.0 --disable-nls --enable-languages=c,c++
+    ../gcc/configure --target=$TARGET --prefix=$PREFIX --disable-nls --enable-languages=c,c++
     make all-gcc
     make install-gcc
+    make all-target-libgcc
+    make install-target-libgcc
   popd
 }
 
-function rebuild_newlib {
+function prepare_newlib {
   if [ ! -d newlib ]; then
     git clone --depth 1 git://sourceware.org/git/newlib.git newlib
   fi
 
   # Building newlib requires special versions of automake and autoconf
-  curl -O http://ftp.gnu.org/gnu/automake/automake-1.12.tar.gz
-  curl -O http://ftp.gnu.org/gnu/autoconf/autoconf-2.64.tar.gz
-  tar -zxf automake-1.12.tar.gz
-  tar -zxf autoconf-2.64.tar.gz
-  mkdir build-automake
-  pushd build-automake
-    ../automake-1.12/configure --prefix=/usr/local/Cellar/automake112
-    make all
-    make install
-  popd
-  mkdir build-autoconf
-  pushd build-autoconf
-    ../autoconf-2.64/configure --prefix=/usr/local/Cellar/autoconf264
-    make all
-    make install
-  popd
+  if [ ! -d /usr/local/Cellar/automake/1.12 ]; then
+    curl -O http://ftp.gnu.org/gnu/automake/automake-1.12.tar.gz
+    tar -zxf automake-1.12.tar.gz
+    if [ ! -d build-automake ]; then
+      mkdir build-automake
+    fi
+    pushd build-automake
+      ../automake-1.12/configure --prefix=/usr/local/Cellar/automake/1.12
+      make all
+      make install
+    popd
+  fi
+  if [ ! -d /usr/local/Cellar/autoconf/2.64 ]; then
+    curl -O http://ftp.gnu.org/gnu/autoconf/autoconf-2.64.tar.gz
+    tar -zxf autoconf-2.64.tar.gz
+    if [ ! -d build-autoconf ]; then
+      mkdir build-autoconf
+    fi
+    pushd build-autoconf
+      ../autoconf-2.64/configure --prefix=/usr/local/Cellar/autoconf/2.64
+      make all
+      make install
+    popd
+  fi
 
-  PATH=/usr/local/Cellar/automake112/bin:/usr/local/Cellar/autoconf264/bin:$PATH
+  brew switch automake 1.12
+  brew switch autoconf 2.64
 
   pushd newlib
     git reset HEAD .
     git checkout -- .
     git clean -f
-    rm newlib/libc/sys/myos
+    rm -rf newlib/libc/sys/myos
     git apply $PATCHDIR/newlib.patch
     pushd newlib/libc/sys
       cp -r $PATCHDIR/myos .
@@ -84,49 +99,60 @@ function rebuild_newlib {
     popd
   popd
 
+}
 
-  mkdir build-newlib
+function rebuild_newlib_kernel {
+
+  pushd newlib/newlib/libc/sys/myos
+    cp $PATCHDIR/myos-kernel/* .
+  popd
+
+  if [ ! -d build-newlib ]; then
+    mkdir build-newlib
+  fi
   pushd build-newlib
-    ../newlib/configure --target=$TARGET --prefix=$PREFIX/1.0
-    # Newlib handles cross compilers really badly, which is strange considering what most people use it for...
-PATH=$PREFIX/1.0/$TARGET/bin:$PATH
+    ../newlib/configure --target=$TARGET --prefix=$PREFIX
     make
     make install
   popd
+
+  mv $PREFIX/$TARGET/lib/libc.a $PREFIX/$TARGET/lib/libkernel.a
 }
 
-function rebuild_newlib_lite {
-  pushd newlib/newlib/libc/sys
-  PATH=/usr/local/Cellar/automake112/bin:/usr/local/Cellar/autoconf264/bin:$PATH
-    cp -r $PATCHDIR/myos .
-    autoconf
-    pushd myos
-      autoreconf
-    popd
+function rebuild_newlib {
+  pushd newlib/newlib/libc/sys/myos
+    cp -r $PATCHDIR/myos/* .
   popd
-  mkdir build-newlib
+
+  if [ ! -d build-newlib ]; then
+    mkdir build-newlib
+  fi
   pushd build-newlib
     rm -rf *
-    ../newlib/configure --target=$TARGET --prefix=$PREFIX/1.0
-# PATH=$PREFIX/1.0/$TARGET/bin:$PATH
+    ../newlib/configure --target=$TARGET --prefix=$PREFIX
     make
     make install
   popd
 }
 
--e
+set -e
 
 export TARGET=i586-pc-myos
-export PREFIX=/usr/local/Cellar/osdev
+export PREFIX=/usr/local/Cellar/osdev/1.0
 
 export PATCHDIR=`pwd`/toolchain
 
-mkdir ~/osdev
+if [ ! -d ~/osdev ]; then
+  mkdir ~/osdev
+fi
 pushd ~/osdev
 
-PATH=$PATH:$PREFIX/1.0/bin
 # rebuild_binutils
 # brew link osdev
 # rebuild_gcc
-rebuild_newlib_lite
+# brew unlink osdev
+# brew link osdev
+# prepare_newlib
+rebuild_newlib_kernel
+rebuild_newlib
 
