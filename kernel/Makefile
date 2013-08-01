@@ -14,10 +14,16 @@ OBJECTS := $(notdir $(OBJECTS))
 
 DEPENDENCIES := $(patsubst %.o,%.d,$(OBJECTS))
 
+
 CPPFLAGS += -I$(SRCDIR)/include
 LDFLAGS := -nostdlib -T $(SRCDIR)/include/Link.ld
 LDLIBS := -lkernel
 
+GITHASH := $(shell git log -1 --pretty="tformat:%h")
+GITDATE := $(shell git log -1 --pretty="tformat:%ai")
+GITDIRTY := $(shell [[ -n `git status -s 2> /dev/null` ]] && echo yes)
+
+CPPFLAGS += -DGITHASH='"$(GITHASH)"' -DGITDATE='"$(GITDATE)"' -DGITDIRTY='"$(GITDIRTY)"'
 
 all: $(TARGET)
 

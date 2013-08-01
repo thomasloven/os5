@@ -4,7 +4,7 @@ BUILDDIR := $(BUILDROOT)/build
 CC := i586-pc-myos-gcc
 DEP := $(CC) -MM
 
-CFLAGS = -ggdb
+CFLAGS := -ggdb
 
 export BUILDROOT BUILDDIR
 export CC DEP CFLAGS
