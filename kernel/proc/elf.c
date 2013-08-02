@@ -2,10 +2,10 @@
 #include <multiboot.h>
 #include <vmm.h>
 #include <procmm.h>
-#include <memory.h>
 #include <k_debug.h>
 #include <vfs.h>
 #include <stdlib.h>
+#include <string.h>
 
 void kernel_elf_init(mboot_info_t *mboot)
 {

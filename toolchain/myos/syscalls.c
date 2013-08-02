@@ -1,4 +1,4 @@
-#include <syscall.h>
+#include "syscalls.h"
 #include <sys/stat.h>
 #include <sys/times.h>
 #include <errno.h>
@@ -8,6 +8,31 @@
 extern int errno;
 
 #define NDEBUG
+extern char **environ;
+
+char *__env[1] = { 0 };
+
+void _init(uint32_t *args)
+{
+  /* _init_signal(); */
+
+  int argc;
+  char **argv;
+  if(args)
+  {
+    argc = args[0];
+    argv = (char **)args[1];
+    environ = (char **)args[2];
+  } else {
+    argc = 0;
+    argv = 0;
+    environ = __env;
+  }
+
+  exit(main(argc, argv));
+  for(;;);
+}
+
 
 void  _exit(int rc)
 {
@@ -29,9 +54,6 @@ int close(int file)
   errno = syscall_errno;
   return ret;
 }
-
-/* char *__env[1] = { 0 }; */
-/* char **environ = __env; */
 
 int execve(char *name, char **argv, char **env)
 {
@@ -213,9 +235,9 @@ int write(int file, char *ptr, int len)
   return ret;
 }
 
-sighandler_t my_signal(int signum, sighandler_t handler)
+sig_t signal(int signum, sig_t handler)
 {
-  sighandler_t ret = (sighandler_t)_syscall_signal(signum, handler);
+  sig_t ret = (sig_t)_syscall_signal(signum, handler);
   errno = syscall_errno;
   return ret;
 }

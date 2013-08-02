@@ -5,7 +5,6 @@
 #include <multiboot.h>
 #include <idt.h>
 #include <arch.h>
-#include <memory.h>
 #include <debug.h>
 #include <thread.h>
 #include <scheduler.h>
@@ -67,6 +66,14 @@ registers_t *kinit(mboot_info_t *mboot, uint32_t mboot_magic)
   fopen("/dev/debug", "w");
 
   execve("/bin/init",0,0);
+
+  printf("Os5\n");
+  printf("Kernel git data:\n");
+  printf("Commit Date: %s\n", GITDATE);
+  printf("Hash: %s", GITHASH);
+  if(!strcmp("yes",GITDIRTY))
+    printf(" (dirty) ");
+  printf("\n");
 
   thread_t *init = new_thread((void(*)(void))current->proc->mm.code_entry,1);
   init->proc = current->proc;

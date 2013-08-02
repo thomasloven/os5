@@ -2,10 +2,10 @@
 #include <vmm.h>
 #include <pmm.h>
 #include <stdint.h>
-#include <memory.h>
 #include <k_debug.h>
 #include <ctype.h>
 #include <synch.h>
+#include <string.h>
 
 uint8_t vmm_running = 0;
 

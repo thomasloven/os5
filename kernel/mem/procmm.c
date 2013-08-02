@@ -1,12 +1,12 @@
 #include <stdint.h>
 #include <procmm.h>
 #include <process.h>
-#include <memory.h>
 #include <lists.h>
 #include <pmm.h>
 #include <vmm.h>
 #include <synch.h>
 #include <k_debug.h>
+#include <string.h>
 
 #include <stdlib.h>
 

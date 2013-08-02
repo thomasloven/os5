@@ -117,23 +117,25 @@ extern void tss_flush(uint32_t segment);
 
 #else // ifndef __ASSEMBLER__
 
-%macro INTNOERR 1
-  [global isr%1:function isr%1.end-isr%1]
-  isr%1:
+.macro INTNOERR num
+  .global isr\num
+  .func irs\num
+  isr\num:
     cli
-    push 0
-    push %1
+    push $0
+    push $\num
     jmp int_stub
-  .end:
-%endmacro
+  .endfunc
+.endm
 
-%macro INTERR 1
-  [global isr%1:function isr%1.end-isr%1]
-  isr%1:
+.macro INTERR num
+  .global isr\num
+  .func irs\num
+  isr\num:
     cli
-    push %1
+    push $\num
     jmp int_stub
-  .end:
-%endmacro
+  .endfunc
+.endm
 
 #endif

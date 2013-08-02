@@ -1,0 +1,3 @@
+#!/bin/bash
+
+i586-pc-myos-objdump -S $1 | vim -R - "+set ft=cmix"

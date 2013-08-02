@@ -1,56 +1,47 @@
 SUBDIR := kernel
-
-DIRS := $(shell find . -type d)
+SRCDIR := $(BUILDROOT)/$(SUBDIR)
 TARGET := $(BUILDDIR)/$(SUBDIR)/kernel
 
-VPATH := ./ $(DIRS)
+VPATH := $(shell find $(SRCDIR) -type d)
 
-SOURCES := ./boot/boot.S ./boot/kinit.c 
-SOURCES += $(shell find . -name "*.S" | grep -v boot.S)
-SOURCES += $(shell find . -name "*.c" | grep -v kinit.c)
+SOURCES := $(SRCDIR)/boot/boot.S $(SRCDIR)/boot/kinit.c 
+SOURCES += $(shell find $(SRCDIR) -name "*.S" | grep -v boot.S)
+SOURCES += $(shell find $(SRCDIR) -name "*.c" | grep -v kinit.c)
 
 OBJECTS := $(patsubst %.S,%.o,$(SOURCES))
 OBJECTS := $(patsubst %.c,%.o,$(OBJECTS))
-OBJECTS := $(addprefix $(BUILDDIR)/$(SUBDIR)/,$(notdir $(OBJECTS)))
+OBJECTS := $(notdir $(OBJECTS))
 
-DEPENDENCIES := $(patsubst %.S,%.d,$(SOURCES))
-DEPENDENCIES := $(patsubst %.c,%.d,$(DEPENDENCIES))
-DEPENDENCIES := $(addprefix $(BUILDDIR)/$(SUBDIR)/,$(notdir $(DEPENDENCIES)))
+DEPENDENCIES := $(patsubst %.o,%.d,$(OBJECTS))
 
 
-CFLAGS += -Iinclude 
-CPPFLAGS += -I$(LIBDIR)/include
-CPPFLAGS += -Iinclude
-DEPFLAGS += -I$(LIBDIR)/include
-DEPFLAGS += -Iinclude
-LDFLAGS := -T $(BUILDROOT)/$(SUBDIR)/include/Link.ld
+CPPFLAGS += -I$(SRCDIR)/include
+LDFLAGS := -nostdlib -T $(SRCDIR)/include/Link.ld
+LDLIBS := -lkernel
 
-all: $(DEPENDENCIES) $(TARGET)
+GITHASH := $(shell git log -1 --pretty="tformat:%h")
+GITDATE := $(shell git log -1 --pretty="tformat:%ai")
+GITDIRTY := $(shell [[ -n `git status -s 2> /dev/null` ]] && echo yes)
+
+CPPFLAGS += -DGITHASH='"$(GITHASH)"' -DGITDATE='"$(GITDATE)"' -DGITDIRTY='"$(GITDIRTY)"'
+
+all: $(TARGET)
+
 
 $(TARGET): $(OBJECTS)
-	echo "   \033[32mln\033[0m     " $(TARGET)
-	$(LD) $(LDFLAGS) -o $(TARGET) $+ $(BUILDDIR)/lib/i386-elf/lib/libc.a
+	$(LINK.o) $^ $(LOADLIBES) $(LDLIBS) -o $@
 
-$(BUILDDIR)/$(SUBDIR)/%.d: %.c
-# echo "    \033[31mdep\033[0m " $*".c"
-	$(DEP) $(DEPFLAGS) $< -o $@ -MT "$(BUILDDIR)/$*.o $(BUILDDIR)/$*.d"
-$(BUILDDIR)/$(SUBDIR)/%.d: %.S
-# echo "    \033[31mdep\033[0m " $*".S"
-	$(DEP) $(DEPFLAGS) $< -o $@ -MT "$(BUILDDIR)/$*.o $(BUILDDIR)/$*.d"
 
-$(BUILDDIR)/$(SUBDIR)/%.o: %.c
-	echo "  \033[33m gcc\033[0m    " $<
-	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+%.d: %.c
+	$(DEP) $(CPPFLAGS) $< -o $(notdir $@) -MT "$(notdir $*).o $(notdir $*).d"
+%.d: %.S
+	$(DEP) $(CPPFLAGS) $< -o $(notdir $@) -MT "$(notdir $*).o $(notdir $*).d"
 
-%.o: %.s
-	echo "   \033[33mnasm\033[0m   " $<
-	$(AS) $(ASFLAGS) $< -o $@
-
-$(BUILDDIR)/$(SUBDIR)/%.s: %.S
-	echo "   \033[31mgcc\033[0m     " $<
-	$(CPP) $(CPPFLAGS) -o $@ -x assembler-with-cpp $<
 
 clean:
+	-rm $(OBJECTS) 2>/dev/null
+	-rm $(TARGET) 2>/dev/null
+clean-all:
 	-rm $(OBJECTS) 2>/dev/null
 	-rm $(TARGET) 2>/dev/null
 	-rm $(DEPENDENCIES) 2>/dev/null

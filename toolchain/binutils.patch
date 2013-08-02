@@ -1,0 +1,85 @@
+diff --git a/bfd/config.bfd b/bfd/config.bfd
+index 5324d39..b5becca 100644
+--- a/bfd/config.bfd
++++ b/bfd/config.bfd
+@@ -161,6 +161,10 @@ case "${targ}" in
+     ;;
+ 
+ # START OF targmatch.h
++  i[3-7]86-*-myos*)
++    targ_defvec=bfd_elf32_i386_vec
++    targ_selvecs=i386coff_vec
++    ;;
+ #ifdef BFD64
+   aarch64-*-elf)
+     targ_defvec=bfd_elf64_littleaarch64_vec
+diff --git a/config.sub b/config.sub
+index 8b612ab..20bad11 100755
+--- a/config.sub
++++ b/config.sub
+@@ -1354,7 +1354,7 @@ case $os in
+ 	      | -hpux* | -unos* | -osf* | -luna* | -dgux* | -auroraux* | -solaris* \
+ 	      | -sym* | -kopensolaris* | -plan9* \
+ 	      | -amigaos* | -amigados* | -msdos* | -newsos* | -unicos* | -aof* \
+-	      | -aos* | -aros* \
++	      | -myos* | -aos* | -aros* \
+ 	      | -nindy* | -vxsim* | -vxworks* | -ebmon* | -hms* | -mvs* \
+ 	      | -clix* | -riscos* | -uniplus* | -iris* | -rtu* | -xenix* \
+ 	      | -hiux* | -386bsd* | -knetbsd* | -mirbsd* | -netbsd* \
+diff --git a/gas/configure.tgt b/gas/configure.tgt
+index 77c1d9b..86efd5c 100644
+--- a/gas/configure.tgt
++++ b/gas/configure.tgt
+@@ -270,6 +270,7 @@ case ${generic_target} in
+   i386-*-chaos)				fmt=elf ;;
+   i386-*-rdos*)				fmt=elf ;;
+   i386-*-darwin*)			fmt=macho ;;
++  i386-*-myos*)				fmt=elf ;;
+ 
+   i860-*-*)				fmt=elf endian=little ;;
+ 
+diff --git a/ld/Makefile.in b/ld/Makefile.in
+index 21fd6b8..82e01b4 100644
+--- a/ld/Makefile.in
++++ b/ld/Makefile.in
+@@ -2748,6 +2748,9 @@ eelf32xtensa.c: $(srcdir)/emulparams/elf32xtensa.sh $(ELF_DEPS) \
+ eelf_i386.c: $(srcdir)/emulparams/elf_i386.sh \
+   $(ELF_DEPS) $(srcdir)/scripttempl/elf.sc ${GEN_DEPENDS}
+ 	${GENSCRIPTS} elf_i386 "$(tdir_elf_i386)"
++emyos_i386.c: $(srcdir)/emulparams/myos_i386.sh \
++  $(ELF_DEPS) $(srcdir)/scripttempl/elf.sc ${GEN_DEPENDS}
++	${GENSCRIPTS} myos_i386 "$(tdir_myos_i386)"
+ eelf_i386_be.c: $(srcdir)/emulparams/elf_i386_be.sh \
+   $(ELF_DEPS) $(srcdir)/scripttempl/elf.sc ${GEN_DEPENDS}
+ 	${GENSCRIPTS} elf_i386_be "$(tdir_elf_i386_be)"
+diff --git a/ld/configure.tgt b/ld/configure.tgt
+index c0291c8..f1dfb14 100644
+--- a/ld/configure.tgt
++++ b/ld/configure.tgt
+@@ -306,6 +306,7 @@ i[3-7]86-*-mach*)	targ_emul=i386mach ;;
+ i[3-7]86-*-gnu*)	targ_emul=elf_i386 ;;
+ i[3-7]86-*-msdos*)	targ_emul=i386msdos; targ_extra_emuls=i386aout ;;
+ i[3-7]86-*-moss*)	targ_emul=i386moss; targ_extra_emuls=i386msdos ;;
++i[3-7]86-*-myos*)	targ_emul=myos_i386 ;;
+ i[3-7]86-*-winnt*)	targ_emul=i386pe ;
+ 			targ_extra_ofiles="deffilep.o pe-dll.o" ;;
+ i[3-7]86-*-pe)		targ_emul=i386pe ;
+diff --git a/ld/emulparams/myos_i386.sh b/ld/emulparams/myos_i386.sh
+new file mode 100644
+index 0000000..5fafdfb
+--- /dev/null
++++ b/ld/emulparams/myos_i386.sh
+@@ -0,0 +1,13 @@
++SCRIPT_NAME=elf
++OUTPUT_FORMAT=elf32-i386
++TEXT_START_ADDR=0x1000000
++MAXPAGESIZE="CONSTANT (MAXPAGESIZE)"
++COMMONPAGESIZE="CONSTANT (COMMONPAGESIZE)"
++ARCH=i386
++MACHINE=
++NOP=90909090
++TEMPLATE_NAME=elf32
++GENERATE_SHLIB_SCRIPT=yes
++GENERATE_PIE_SCRIPT=yes
++NO_SMALL_DATA=yes
++SEPARATE_GOTPLT=12

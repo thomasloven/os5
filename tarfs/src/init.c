@@ -1,5 +1,4 @@
 #include <stdint.h>
-#include <syscall.h>
 
 #include <stdio.h>
 #include <stdlib.h>

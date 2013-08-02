@@ -3,9 +3,9 @@
 #include <arch.h>
 #include <idt.h>
 #include <lists.h>
-#include <memory.h>
 
 #include <k_debug.h>
+#include <string.h>
 
 syscall_t syscall_handlers[NUM_SYSCALLS];
 

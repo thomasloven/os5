@@ -1,11 +1,11 @@
 #include <stdint.h>
 #include <k_debug.h>
-#include <memory.h>
 #include <stdarg.h>
 #include <common.h>
 #include <ctype.h>
 #include <elf.h>
 #include <idt.h>
+#include <string.h>
 
 uint16_t *vidmem = (uint16_t *)VIDMEM;
 

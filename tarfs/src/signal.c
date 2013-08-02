@@ -13,7 +13,7 @@ void handler(int a)
 int main()
 {
   printf("Registering signal handler\n");
-  my_signal(2, &handler);
+  signal(2, &handler);
   printf("Sending kill request\n");
   kill(getpid(), 2);
   printf("Variable=%d\n", variable);
