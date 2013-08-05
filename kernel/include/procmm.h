@@ -46,6 +46,7 @@ void share_area(process_t *copy, mem_area_t *ma);
 void print_areas(process_t *p);
 
 uint32_t procmm_handle_page_fault(uintptr_t address, uint32_t flags);
+int procmm_check_address(uintptr_t address);
 
 void procmm_fork(process_t *parent, process_t *child);
 void procmm_exit(process_t *proc);

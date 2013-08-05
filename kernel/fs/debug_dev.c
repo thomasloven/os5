@@ -39,5 +39,6 @@ fs_node_t *debug_dev_init()
   node->readdir = 0;
   node->finddir = 0;
   node->mode = S_IFCHR;
+  node->flags = VFS_FLAG_ISATTY;
   return node;
 }

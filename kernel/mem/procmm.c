@@ -290,7 +290,7 @@ void print_areas(process_t *p)
   for_each_in_list(&p->mm.mem, area_list)
   {
     area = list_entry(area_list, mem_area_t, mem);
-    debug("\n %x-%x", area->start, area->end);
+    debug("\n %x-%x %x", area->start, area->end, area->flags);
   }
 }
 
@@ -372,7 +372,27 @@ uint32_t procmm_handle_page_fault(uintptr_t address, uint32_t flags)
   }
 
   return 1;
+}
 
+int procmm_check_address(uintptr_t address)
+{
+  // Return values:
+  // 1: Present, not writable
+  // 2: Present, on stack
+  // 3: Present, writable
+  mem_area_t *area = find_including(current->proc, address);
+  if(area)
+  {
+    if(area->flags & MM_FLAG_WRITE || area->flags & MM_FLAG_COW)
+      return 3;
+    else
+      return 1;
+  } else{
+    area = find_above(current->proc, address);
+    if(area && area->flags & MM_FLAG_GROWSDOWN)
+      return 2;
+  }
+  return 0;
 }
 
 void procmm_fork(process_t *parent, process_t *child)
