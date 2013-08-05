@@ -11,6 +11,7 @@
 #include <strings.h>
 #include <string.h>
 #include <malloc.h>
+#include <signal.h>
 
 #undef errno
 extern int errno;
@@ -46,6 +47,11 @@ int execve(char *name, char **argv, char **env)
   if(!executable)
   {
     errno = ENOENT;
+    return -1;
+  }
+  if(!is_elf(executable))
+  {
+    errno = ENOEXEC;
     return -1;
   }
 
@@ -185,8 +191,24 @@ KDEF_SYSCALL(getpid, r)
 int kill(int pid, int sig)
 {
   /* debug("KILL(%d, %d)", pid, sig); */
+  if(pid <= 0)
+  {
+    errno = ESRCH;
+    return -1;
+  }
   process_t *r = get_process(pid);
   process_t *s = current->proc;
+
+  if(sig > NUM_SIGNALS)
+  {
+    errno = EINVAL;
+    return -1;
+  }
+  if(!r)
+  {
+    errno = ESRCH;
+    return -1;
+  }
 
   signal_t *signal = malloc(sizeof(signal_t));
   signal->sig = sig;
@@ -253,9 +275,22 @@ KDEF_SYSCALL(yield, r)
   return r;
 }
 
-void *signal(int sig, void *handler)
+sig_t signal(int sig, sig_t handler)
 {
   /* debug("SIGNAL(%d %x)", sig, handler); */
+  if(sig > NUM_SIGNALS)
+  {
+    errno = EINVAL;
+    return (sig_t)-1;
+  }
+  if(sig == SIGKILL || sig == SIGSTOP)
+  {
+    if( handler != 0)
+    {
+      errno = EINVAL;
+      return (sig_t)-1;
+    }
+  }
   process_t *p = current->proc;
   void *old = p->signal_handler[sig];
   p->signal_handler[sig] = handler;

@@ -100,3 +100,17 @@ void load_elf(fs_node_t *file)
   mm->code_entry = head->elf_entry;
   free(program_head);
 }
+
+int is_elf(fs_node_t *file)
+{
+  int iself = 0;
+  elf_header *head = malloc(sizeof(elf_header));
+  vfs_read(file, 0, sizeof(elf_header), (char *)head);
+  if(head->elf_ident[0] == 0x7f)
+    if(head->elf_ident[1] == 'E')
+      if(head->elf_ident[2] == 'L')
+        if(head->elf_ident[3] == 'F')
+          iself = 1;
+  free(head);
+  return iself;
+}
