@@ -37,9 +37,11 @@ registers_t *kinit(mboot_info_t *mboot, uint32_t mboot_magic)
   kdbg_init();
   assert(mboot_magic == MBOOT_MAGIC2);
 
+  mboot_mod_t *mods = (mboot_mod_t *)(assert_higher(mboot->mods_addr));
+
   kernel_elf_init(mboot);
   pmm_init(mboot);
-  vmm_init();
+  vmm_init(mods[0].mod_end);
   idt_init();
   tss_init();
 
@@ -54,8 +56,6 @@ registers_t *kinit(mboot_info_t *mboot, uint32_t mboot_magic)
 
   keyboard_init();
 
-
-  mboot_mod_t *mods = (mboot_mod_t *)(assert_higher(mboot->mods_addr));
 
   tar_header_t *tarfs_location = assert_higher((tar_header_t *)mods[0].mod_start);
 

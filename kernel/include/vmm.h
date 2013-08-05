@@ -71,6 +71,6 @@ void vmm_copy_page(uintptr_t src, uintptr_t dst);
 
 page_dir_t vmm_clone_pd();
 
-void vmm_init();
+void vmm_init(uint32_t kernel_size);
 
 #endif
