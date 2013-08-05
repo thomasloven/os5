@@ -19,6 +19,10 @@ extern int errno;
 
 void  _exit(int rc)
 {
+  if(current->proc->flags & PROC_FLAG_DEBUG)
+  {
+    debug("\nEXIT(%x)", rc);
+  }
   exit_process(current->proc, rc);
 
   current->state = THREAD_STATE_FINISHED;
@@ -39,9 +43,11 @@ KDEF_SYSCALL(exit, r)
 
 int execve(char *name, char **argv, char **env)
 {
+  if(current->proc->flags & PROC_FLAG_DEBUG)
+  {
+    debug("\nEXECVE(%s, %x, %x)", name, argv, env);
+  }
   // Find the executable
-  // Clear memory areas
-  // Load new areas
   /* debug("EXECVE(%s, %x, %x)", name, argv, env); */
   fs_node_t *executable = vfs_find_node(name);
   if(!executable)
@@ -162,6 +168,10 @@ KDEF_SYSCALL(execve, r)
 
 int fork()
 {
+  if(current->proc->flags & PROC_FLAG_DEBUG)
+  {
+    debug("\nFORK()");
+  }
   process_t *child = fork_process();
   thread_t *cth = list_entry(child->threads.next, thread_t, process_threads);
   cth->r.eax = 0;
@@ -178,6 +188,10 @@ KDEF_SYSCALL(fork, r)
 
 int getpid()
 {
+  if(current->proc->flags & PROC_FLAG_DEBUG)
+  {
+    debug("\nGETPID()");
+  }
   errno = 0;
   return current->proc->pid;
 }
@@ -190,6 +204,10 @@ KDEF_SYSCALL(getpid, r)
 
 int kill(int pid, int sig)
 {
+  if(current->proc->flags & PROC_FLAG_DEBUG)
+  {
+    debug("\nKILL(%d, %d)", pid, sig);
+  }
   /* debug("KILL(%d, %d)", pid, sig); */
   if(pid <= 0)
   {
@@ -228,6 +246,10 @@ KDEF_SYSCALL(kill, r)
 
 int wait(int *status)
 {
+  if(current->proc->flags & PROC_FLAG_DEBUG)
+  {
+    debug("\nWAIT(%x)", status);
+  }
   errno = ECHILD;
   return -1;
 }
@@ -241,6 +263,10 @@ KDEF_SYSCALL(wait, r)
 
 int waitpid(int pid)
 {
+  if(current->proc->flags & PROC_FLAG_DEBUG)
+  {
+    debug("\nWAITPID(%d)", pid);
+  }
   process_t *proc = get_process(pid);
 
   while(proc->state != PROC_STATE_FINISHED)
@@ -266,6 +292,10 @@ KDEF_SYSCALL(waitpid, r)
 
 void yield()
 {
+  if(current->proc->flags & PROC_FLAG_DEBUG)
+  {
+    debug("\nYIELD()");
+  }
   schedule();
   errno = 0;
 }
@@ -277,6 +307,10 @@ KDEF_SYSCALL(yield, r)
 
 sig_t signal(int sig, sig_t handler)
 {
+  if(current->proc->flags & PROC_FLAG_DEBUG)
+  {
+    debug("\nSIGNAL(%d, %x)", sig, handler);
+  }
   /* debug("SIGNAL(%d %x)", sig, handler); */
   if(sig > NUM_SIGNALS)
   {
@@ -301,6 +335,18 @@ KDEF_SYSCALL(signal, r)
   process_stack stack = init_pstack();
   r->eax = (uint32_t)signal(stack[0], (void *)stack[1]);
   r->ebx = errno;
+  return r;
+}
+
+KDEF_SYSCALL(process_debug, r)
+{
+  if(current->proc->flags & PROC_FLAG_DEBUG)
+  {
+    debug("\nPROCDB()");
+  }
+  debug("\nStarting debug");
+  current->proc->flags |= PROC_FLAG_DEBUG;
+  debug("\n%x \n", current->proc->flags);
   return r;
 }
 

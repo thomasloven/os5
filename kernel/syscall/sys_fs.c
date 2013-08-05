@@ -13,6 +13,10 @@ extern int errno;
 
 int close(int file)
 {
+  if(current->proc->flags & PROC_FLAG_DEBUG)
+  {
+    debug("\nCLOSE(%x)", file);
+  }
   process_t *p = current->proc;
   if(!p->fd[file].node)
   {
@@ -35,6 +39,10 @@ KDEF_SYSCALL(close, r)
 
 int fstat(int file, struct stat *st)
 {
+  if(current->proc->flags & PROC_FLAG_DEBUG)
+  {
+    debug("\nFSTAT(%d, %x)", file, st);
+  }
   process_t *p = current->proc;
   fs_node_t *node = p->fd[file].node;
   if(!node)
@@ -70,6 +78,10 @@ KDEF_SYSCALL(fstat, r)
 
 int isatty(int file)
 {
+  if(current->proc->flags & PROC_FLAG_DEBUG)
+  {
+    debug("\nISATTY(%d)", file);
+  }
   errno = 0;
   process_t *p = current->proc;
   fs_node_t *node = p->fd[file].node;
@@ -87,6 +99,10 @@ KDEF_SYSCALL(isatty, r)
 
 int link(char *old, char *new)
 {
+  if(current->proc->flags & PROC_FLAG_DEBUG)
+  {
+    debug("\nLINK(%s, %s)", old, new);
+  }
   errno = EMLINK;
   return -1;
 }
@@ -100,6 +116,10 @@ KDEF_SYSCALL(link, r)
 
 int lseek(int file, int ptr, int dir)
 {
+  if(current->proc->flags & PROC_FLAG_DEBUG)
+  {
+    debug("\nLSEEK(%d, %x, %x)", file, ptr, dir);
+  }
   process_t *p = current->proc;
   fs_node_t *node = p->fd[file].node;
   if(!node)
@@ -149,6 +169,10 @@ KDEF_SYSCALL(lseek, r)
 
 int open(const char *name, int flags, int mode)
 {
+  if(current->proc->flags & PROC_FLAG_DEBUG)
+  {
+    debug("\nOPEN(%s, %x, %x)", name, flags, mode);
+  }
   if(kernel_booted &&!procmm_check_address(&name[0]))
   {
     errno = EFAULT;
@@ -201,6 +225,10 @@ KDEF_SYSCALL(open, r)
 
 int read(int file, char *ptr, int len)
 {
+  if(current->proc->flags & PROC_FLAG_DEBUG)
+  {
+    debug("\nREAD(%d, %x, %x)", file, ptr, len);
+  }
   process_t *p = current->proc;
   fs_node_t *node = p->fd[file].node;
   if(!node)
@@ -228,6 +256,10 @@ KDEF_SYSCALL(read, r)
 
 int stat(const char *file, struct stat *st)
 {
+  if(current->proc->flags & PROC_FLAG_DEBUG)
+  {
+    debug("\nSTAT(%s, %x)", file, st);
+  }
   if(kernel_booted &&!procmm_check_address(&file[0]))
   {
     errno = EFAULT;
@@ -252,6 +284,10 @@ KDEF_SYSCALL(stat, r)
 
 int unlink(char *name)
 {
+  if(current->proc->flags & PROC_FLAG_DEBUG)
+  {
+    debug("\nUNLINK(%s)", name);
+  }
   errno = ENOENT;
   return -1;
 }
@@ -265,6 +301,10 @@ KDEF_SYSCALL(unlink, r)
 
 int write(int file, char *ptr, int len)
 {
+  if(current->proc->flags & PROC_FLAG_DEBUG)
+  {
+    debug("\nWRITE(%d, %x, %x)", file, ptr, len);
+  }
   // Write called by both kernel and users
 
   if(kernel_booted && !procmm_check_address(ptr))

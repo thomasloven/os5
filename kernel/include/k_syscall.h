@@ -30,6 +30,8 @@
 
 #define SYSCALL_SIGNAL 0x16
 
+#define SYSCALL_PDBG 0x17
+
 
 #define SYSCALL_OK 0x00
 #define ERROR_NOSYSCALL 0x01
@@ -84,6 +86,7 @@ void yield();
 KDECL_SYSCALL(yield);
 sig_t signal(int sig, sig_t handler);
 KDECL_SYSCALL(signal);
+KDECL_SYSCALL(process_debug);
 
 // sys_mem.c
 void *sbrk(int incr);
