@@ -68,11 +68,11 @@ registers_t *kinit(mboot_info_t *mboot, uint32_t mboot_magic)
 
   execve("/bin/init",0,0);
 
-  debug("========================\n");
-  debug("Os5 by Thomas Lovén\n");
-  debug("Kernel git data: [%s (%s)] %s\n", __kernel_git_hash, (__kernel_git_dirty)?"dirty":"clean", __kernel_git_date);
-  debug("%s: %s\n", __kernel_git_branch, __kernel_git_message);
-  debug("Kernel compilation: %s %s", __kernel_build_date, __kernel_build_time);
+  debug("[status]========================\n");
+  debug("[status]Os5 by Thomas Lovén\n");
+  debug("[status]Kernel git data: [%s (%s)] %s\n", __kernel_git_hash, (__kernel_git_dirty)?"dirty":"clean", __kernel_git_date);
+  debug("[status]%s: %s\n", __kernel_git_branch, __kernel_git_message);
+  debug("[status]Kernel compilation: %s %s", __kernel_build_date, __kernel_build_time);
   debug("\n");
 
   thread_t *init = new_thread((void(*)(void))current->proc->mm.code_entry,1);
