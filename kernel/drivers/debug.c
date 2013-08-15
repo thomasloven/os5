@@ -6,6 +6,7 @@
 #include <elf.h>
 #include <idt.h>
 #include <string.h>
+#include <serial.h>
 
 uint16_t *vidmem = (uint16_t *)VIDMEM;
 
@@ -31,6 +32,7 @@ void kdbg_init()
   text_style = VGA_STYLE(GRAY, BLACK);
   memset((uint8_t *)vidmem, 0x0, SCRN_W*SCRN_H*2);
   debug_sem = 0;
+  init_serial(SERIAL_COM1);
 }
 
 void kdbg_setpos(uint32_t x, uint32_t y)
@@ -63,6 +65,7 @@ void kdbg_scroll()
 void kdbg_putch(uint8_t c, uint8_t style)
 {
   vidmem[scrn_y*SCRN_W+scrn_x] = c | (style << 0x8);
+  serial_send(SERIAL_COM1, c);
 }
 
 void kdbg_puts(char *str)
@@ -73,6 +76,7 @@ void kdbg_puts(char *str)
     {
       scrn_x = 0;
       scrn_y++;
+      serial_send(SERIAL_COM1, *str);
     } else if(isprint((unsigned char)*str))
     {
 
@@ -107,6 +111,7 @@ void kdbg_printf(char *str, ...)
     {
       scrn_x = 0;
       scrn_y++;
+      serial_send(SERIAL_COM1, *str);
     }
     else if(*str == '%')
     {

@@ -1,7 +1,9 @@
 #!/bin/bash
 
 if tmux info | grep $TTY ; then
-  tmux split-window -h 'qemu-system-i386 -kernel build/kernel/kernel -initrd "build/tarfs.tar" -curses -monitor telnet:localhost:4444,server -s -S'
+  echo > serial.out
+  tmux split-window -h 'qemu-system-i386 -kernel build/kernel/kernel -initrd "build/tarfs.tar" -curses -monitor telnet:localhost:4444,server -s -S -serial file:serial.out'
+  tmux split-window -v 'tail -f serial.out'
   tmux select-pane -L
   tmux split-window -v 'i386-elf-gdb'
   tmux select-pane -U
