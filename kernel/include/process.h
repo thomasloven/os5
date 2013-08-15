@@ -11,6 +11,8 @@
 #define NUM_FILEDES 256
 #define NUM_SIGNALS 256
 
+#define PROC_FLAG_DEBUG 0x1
+
 struct thread_struct;
 
 
@@ -39,6 +41,7 @@ typedef struct process_struct
 {
   uint32_t pid;
   uint32_t state;
+  uint32_t flags;
   struct process_struct *parent;
   struct process_struct *child;
   struct process_struct *older_sibling;

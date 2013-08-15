@@ -13,7 +13,17 @@ extern int errno;
 
 int close(int file)
 {
+  if(current->proc->flags & PROC_FLAG_DEBUG)
+  {
+    debug("\nCLOSE(%x)", file);
+  }
   process_t *p = current->proc;
+  if(!p->fd[file].node)
+  {
+    errno = EBADF;
+    return -1;
+  }
+
   vfs_close(p->fd[file].node);
   p->fd[file].node = 0;
   errno = 0;
@@ -29,8 +39,22 @@ KDEF_SYSCALL(close, r)
 
 int fstat(int file, struct stat *st)
 {
+  if(current->proc->flags & PROC_FLAG_DEBUG)
+  {
+    debug("\nFSTAT(%d, %x)", file, st);
+  }
   process_t *p = current->proc;
   fs_node_t *node = p->fd[file].node;
+  if(!node)
+  {
+    errno = EBADF;
+    return -1;
+  }
+  if(procmm_check_address(st) <= 1)
+  {
+    errno = EFAULT;
+    return -1;
+  }
   st->st_dev = 0;
   st->st_ino = node->inode;
   st->st_mode = node->mode;
@@ -54,8 +78,16 @@ KDEF_SYSCALL(fstat, r)
 
 int isatty(int file)
 {
+  if(current->proc->flags & PROC_FLAG_DEBUG)
+  {
+    debug("\nISATTY(%d)", file);
+  }
   errno = 0;
-  return 1;
+  process_t *p = current->proc;
+  fs_node_t *node = p->fd[file].node;
+  if(!node)
+    return 0;
+  return (node->flags & VFS_FLAG_ISATTY);
 }
 KDEF_SYSCALL(isatty, r)
 {
@@ -67,6 +99,10 @@ KDEF_SYSCALL(isatty, r)
 
 int link(char *old, char *new)
 {
+  if(current->proc->flags & PROC_FLAG_DEBUG)
+  {
+    debug("\nLINK(%s, %s)", old, new);
+  }
   errno = EMLINK;
   return -1;
 }
@@ -80,8 +116,13 @@ KDEF_SYSCALL(link, r)
 
 int lseek(int file, int ptr, int dir)
 {
+  if(current->proc->flags & PROC_FLAG_DEBUG)
+  {
+    debug("\nLSEEK(%d, %x, %x)", file, ptr, dir);
+  }
   process_t *p = current->proc;
-  if(!p->fd[file].node)
+  fs_node_t *node = p->fd[file].node;
+  if(!node)
   {
     errno = EBADF;
     return -1;
@@ -97,8 +138,12 @@ int lseek(int file, int ptr, int dir)
     errno = EINVAL;
     return -1;
   }
+  if(node->flags & VFS_FLAG_PIPE)
+  {
+    errno = ESPIPE;
+    return -1;
+  }
   
-  fs_node_t *node = p->fd[file].node;
   if(dir == 0) // SEEK_SET
   {
     p->fd[file].offset = ptr;
@@ -124,6 +169,15 @@ KDEF_SYSCALL(lseek, r)
 
 int open(const char *name, int flags, int mode)
 {
+  if(current->proc->flags & PROC_FLAG_DEBUG)
+  {
+    debug("\nOPEN(%s, %x, %x)", name, flags, mode);
+  }
+  if(kernel_booted &&!procmm_check_address(&name[0]))
+  {
+    errno = EFAULT;
+    return -1;
+  }
   process_t *p = current->proc;
 
   // Find a free descriptor
@@ -140,7 +194,7 @@ int open(const char *name, int flags, int mode)
   if(fd == -1)
   {
     // No free descriptors
-    errno = ENFILE;
+    errno = EMFILE;
     return fd;
   }
 
@@ -151,12 +205,14 @@ int open(const char *name, int flags, int mode)
     errno = ENOENT;
     return -1;
   }
+  errno = 0;
   vfs_open(node, flags);
+  if(errno)
+    return -1;
   p->fd[fd].node = node;
   p->fd[fd].offset = 0;
   p->fd[fd].flags = flags;
 
-  errno = 0;
   return fd;
 }
 KDEF_SYSCALL(open, r)
@@ -169,8 +225,22 @@ KDEF_SYSCALL(open, r)
 
 int read(int file, char *ptr, int len)
 {
+  if(current->proc->flags & PROC_FLAG_DEBUG)
+  {
+    debug("\nREAD(%d, %x, %x)", file, ptr, len);
+  }
   process_t *p = current->proc;
   fs_node_t *node = p->fd[file].node;
+  if(!node)
+  {
+    errno = EBADF;
+    return -1;
+  }
+  if(procmm_check_address(ptr) <=1 )
+  {
+    errno = EFAULT;
+    return -1;
+  }
   errno = 0;
   int ret = vfs_read(node, p->fd[file].offset, len, ptr);
   p->fd[file].offset += ret;
@@ -186,6 +256,20 @@ KDEF_SYSCALL(read, r)
 
 int stat(const char *file, struct stat *st)
 {
+  if(current->proc->flags & PROC_FLAG_DEBUG)
+  {
+    debug("\nSTAT(%s, %x)", file, st);
+  }
+  if(kernel_booted &&!procmm_check_address(&file[0]))
+  {
+    errno = EFAULT;
+    return -1;
+  }
+  if(procmm_check_address(st) <= 1)
+  {
+    errno = EFAULT;
+    return -1;
+  }
   st->st_mode = S_IFCHR;
   errno = 0;
   return 0;
@@ -200,6 +284,10 @@ KDEF_SYSCALL(stat, r)
 
 int unlink(char *name)
 {
+  if(current->proc->flags & PROC_FLAG_DEBUG)
+  {
+    debug("\nUNLINK(%s)", name);
+  }
   errno = ENOENT;
   return -1;
 }
@@ -213,12 +301,27 @@ KDEF_SYSCALL(unlink, r)
 
 int write(int file, char *ptr, int len)
 {
+  if(current->proc->flags & PROC_FLAG_DEBUG)
+  {
+    debug("\nWRITE(%d, %x, %x)", file, ptr, len);
+  }
   // Write called by both kernel and users
+
+  if(kernel_booted && !procmm_check_address(ptr))
+  {
+    errno = EFAULT;
+    return -1;
+  }
 
   ptr[len] = '\0';
   process_t *p = current->proc;
 
   fs_node_t *node = p->fd[file].node;
+  if(!node)
+  {
+    errno = EBADF;
+    return -1;
+  }
 
   errno = 0;
 

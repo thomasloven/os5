@@ -5,6 +5,9 @@
 #ifndef __ASSEMBLER__
 #include <stdint.h>
 
+#define VFS_FLAG_ISATTY 0x100000
+#define VFS_FLAG_PIPE 0x110000
+
 
 struct fs_node;
 

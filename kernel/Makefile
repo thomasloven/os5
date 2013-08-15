@@ -23,7 +23,6 @@ GITHASH := $(shell git log -1 --pretty="tformat:%h")
 GITDATE := $(shell git log -1 --pretty="tformat:%ai")
 GITDIRTY := $(shell [[ -n `git status -s 2> /dev/null` ]] && echo yes)
 
-CPPFLAGS += -DGITHASH='"$(GITHASH)"' -DGITDATE='"$(GITDATE)"' -DGITDIRTY='"$(GITDIRTY)"'
 
 all: $(TARGET)
 
@@ -37,6 +36,7 @@ $(TARGET): $(OBJECTS)
 %.d: %.S
 	$(DEP) $(CPPFLAGS) $< -o $(notdir $@) -MT "$(notdir $*).o $(notdir $*).d"
 
+kinit.o: CPPFLAGS += -DGITHASH='"$(GITHASH)"' -DGITDATE='"$(GITDATE)"' -DGITDIRTY='"$(GITDIRTY)"'
 
 clean:
 	-rm $(OBJECTS) 2>/dev/null

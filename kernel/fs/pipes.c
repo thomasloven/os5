@@ -153,6 +153,7 @@ fs_node_t *new_pipe(uint32_t size)
   node->finddir = 0;
   node->device = (void *)pipe;
   node->mode = S_IFCHR;
+  node->flags = VFS_FLAG_PIPE;
 
   return node;
 }
