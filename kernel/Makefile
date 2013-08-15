@@ -22,12 +22,18 @@ LDLIBS := -lkernel
 GITHASH := $(shell git log -1 --pretty="tformat:%h")
 GITDATE := $(shell git log -1 --pretty="tformat:%ai")
 GITDIRTY := $(shell [[ -n `git status -s 2> /dev/null` ]] && echo 1 || echo 0)
+GITMESSAGE := $(shell git log -1 --pretty="tformat:%s")
+GITBRANCH := $(shell git log -1 --pretty="tformat:%d")
+
+GITFLAGS := -DGITHASH='"$(GITHASH)"' -DGITDATE='"$(GITDATE)"' -DGITDIRTY='$(GITDIRTY)' -DGITMESSAGE='"$(GITMESSAGE)"' -DGITBRANCH='"$(GITBRANCH)"'
 
 
 all: $(TARGET)
 
 
 $(TARGET): $(OBJECTS)
+	rm version.o
+	$(MAKE) -f $(SRCDIR)/Makefile version.o
 	$(LINK.o) $^ $(LOADLIBES) $(LDLIBS) -o $@
 
 
@@ -36,7 +42,7 @@ $(TARGET): $(OBJECTS)
 %.d: %.S
 	$(DEP) $(CPPFLAGS) $< -o $(notdir $@) -MT "$(notdir $*).o $(notdir $*).d"
 
-version.o: CPPFLAGS += -DGITHASH='"$(GITHASH)"' -DGITDATE='"$(GITDATE)"' -DGITDIRTY='$(GITDIRTY)'
+version.o: CPPFLAGS += $(GITFLAGS)
 
 clean:
 	-rm $(OBJECTS) 2>/dev/null
