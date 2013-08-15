@@ -39,6 +39,8 @@ void syscall_init()
 
   KREG_SYSCALL(signal, SYSCALL_SIGNAL);
 
+  KREG_SYSCALL(process_debug, SYSCALL_PDBG);
+
 }
 
 registers_t *syscall_handler(registers_t *r)
