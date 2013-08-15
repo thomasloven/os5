@@ -65,7 +65,6 @@ void kdbg_scroll()
 void kdbg_putch(uint8_t c, uint8_t style)
 {
   vidmem[scrn_y*SCRN_W+scrn_x] = c | (style << 0x8);
-  serial_send(SERIAL_COM1, c);
 }
 
 void kdbg_puts(char *str)
@@ -76,7 +75,6 @@ void kdbg_puts(char *str)
     {
       scrn_x = 0;
       scrn_y++;
-      serial_send(SERIAL_COM1, *str);
     } else if(isprint((unsigned char)*str))
     {
 
@@ -111,7 +109,6 @@ void kdbg_printf(char *str, ...)
     {
       scrn_x = 0;
       scrn_y++;
-      serial_send(SERIAL_COM1, *str);
     }
     else if(*str == '%')
     {

@@ -1,5 +1,8 @@
 #include <serial.h>
 #include <arch.h>
+#include <string.h>
+#include <stdarg.h>
+#include <stdio.h>
 
 void init_serial(short port)
 {
@@ -17,3 +20,19 @@ void serial_send(short port, char c) {
 
   outb(port, c);
 }
+
+void serial_debug(char *str, ...)
+{
+  va_list args;
+  va_start(args, str);
+
+  char buf[255];
+
+  vsprintf(buf, str, args);
+  int i;
+  for(i = 0; i < strlen(buf); i++)
+    serial_send(SERIAL_COM1, buf[i]);
+  va_end(args);
+}
+
+

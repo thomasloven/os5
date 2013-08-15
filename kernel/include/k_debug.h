@@ -1,6 +1,7 @@
 #pragma once
 #include <stdint.h>
 #include <synch.h>
+#include <serial.h>
 
 #define VIDMEM  0xC00B8000
 
@@ -29,7 +30,6 @@
 
 #ifndef __ASSEMBLER__
 
-#define debug kdbg_printf
 
 void kdbg_init();
 void kdbg_scroll();
@@ -48,7 +48,8 @@ semaphore_t debug_sem;
 
 #ifndef NDEBUG
 
-#define debug kdbg_printf
+/* #define debug kdbg_printf */
+#define debug serial_debug
 #define assert(n) ({if(!(n)){ \
   debug("\n WARNING! \n Assertion failed (%s)", #n); \
   debug(": %s line %d", __FILE__, __LINE__- 2); \
