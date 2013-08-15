@@ -21,7 +21,7 @@ LDLIBS := -lkernel
 
 GITHASH := $(shell git log -1 --pretty="tformat:%h")
 GITDATE := $(shell git log -1 --pretty="tformat:%ai")
-GITDIRTY := $(shell [[ -n `git status -s 2> /dev/null` ]] && echo yes)
+GITDIRTY := $(shell [[ -n `git status -s 2> /dev/null` ]] && echo 1 || echo 0)
 
 
 all: $(TARGET)
@@ -36,7 +36,7 @@ $(TARGET): $(OBJECTS)
 %.d: %.S
 	$(DEP) $(CPPFLAGS) $< -o $(notdir $@) -MT "$(notdir $*).o $(notdir $*).d"
 
-kinit.o: CPPFLAGS += -DGITHASH='"$(GITHASH)"' -DGITDATE='"$(GITDATE)"' -DGITDIRTY='"$(GITDIRTY)"'
+version.o: CPPFLAGS += -DGITHASH='"$(GITHASH)"' -DGITDATE='"$(GITDATE)"' -DGITDIRTY='$(GITDIRTY)'
 
 clean:
 	-rm $(OBJECTS) 2>/dev/null

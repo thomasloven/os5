@@ -18,6 +18,7 @@
 #include <vfs.h>
 #include <keyboard.h>
 #include <tarfs.h>
+#include <version.h>
 
 #include <stdio.h>
 
@@ -68,11 +69,8 @@ registers_t *kinit(mboot_info_t *mboot, uint32_t mboot_magic)
   execve("/bin/init",0,0);
 
   printf("Os5\n");
-  printf("Kernel git data:\n");
-  printf("Commit Date: %s\n", GITDATE);
-  printf("Hash: %s", GITHASH);
-  if(!strcmp("yes",GITDIRTY))
-    printf(" (dirty) ");
+  printf("Kernel git data: [%s (%s)] %s\n", __kernel_git_hash, (__kernel_git_dirty)?"dirty":"clean", __kernel_git_date);
+  printf("Kernel compilation: %s %s", __kernel_build_date, __kernel_build_time);
   printf("\n");
 
   thread_t *init = new_thread((void(*)(void))current->proc->mm.code_entry,1);
