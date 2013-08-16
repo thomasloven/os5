@@ -20,7 +20,7 @@ LDFLAGS := -nostdlib -T $(SRCDIR)/include/Link.ld
 LDLIBS := -lkernel
 
 GITHASH := $(shell git log -1 --pretty="tformat:%h")
-GITDATE := $(shell git log -1 --pretty="tformat:%ai")
+GITDATE := $(shell git log -1 --pretty="tformat:%cd")
 GITDIRTY := $(shell [[ -n `git status -s 2> /dev/null` ]] && echo 1 || echo 0)
 GITMESSAGE := $(shell git log -1 --pretty="tformat:%s")
 GITBRANCH := $(shell git log -1 --pretty="tformat:%d")

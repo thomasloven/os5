@@ -21,7 +21,7 @@ void  _exit(int rc)
 {
   if(current->proc->flags & PROC_FLAG_DEBUG)
   {
-    debug("\nEXIT(%x)", rc);
+    debug("[info]EXIT(%x)\n", rc);
   }
   exit_process(current->proc, rc);
 
@@ -29,7 +29,7 @@ void  _exit(int rc)
 
   schedule();
 
-  debug("ERROR! REACHED END OF EXIT SYSCALL!");
+  debug("[error]ERROR! REACHED END OF EXIT SYSCALL!\n");
   for(;;);
 }
 KDEF_SYSCALL(exit, r)
@@ -45,10 +45,9 @@ int execve(char *name, char **argv, char **env)
 {
   if(current->proc->flags & PROC_FLAG_DEBUG)
   {
-    debug("\nEXECVE(%s, %x, %x)", name, argv, env);
+    debug("[info]EXECVE(%s, %x, %x)\n", name, argv, env);
   }
   // Find the executable
-  /* debug("EXECVE(%s, %x, %x)", name, argv, env); */
   fs_node_t *executable = vfs_find_node(name);
   if(!executable)
   {
@@ -170,7 +169,7 @@ int fork()
 {
   if(current->proc->flags & PROC_FLAG_DEBUG)
   {
-    debug("\nFORK()");
+    debug("[info]FORK()\n");
   }
   process_t *child = fork_process();
   thread_t *cth = list_entry(child->threads.next, thread_t, process_threads);
@@ -190,7 +189,7 @@ int getpid()
 {
   if(current->proc->flags & PROC_FLAG_DEBUG)
   {
-    debug("\nGETPID()");
+    debug("[info]GETPID()\n");
   }
   errno = 0;
   return current->proc->pid;
@@ -206,7 +205,7 @@ int kill(int pid, int sig)
 {
   if(current->proc->flags & PROC_FLAG_DEBUG)
   {
-    debug("\nKILL(%d, %d)", pid, sig);
+    debug("[info]KILL(%d, %d)\n", pid, sig);
   }
   /* debug("KILL(%d, %d)", pid, sig); */
   if(pid <= 0)
@@ -248,7 +247,7 @@ int wait(int *status)
 {
   if(current->proc->flags & PROC_FLAG_DEBUG)
   {
-    debug("\nWAIT(%x)", status);
+    debug("[info]WAIT(%x)\n", status);
   }
   errno = ECHILD;
   return -1;
@@ -265,7 +264,7 @@ int waitpid(int pid)
 {
   if(current->proc->flags & PROC_FLAG_DEBUG)
   {
-    debug("\nWAITPID(%d)", pid);
+    debug("[info]WAITPID(%d)\n", pid);
   }
   process_t *proc = get_process(pid);
 
@@ -294,7 +293,7 @@ void yield()
 {
   if(current->proc->flags & PROC_FLAG_DEBUG)
   {
-    debug("\nYIELD()");
+    debug("[info]YIELD()\n");
   }
   schedule();
   errno = 0;
@@ -309,7 +308,7 @@ sig_t signal(int sig, sig_t handler)
 {
   if(current->proc->flags & PROC_FLAG_DEBUG)
   {
-    debug("\nSIGNAL(%d, %x)", sig, handler);
+    debug("[info]SIGNAL(%d, %x)\n", sig, handler);
   }
   /* debug("SIGNAL(%d %x)", sig, handler); */
   if(sig > NUM_SIGNALS)
@@ -342,11 +341,11 @@ KDEF_SYSCALL(process_debug, r)
 {
   if(current->proc->flags & PROC_FLAG_DEBUG)
   {
-    debug("\nPROCDB()");
+    debug("[info]PROCDB()\n");
   }
-  debug("\nStarting debug");
+  debug("[info]Starting debug\n");
   current->proc->flags |= PROC_FLAG_DEBUG;
-  debug("\n%x \n", current->proc->flags);
+  debug("[info]Process: %x \n", current->proc->pid);
   return r;
 }
 

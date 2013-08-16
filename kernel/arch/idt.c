@@ -214,7 +214,7 @@ registers_t *idt_handler(registers_t *r)
       // If an unhandled interrupt (not IRQ) was issued, halt everything.
 
       disable_interrupts();
-      debug("\nUnhanded interrupt received, %x", r->int_no);
+      debug("[error]Unhanded interrupt received, %x\n", r->int_no);
       if(ISIRQ(r->int_no))
         debug(", irq %x", INT2IRQ(r->int_no));
       debug("\n Tid: %x", current->tid);

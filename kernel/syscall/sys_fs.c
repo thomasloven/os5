@@ -15,7 +15,7 @@ int close(int file)
 {
   if(current->proc->flags & PROC_FLAG_DEBUG)
   {
-    debug("\nCLOSE(%x)", file);
+    debug("[info]CLOSE(%x)\n", file);
   }
   process_t *p = current->proc;
   if(!p->fd[file].node)
@@ -41,7 +41,7 @@ int fstat(int file, struct stat *st)
 {
   if(current->proc->flags & PROC_FLAG_DEBUG)
   {
-    debug("\nFSTAT(%d, %x)", file, st);
+    debug("[info]FSTAT(%d, %x)\n", file, st);
   }
   process_t *p = current->proc;
   fs_node_t *node = p->fd[file].node;
@@ -80,7 +80,7 @@ int isatty(int file)
 {
   if(current->proc->flags & PROC_FLAG_DEBUG)
   {
-    debug("\nISATTY(%d)", file);
+    debug("[info]ISATTY(%d)\n", file);
   }
   errno = 0;
   process_t *p = current->proc;
@@ -101,7 +101,7 @@ int link(char *old, char *new)
 {
   if(current->proc->flags & PROC_FLAG_DEBUG)
   {
-    debug("\nLINK(%s, %s)", old, new);
+    debug("[info]LINK(%s, %s)\n", old, new);
   }
   errno = EMLINK;
   return -1;
@@ -118,7 +118,7 @@ int lseek(int file, int ptr, int dir)
 {
   if(current->proc->flags & PROC_FLAG_DEBUG)
   {
-    debug("\nLSEEK(%d, %x, %x)", file, ptr, dir);
+    debug("[info]LSEEK(%d, %x, %x)\n", file, ptr, dir);
   }
   process_t *p = current->proc;
   fs_node_t *node = p->fd[file].node;
@@ -171,7 +171,7 @@ int open(const char *name, int flags, int mode)
 {
   if(current->proc->flags & PROC_FLAG_DEBUG)
   {
-    debug("\nOPEN(%s, %x, %x)", name, flags, mode);
+    debug("[info]OPEN(%s, %x, %x)\n", name, flags, mode);
   }
   if(kernel_booted &&!procmm_check_address(&name[0]))
   {
@@ -227,7 +227,7 @@ int read(int file, char *ptr, int len)
 {
   if(current->proc->flags & PROC_FLAG_DEBUG)
   {
-    debug("\nREAD(%d, %x, %x)", file, ptr, len);
+    debug("[info]READ(%d, %x, %x)\n", file, ptr, len);
   }
   process_t *p = current->proc;
   fs_node_t *node = p->fd[file].node;
@@ -258,7 +258,7 @@ int stat(const char *file, struct stat *st)
 {
   if(current->proc->flags & PROC_FLAG_DEBUG)
   {
-    debug("\nSTAT(%s, %x)", file, st);
+    debug("[info]STAT(%s, %x)\n", file, st);
   }
   if(kernel_booted &&!procmm_check_address(&file[0]))
   {
@@ -286,7 +286,7 @@ int unlink(char *name)
 {
   if(current->proc->flags & PROC_FLAG_DEBUG)
   {
-    debug("\nUNLINK(%s)", name);
+    debug("[info]UNLINK(%s)\n", name);
   }
   errno = ENOENT;
   return -1;
@@ -303,7 +303,7 @@ int write(int file, char *ptr, int len)
 {
   if(current->proc->flags & PROC_FLAG_DEBUG)
   {
-    debug("\nWRITE(%d, %x, %x)", file, ptr, len);
+    debug("[info]WRITE(%d, %x, %x)\n", file, ptr, len);
   }
   // Write called by both kernel and users
 
