@@ -51,7 +51,7 @@ mem_area_t *new_area(process_t *p, uintptr_t start,
     mem_area_t *a;
     if((a = find_including(p, i)))
     {
-      debug("\n AREA COLLISION! %x %x %x", a->start, a->end, start);
+      debug("[error]AREA COLLISION! %x %x %x\n", a->start, a->end, start);
       for(;;);
       return 0;
     }
@@ -286,12 +286,13 @@ void print_areas(process_t *p)
 {
   list_t *area_list;
   mem_area_t *area;
-  debug("\n Areas:");
+  debug("[info]Memory areas start\n");
   for_each_in_list(&p->mm.mem, area_list)
   {
     area = list_entry(area_list, mem_area_t, mem);
     debug("\n %x-%x %x", area->start, area->end, area->flags);
   }
+  debug("[info]Memory areas end\n");
 }
 
 uint32_t procmm_handle_page_fault(uintptr_t address, uint32_t flags)

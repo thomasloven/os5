@@ -234,5 +234,7 @@ void vfs_print_tree_rec(tree_node_t *node, int level)
 
 void vfs_print_tree()
 {
+  debug("[info]VFS tree start\n");
   vfs_print_tree_rec(vfs_tree.root, 0);
+  debug("[info]VFS tree end\n");
 }

@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdarg.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 void init_serial(short port)
 {
@@ -26,12 +27,14 @@ void serial_debug(char *str, ...)
   va_list args;
   va_start(args, str);
 
-  char buf[255];
+  char *buf;
 
-  vsprintf(buf, str, args);
+  vasprintf(&buf, str, args);
   int i;
   for(i = 0; i < strlen(buf); i++)
     serial_send(SERIAL_COM1, buf[i]);
+
+  free(buf);
   va_end(args);
 }
 
