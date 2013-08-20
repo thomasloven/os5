@@ -99,43 +99,6 @@ void print_prompt()
   }
 }
 
-int execvp(const char *file, char *const argv[])
-{
-  int i = 0;
-  int addpath = 1;
-  while(file[i])
-  {
-    if(file[i] == '/')
-    {
-      addpath = 0;
-      break;
-    }
-    i++;
-  }
-
-  if(addpath)
-  {
-    char *path = strdup(getenv("PATH"));
-    if(!path) path = "/usr/sbin:/bin";
-    char *brk;
-    char *p = strtok_r(path, ":", &brk);
-    while(p)
-    {
-      char *fullpath = malloc(strlen(p) + strlen(file) + 1);
-      strcpy(fullpath, p);
-      strcat(fullpath, "/");
-      strcat(fullpath, file);
-
-      execve(fullpath, argv, environ);
-
-      p = strtok_r(NULL, ":", &brk);
-    }
-  }
-
-  return -1;
-
-}
-
 int main(int argc, char **argv)
 {
   char line[BUF_SIZE];

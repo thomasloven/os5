@@ -53,7 +53,7 @@ int syscall_errno;
 
 DECL_SYSCALL1(exit, int);
 DECL_SYSCALL1(close, int);
-DECL_SYSCALL3(execve, char *, char **, char **);
+DECL_SYSCALL3(execve, const char *, char *const*, char **);
 DECL_SYSCALL0(fork);
 DECL_SYSCALL2(fstat, int, struct stat *);
 DECL_SYSCALL0(getpid);
