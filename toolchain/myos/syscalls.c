@@ -14,6 +14,8 @@ extern int errno;
 #define NDEBUG
 extern char **environ;
 
+#ifndef KERNEL_MODE
+
 char *__env[1] = { 0 };
 
 void _init(uint32_t *args)
@@ -246,6 +248,8 @@ sig_t signal(int signum, sig_t handler)
   return ret;
 }
 
+#endif
+
 int execvp(const char *file, char *const argv[])
 {
   int i = 0;
@@ -283,3 +287,4 @@ int execvp(const char *file, char *const argv[])
 
   return -1;
 }
+
