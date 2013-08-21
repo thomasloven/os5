@@ -290,7 +290,7 @@ void print_areas(process_t *p)
   for_each_in_list(&p->mm.mem, area_list)
   {
     area = list_entry(area_list, mem_area_t, mem);
-    debug("\n %x-%x %x", area->start, area->end, area->flags);
+    debug("0x%x-0x%x flags:0x%x\n", area->start, area->end, area->flags);
   }
   debug("[info]Memory areas end\n");
 }

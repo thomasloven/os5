@@ -55,62 +55,89 @@ char *kernel_lookup_symbol(uint32_t addr)
 
 void load_elf_segment(fs_node_t *file, elf_phead *phead)
 {
-  uint32_t flags = MM_FLAG_READ | MM_FLAG_WRITE | MM_FLAG_CANSHARE;
+  uint32_t flags = MM_FLAG_READ | MM_FLAG_CANSHARE;
+  if(phead->flags & ELF_PT_W) flags |= MM_FLAG_WRITE;
   uint32_t type = MM_TYPE_DATA;
-  new_area(current->proc, phead->p_vaddr, phead->p_vaddr + phead->p_memsz, flags, type);
 
-  if(phead->p_memsz == 0) return;
-  vfs_read(file, phead->p_offset, phead->p_filesz, (char *)phead->p_vaddr);
-  memset((void *)(phead->p_vaddr + phead->p_filesz), 0, phead->p_memsz-phead->p_filesz);
+  uint32_t memsize = phead->mem_size; // Size in memory
+  uint32_t filesize = phead->file_size; // Size in file
+  uint32_t mempos = phead->virtual_address; // Offset in memory
+  uint32_t filepos = phead->offset; // Offset in file
+
+  new_area(current->proc, mempos, mempos + memsize, flags, type);
+
+  if(memsize == 0) return; // Nothing to load
+
+  // Read the data right into memory
+  vfs_read(file, filepos, filesize, (char *)mempos);
+  // Fill the rest of the area with zeros
+  memset((void *)(mempos + filesize), 0, memsize-filesize);
 }
 
-
-void load_elf(fs_node_t *file)
+int _is_elf(elf_header *elf)
 {
-  elf_header *head = malloc(sizeof(elf_header));
-  vfs_read(file, 0, sizeof(elf_header), (char *)head);
-  elf_phead *program_head = malloc(sizeof(elf_phead)*head->elf_phnum);
-  vfs_read(file, head->elf_phoff, sizeof(elf_phead)*head->elf_phnum, (char *)program_head);
+  int iself = -1;
 
-  process_t *p = current->proc;
-  process_mem_t *mm = &p->mm;
+  if((elf->identity[0] == 0x7f) && !strncmp((char *)&elf->identity[1], "ELF", 3))
+    iself = 0;
 
+  if(iself != -1)
+    iself = elf->type;
+
+  return iself;
+}
+int is_elf(fs_node_t *file)
+{
+  elf_header *elf = malloc(sizeof(elf_header));
+  vfs_read(file, 0, sizeof(elf_header), (char *)elf);
+
+  int iself = _is_elf(elf);
+
+  free(elf);
+  return iself;
+}
+
+int load_elf(fs_node_t *file)
+{
+  // Read elf header from the file
+  elf_header *elf = malloc(sizeof(elf_header));
+  vfs_read(file, 0, sizeof(elf_header), (char *)elf);
+
+  // Check if the file is actually an elf executable
+  if(_is_elf(elf) != ELF_TYPE_EXECUTABLE)
+    return -1;
+
+  // Read program headers from the file
+  elf_phead *phead = malloc(sizeof(elf_phead)*elf->ph_num);
+  vfs_read(file, elf->ph_offset, sizeof(elf_phead)*elf->ph_num, (char *)phead);
+
+  // Prepare the memory manager
+  process_mem_t *mm = &current->proc->mm;
   mm->code_start = ~0x0;
   mm->code_end = 0x0;
 
   uint32_t i;
-  for(i=0; i < head->elf_phnum; i++)
+  for(i=0; i < elf->ph_num; i++)
   {
-    if(program_head[i].p_type == 0x1)
+    if(phead[i].type == ELF_PT_LOAD)
     {
       // If the current segment is loadable, load it and adjust
       // code area pointers accordingly.
-      uintptr_t start = program_head[i].p_vaddr;
-      uintptr_t end = start + program_head[i].p_memsz;
+      uintptr_t start = phead[i].virtual_address;
+      uintptr_t end = start + phead[i].mem_size;
      if(start < mm->code_start)
         mm->code_start = start;
       if(end > mm->code_end)
         mm->code_end = end;
 
-      load_elf_segment(file, &program_head[i]);
+      load_elf_segment(file, &phead[i]);
     }
   }
 
   mm->data_end = mm->code_end;
-  mm->code_entry = head->elf_entry;
-  free(program_head);
+  mm->code_entry = elf->entry;
+  free(phead);
+  free(elf);
+  return 0;
 }
 
-int is_elf(fs_node_t *file)
-{
-  int iself = 0;
-  elf_header *head = malloc(sizeof(elf_header));
-  vfs_read(file, 0, sizeof(elf_header), (char *)head);
-  if(head->elf_ident[0] == 0x7f)
-    if(head->elf_ident[1] == 'E')
-      if(head->elf_ident[2] == 'L')
-        if(head->elf_ident[3] == 'F')
-          iself = 1;
-  free(head);
-  return iself;
-}

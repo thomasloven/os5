@@ -22,6 +22,7 @@ void  _exit(int rc)
   if(current->proc->flags & PROC_FLAG_DEBUG)
   {
     debug("[info]EXIT(%x)\n", rc);
+    print_areas(current->proc);
   }
   exit_process(current->proc, rc);
 
@@ -54,9 +55,10 @@ int execve(char *name, char **argv, char **env)
     errno = ENOENT;
     return -1;
   }
-  if(!is_elf(executable))
+  if(is_elf(executable) != 2)
   {
     errno = ENOEXEC;
+    debug("[error] Tried to load unexecutable file.");
     return -1;
   }
 
