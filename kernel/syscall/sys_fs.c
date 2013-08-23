@@ -57,7 +57,7 @@ int fstat(int file, struct stat *st)
   }
   st->st_dev = 0;
   st->st_ino = node->inode;
-  st->st_mode = node->mode;
+  st->st_mode = node->flags;
   st->st_nlink = 0;
   st->st_uid = 0;
   st->st_gid = 0;
@@ -199,7 +199,7 @@ int open(const char *name, int flags, int mode)
   }
 
   // Open the file
-  fs_node_t *node = vfs_find_node(name);
+  fs_node_t *node = vfs_find(name);
   if(!node)
   {
     errno = ENOENT;

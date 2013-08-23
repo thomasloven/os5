@@ -31,13 +31,13 @@ typedef struct
 } tarfs_entry_t;
 
 #define TAR_TYPE_FILE 0
-#define TAR_TYPE_LINK 1
-#define TAR_TYPE_SYMLINK 2
-#define TAR_TYPE_CHARDEV 3
-#define TAR_TYPE_BLOCKDEV 4
-#define TAR_TYPE_DIR 5
-#define TAR_TYPE_FIFO 6
-#define TAR_TYPE_CONT 7
+#define TAR_TYPE_LINK '1'
+#define TAR_TYPE_SYMLINK '2'
+#define TAR_TYPE_CHARDEV '3'
+#define TAR_TYPE_BLOCKDEV '4'
+#define TAR_TYPE_DIR '5'
+#define TAR_TYPE_FIFO '6'
+#define TAR_TYPE_CONT '7'
 
 fs_node_t *tarfs_init(tar_header_t *tar);
 

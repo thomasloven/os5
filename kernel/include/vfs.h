@@ -8,6 +8,13 @@
 #define VFS_FLAG_ISATTY 0x100000
 #define VFS_FLAG_PIPE 0x110000
 
+#define FS_FILE 0x1
+#define FS_DIRECTORY 0x2
+#define FS_CHARDEV 0x3
+#define FS_BLOCKDEV 0x4
+#define FS_PIPE 0x5
+#define FS_SYMLINK 0x6
+#define FS_MOUNT 0x8
 
 struct fs_node;
 
@@ -21,11 +28,9 @@ typedef struct fs_node *(*finddir_type_t)(struct fs_node *, char *);
 typedef struct fs_node
 {
   char name[256];
-  void *device;
-  uint32_t mode;
   uint32_t flags;
-  uint32_t inode;
   uint32_t length;
+  uint32_t inode;
 
   read_type_t read;
   write_type_t write;
@@ -35,6 +40,7 @@ typedef struct fs_node
   finddir_type_t finddir;
 
   struct fs_node *ptr;
+  void *data;
 } fs_node_t;
 
 struct dirent {
@@ -57,7 +63,6 @@ typedef struct vfs_pipe
   uint32_t users;
   semaphore_t semaphore;
   list_head_t waiting;
-
 } vfs_pipe_t;
 
 uint32_t vfs_read(fs_node_t *node, uint32_t offset, uint32_t size, char *buffer);
@@ -68,14 +73,13 @@ struct dirent *vfs_readdir(fs_node_t *node, uint32_t index);
 fs_node_t *vfs_finddir(fs_node_t *node, char *name);
 
 void vfs_init();
-void vfs_mount(char *path, fs_node_t *mount_root);
-fs_node_t *vfs_find_node(const char *path);
+void vfs_mount(const char *path, fs_node_t *mountroot);
+fs_node_t *vfs_find(const char *path);
 
 void vfs_print_tree();
 
+// Defined in fs/debug_dev.c
 fs_node_t *debug_dev_init();
 fs_node_t *new_pipe(uint32_t size);
-
-char *strdup(const char *s);
 
 #endif

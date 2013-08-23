@@ -34,7 +34,7 @@ uint32_t pipe_unwritten_bytes(vfs_pipe_t *pipe)
 
 uint32_t read_pipe(fs_node_t *node, uint32_t offset, uint32_t size, char *buffer)
 {
-  vfs_pipe_t *pipe = (vfs_pipe_t *)node->device;
+  vfs_pipe_t *pipe = (vfs_pipe_t *)node->data;
   uint32_t read = 0;
   while(read == 0)
   {
@@ -69,7 +69,7 @@ uint32_t read_pipe(fs_node_t *node, uint32_t offset, uint32_t size, char *buffer
 
 uint32_t write_pipe(fs_node_t *node, uint32_t offset, uint32_t size, char *buffer)
 {
-  vfs_pipe_t *pipe = (vfs_pipe_t *)node->device;
+  vfs_pipe_t *pipe = (vfs_pipe_t *)node->data;
   uint32_t written = 0;
   while(written < size)
   {
@@ -113,14 +113,14 @@ uint32_t write_pipe(fs_node_t *node, uint32_t offset, uint32_t size, char *buffe
 
 void open_pipe(fs_node_t *node, uint32_t flags)
 {
-  vfs_pipe_t *pipe = (vfs_pipe_t *)node->device;
+  vfs_pipe_t *pipe = (vfs_pipe_t *)node->data;
   pipe->users = pipe->users + 1;
   return;
 }
 
 void close_pipe(fs_node_t *node)
 {
-  vfs_pipe_t *pipe = (vfs_pipe_t *)node->device;
+  vfs_pipe_t *pipe = (vfs_pipe_t *)node->data;
   pipe->users = pipe->users - 1;
   
   if(pipe->users == 0)
@@ -151,9 +151,8 @@ fs_node_t *new_pipe(uint32_t size)
   node->close = &close_pipe;
   node->readdir = 0;
   node->finddir = 0;
-  node->device = (void *)pipe;
-  node->mode = S_IFCHR;
-  node->flags = VFS_FLAG_PIPE;
+  node->data = (void *)pipe;
+  node->flags = FS_PIPE;
 
   return node;
 }

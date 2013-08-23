@@ -125,7 +125,7 @@ tree_t *build_tar_tree(tar_header_t *tar)
 
 uint32_t read_tar(fs_node_t *node, uint32_t offset, uint32_t size, char *buffer)
 {
-  tree_node_t *tn = (tree_node_t *)node->device;
+  tree_node_t *tn = (tree_node_t *)node->data;
   tarfs_entry_t *te = (tarfs_entry_t *)tn->item;
   tar_header_t *tar = te->tar;
 
@@ -167,7 +167,7 @@ struct dirent *tar_readdir(fs_node_t *node, uint32_t index)
 
 fs_node_t *tar_finddir(fs_node_t *node, char *name)
 {
-  tree_node_t *tn = (tree_node_t *)node->device;
+  tree_node_t *tn = (tree_node_t *)node->data;
   list_t *l;
   for_each_in_list(&tn->children, l)
   {
@@ -184,9 +184,14 @@ fs_node_t *tar_finddir(fs_node_t *node, char *name)
       node->close = &close_tar;
       node->readdir = &tar_readdir;
       node->finddir = &tar_finddir;
-      node->device = (void *)cn;
+      node->data = (void *)cn;
       node->length = tar_size(entry->tar->size);
-      node->mode = S_IFREG;
+      if(entry->tar->type[0] == TAR_TYPE_DIR)
+      {
+        node->flags = FS_DIRECTORY;
+      }
+      else
+        node->flags = FS_FILE;
       return node;
     }
   }
@@ -206,10 +211,10 @@ fs_node_t *tarfs_init(tar_header_t *tar)
   node->close = &close_tar;
   node->readdir = &tar_readdir;
   node->finddir = &tar_finddir;
-  node->mode = S_IFDIR;
+  node->flags = FS_DIRECTORY;
 
   tree_t *tar_tree = build_tar_tree(tar);
-  node->device = (void *)tar_tree->root;
+  node->data = (void *)tar_tree->root;
 
   return node;
 }

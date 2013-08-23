@@ -7,8 +7,6 @@
 #include <stdlib.h>
 
 tree_t vfs_tree;
-fs_node_t *root_node;
-
 
 uint32_t vfs_read(fs_node_t *node, uint32_t offset, uint32_t size, char *buffer)
 {
@@ -40,7 +38,7 @@ void vfs_close(fs_node_t *node)
 
 struct dirent *vfs_readdir(fs_node_t *node, uint32_t index)
 {
-  if(node->readdir)
+  if(node->flags & FS_DIRECTORY && node->readdir)
     return node->readdir(node, index);
   else
     return (struct dirent *)0;
@@ -48,23 +46,15 @@ struct dirent *vfs_readdir(fs_node_t *node, uint32_t index)
 
 fs_node_t *vfs_finddir(fs_node_t *node, char *name)
 {
-  if(node->finddir)
+  if(node->flags & FS_DIRECTORY && node->finddir)
     return node->finddir(node, name);
   else
     return (fs_node_t *)0;
 }
 
-/* char *strdup(const char *s) */
-/* { */
-/*   char *d = malloc(strlen(s) + 1); */
-/*   if(d != 0) */
-/*     strcpy(d,s); */
-/*   return d; */
-/* } */
-
 void vfs_init()
 {
-  vfs_tree.size = 0;
+  init_tree(vfs_tree);
   tree_node_t *root_tn = vfs_tree.root = malloc(sizeof(tree_node_t));
 
   init_tree_node(root_tn);
@@ -72,144 +62,112 @@ void vfs_init()
 
   root->name = strdup("[root]");
   root->node = 0;
-
-  // /dev/debug writes to the terminal
-  fs_node_t *dbg = debug_dev_init();
-  vfs_mount("/dev/debug", dbg);
 }
 
-vfs_entry_t *vfs_find_root(char *path, int path_length, char **path_pos)
+
+fs_node_t *vfs_traverse(const char *path, fs_node_t *mountroot)
 {
-  // Find and return the root node of a mount point
+  tree_node_t *treenode = vfs_tree.root;
+  vfs_entry_t *vfsentry = treenode->item;
+  fs_node_t *node = vfsentry->node;
+  fs_node_t *nextnode;
 
-  tree_node_t *node = vfs_tree.root;
-
-  char *i = *path_pos;
-
-  while(i < path + path_length)
+  char *name, *brk;
+  char *npath = strdup(path);
+  // For each part of the path...
+  for(name = strtok_r(&npath[1], "/", &brk); \
+      name; \
+      name = strtok_r(0, "/", &brk))
   {
-    int found = 0;
-    list_t *l;
-    for_each_in_list(&node->children, l)
+    int found = 0, foundmount = 0;
+
+    // First search the file system
+    if(node && node->flags & FS_DIRECTORY)
     {
-      tree_node_t *tn = list_entry(l, tree_node_t, siblings);
-      vfs_entry_t *entry = tn->item;
-      if(!strcmp(entry->name, i))
+      // Search file itself
+      nextnode = node->finddir(node, name);
+      if(nextnode)
       {
         found = 1;
-        node = tn;
-        break;
       }
     }
     if(!found)
+      nextnode = 0;
+
+    // Then search mount tree
+    if(treenode)
     {
-      // Return the last node we found
+      list_t *l;
+      for_each_in_list(&treenode->children, l)
+      {
+        tree_node_t *tn = list_entry(l, tree_node_t, siblings);
+        vfs_entry_t *ve = tn->item;
+        if(!strcmp(ve->name, name))
+        {
+          // Found the next node in the mount tree
+          foundmount = 1;
+          treenode = tn;
+          // Mounts override other file system
+          if(ve->node)
+            nextnode = ve->node;
+          break;
+        }
+      }
+    }
+
+    // If we want to mount something, we keep building the tree as we go
+    // along
+    if(mountroot && !foundmount)
+    {
+      // Create a new tree node and vfs item
+      tree_node_t *tn = malloc(sizeof(tree_node_t));
+      init_tree_node(tn);
+      vfs_entry_t *ve = tn->item = malloc(sizeof(vfs_entry_t));
+      ve->name = strdup(name);
+      nextnode = ve->node = 0;
+
+      tree_make_child(treenode, tn);
+      treenode = tn;
+    }
+    node = nextnode;
+    nextnode = 0;
+    // If the next step was not found, and we don't want to mount
+    // anything: exit
+    if(!mountroot && !node)
+    {
       break;
     }
-    i += strlen(i) + 1;
   }
+  // The entire path has been traversed
 
-  *path_pos = i;
-  return node->item;
+  /* if(!node) */
+  /* { */
+    // If the last node was not found
+    if(mountroot)
+    {
+      debug("[info] Mounting %x to %s\n", mountroot, path);
+      // If we want to mount it
+      vfs_entry_t *ve = treenode->item;
+      ve->node = mountroot;
+      node = mountroot;
+    }
+  /* } */
 
+  free(npath);
+  return node;
 }
 
-fs_node_t *vfs_find_node(const char *path)
+void vfs_mount(const char *path, fs_node_t *mountroot)
 {
-  // Returns the fs_node at the specified path if it exists.
-  // Completes the vfs tree on the way. 
-  
-  char *p = strdup(path);
-  char *i = p;
-
-  // Tokenize file path
-  uint32_t path_length = strlen(path);
-  while(i < p + path_length)
-  {
-    if(*i == '/')
-      *i = '\0';
-    i++;
-  }
-  p[path_length] = '\0';
-  i = p + 1;
-
-  // Get a starting point for finding the file
-  vfs_entry_t *node = vfs_find_root(p, path_length, &i);
-  // Search mounted fs
-  //
-  fs_node_t *fnode = node->node;
-  while(i < p + path_length)
-  {
-    int found = 0;
-    if(!fnode) return 0;
-    if(fnode->finddir)
-    {
-        fs_node_t *next = fnode->finddir(fnode, i);
-        if(next)
-        {
-          fnode = next;
-          found = 1;
-        }
-    }
-      if(!found)
-        return 0;
-  i += strlen(i) + 1;
-  }
-  return fnode;
+  vfs_traverse(path, mountroot);
 }
 
-
-void vfs_mount(char *path, fs_node_t *mount_root)
+fs_node_t *vfs_find(const char *path)
 {
-  char *p = strdup(path);
-  char *i = p;
-
-  uint32_t path_length = strlen(path);
-  // Tokenize path
-  while(i < p + path_length)
-  {
-    if(*i == '/')
-      *i = '\0';
-    i++;
-  }
-  p[path_length] = '\0';
-  i = p + 1;
-
-  tree_node_t *node = vfs_tree.root;
-  while(i < p + path_length)
-  {
-    int found = 0;
-    list_t *l;
-    for_each_in_list(&node->children, l)
-    {
-      tree_node_t *tn = list_entry(l, tree_node_t, siblings);
-      vfs_entry_t *entry = tn->item;
-      if(!strcmp(entry->name, i))
-      {
-        found = 1;
-        node = tn;
-        break;
-      }
-    }
-    if(!found)
-    {
-      // If a node on the way is not found, just create it
-      tree_node_t *new = malloc(sizeof(tree_node_t));
-      init_tree_node(new);
-      vfs_entry_t *n = new->item = malloc(sizeof(vfs_entry_t));
-      n->name = strdup(i);
-      n->node = 0;
-
-      tree_make_child(node, new);
-      node = new;
-    }
-
-    i += strlen(i) + 1;
-  }
-  vfs_entry_t *entry = node->item;
-  entry->node = mount_root;
-
+  fs_node_t *ret = vfs_traverse(path, 0);
+  return ret;
 }
+
 
 void vfs_print_tree_rec(tree_node_t *node, int level)
 {

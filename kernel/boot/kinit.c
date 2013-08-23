@@ -55,12 +55,11 @@ registers_t *kinit(mboot_info_t *mboot, uint32_t mboot_magic)
   syscall_init();
   process_init((void(*)(void))&_idle);
 
-  keyboard_init();
-
-
   tar_header_t *tarfs_location = assert_higher((tar_header_t *)mods[0].mod_start);
 
   vfs_mount("/", tarfs_init(tarfs_location));
+  keyboard_init();
+  vfs_mount("/dev/debug", debug_dev_init());
 
   fopen("/dev/kbd", "r");
   fopen("/dev/debug", "w");
