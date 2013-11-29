@@ -12,6 +12,7 @@
 
 void tartree_add_node(tree_t *tree, tar_header_t *tar, char *path)
 {
+  debug("[info] Tarfs adding %s\n", path);
   char *p = strdup(path);
   char *i = p;
 
@@ -89,6 +90,7 @@ tree_t *build_tar_tree(tar_header_t *tar)
   tree_t *tree = malloc(sizeof(tree_t));
 
   char *s = strdup((const char *)tar->name);
+  debug("[info] Tar %s\n", tar->name);
   size_t i;
   for(i = 0; i < strlen(s); i++)
   {

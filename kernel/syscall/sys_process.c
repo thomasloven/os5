@@ -52,6 +52,7 @@ int execve(char *name, char **argv, char **env)
   fs_node_t *executable = vfs_find(name);
   if(!executable)
   {
+    debug("[error] Executable %s not found.", name);
     errno = ENOENT;
     return -1;
   }

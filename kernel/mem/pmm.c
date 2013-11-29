@@ -88,7 +88,10 @@ void pmm_init(mboot_info_t *mboot)
   // Setup physical memory manager.
   // Takes a multiboot memory map as argument.
 
+  mboot_mod_t *mods = (mboot_mod_t *)(assert_higher(mboot->mods_addr));
   pmm_pos = (mboot->mem_upper + PAGE_SIZE) & PAGE_MASK;
+  if(pmm_pos < (mods[mboot->mods_count-1].mod_end))
+    pmm_pos = (mods[mboot->mods_count-1].mod_end + PAGE_SIZE) & PAGE_MASK;
   pmm_running = FALSE;
 
   // Fill physical page stack with free pages from memory map.

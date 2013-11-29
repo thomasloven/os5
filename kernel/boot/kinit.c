@@ -56,6 +56,7 @@ registers_t *kinit(mboot_info_t *mboot, uint32_t mboot_magic)
   process_init((void(*)(void))&_idle);
 
   tar_header_t *tarfs_location = assert_higher((tar_header_t *)mods[0].mod_start);
+  debug("[info] Mboot flags %x\n", mboot->mods_addr);
 
   vfs_mount("/", tarfs_init(tarfs_location));
   keyboard_init();
