@@ -199,7 +199,7 @@ int open(const char *name, int flags, int mode)
   }
 
   // Open the file
-  fs_node_t *node = vfs_find(name);
+  INODE node = vfs_namei(name);
   if(!node)
   {
     errno = ENOENT;

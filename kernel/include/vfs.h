@@ -1,6 +1,7 @@
 #pragma once
 #include <synch.h>
 #include <lists.h>
+#include <sys/stat.h>
 
 #ifndef __ASSEMBLER__
 #include <stdint.h>
@@ -25,6 +26,46 @@ typedef void (*close_type_t)(struct fs_node *);
 typedef struct dirent *(*readdir_type_t)(struct fs_node *, uint32_t);
 typedef struct fs_node *(*finddir_type_t)(struct fs_node *, char *);
 
+struct vfs_node_st;
+typedef struct vfs_node_st * INODE;
+
+typedef struct dirent_st {
+  uint32_t ino;
+  char name[256];
+} dirent_t;
+
+struct vfs_fstat_st
+{
+  uint32_t size;
+  uint32_t mode;
+};
+
+typedef struct vfs_driver_st
+{
+  uint32_t (*open)(INODE, uint32_t);
+  uint32_t (*close)(INODE);
+  uint32_t (*read)(INODE, void *, uint32_t, uint32_t);
+  uint32_t (*write)(INODE, void *, uint32_t, uint32_t);
+  uint32_t (*fstat)(INODE, struct stat *st);
+  dirent_t *(*readdir)(INODE, uint32_t);
+  INODE (*finddir)(INODE, const char *);
+} vfs_driver_t;
+
+#define VFS_NAME_SZ 256
+
+typedef struct vfs_node_st
+{
+  char name[VFS_NAME_SZ];
+  void *parent;
+  void *child;
+  void *older, *younger;
+  vfs_driver_t *d;
+  uint32_t type;
+  void *data;
+  uint32_t length;
+} vfs_node_t;
+
+
 typedef struct fs_node
 {
   char name[256];
@@ -43,10 +84,6 @@ typedef struct fs_node
   void *data;
 } fs_node_t;
 
-struct dirent {
-  uint32_t ino;
-  char name[256];
-};
 
 typedef struct vfs_entry
 {
@@ -65,15 +102,16 @@ typedef struct vfs_pipe
   list_head_t waiting;
 } vfs_pipe_t;
 
-uint32_t vfs_read(fs_node_t *node, uint32_t offset, uint32_t size, char *buffer);
-uint32_t vfs_write(fs_node_t *node, uint32_t offset, uint32_t size, char *buffer);
-void vfs_open(fs_node_t *node, uint32_t flags);
-void vfs_close(fs_node_t *node);
-struct dirent *vfs_readdir(fs_node_t *node, uint32_t index);
-fs_node_t *vfs_finddir(fs_node_t *node, char *name);
+uint32_t vfs_read(INODE node, void *buffer, uint32_t offset, uint32_t size);
+uint32_t vfs_write(INODE node, void *buffer, uint32_t offset, uint32_t size);
+uint32_t vfs_open(INODE node, uint32_t flags);
+uint32_t vfs_close(INODE node);
+dirent_t *vfs_readdir(INODE node, uint32_t index);
+INODE vfs_finddir(INODE node, const char *name);
 
 void vfs_init();
-void vfs_mount(const char *path, fs_node_t *mountroot);
+INODE vfs_namei(const char *path);
+INODE vfs_mount(const char *path, INODE root);
 fs_node_t *vfs_find(const char *path);
 
 void vfs_print_tree();

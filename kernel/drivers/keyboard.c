@@ -130,12 +130,12 @@ registers_t *keyboard_handler(registers_t *r)
 void keyboard_init()
 {
   keyboard_pipe = new_pipe(1024);
-  vfs_mount("/dev/kbd", keyboard_pipe);
-  vfs_open(keyboard_pipe, O_WRONLY);
+  /* vfs_mount("/dev/kbd", keyboard_pipe); */
+  /* vfs_open(keyboard_pipe, O_WRONLY); */
 
   keyboard_raw = new_pipe(1024);
-  vfs_mount("/dev/kbdraw", keyboard_raw);
-  vfs_open(keyboard_raw, O_WRONLY);
+  /* vfs_mount("/dev/kbdraw", keyboard_raw); */
+  /* vfs_open(keyboard_raw, O_WRONLY); */
 
   register_int_handler(IRQ2INT(IRQ_KBD), keyboard_handler);
 

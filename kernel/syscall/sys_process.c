@@ -49,7 +49,7 @@ int execve(char *name, char **argv, char **env)
     debug("[info]EXECVE(%s, %x, %x)\n", name, argv, env);
   }
   // Find the executable
-  fs_node_t *executable = vfs_find(name);
+  INODE executable = vfs_namei(name);
   if(!executable)
   {
     debug("[error] Executable %s not found.", name);

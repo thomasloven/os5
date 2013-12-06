@@ -9,10 +9,20 @@
 #include <stdio.h>
 #include <sys/stat.h>
 
+vfs_driver_t tarfs_driver =
+{
+  open_tar,
+  close_tar,
+  read_tar,
+  write_tar,
+  0,
+  tar_readdir,
+  tar_finddir
+};
 
 void tartree_add_node(tree_t *tree, tar_header_t *tar, char *path)
 {
-  debug("[info] Tarfs adding %s\n", path);
+  /* debug("[info] Tarfs adding %s\n", path); */
   char *p = strdup(path);
   char *i = p;
 
@@ -125,7 +135,7 @@ tree_t *build_tar_tree(tar_header_t *tar)
 }
 
 
-uint32_t read_tar(fs_node_t *node, uint32_t offset, uint32_t size, char *buffer)
+uint32_t read_tar(INODE node, void *buffer, uint32_t offset, uint32_t size)
 {
   tree_node_t *tn = (tree_node_t *)node->data;
   tarfs_entry_t *te = (tarfs_entry_t *)tn->item;
@@ -141,33 +151,33 @@ uint32_t read_tar(fs_node_t *node, uint32_t offset, uint32_t size, char *buffer)
   memcpy(buffer, (void *)offset, size);
   if(size == tar_size(tar->size) - offset)
   {
-    buffer[size] = EOF;
+    ((char *)buffer)[size] = EOF;
   }
   return size;
 }
 
-uint32_t write_tar(fs_node_t *node, uint32_t offset, uint32_t size, char *buffer)
+uint32_t write_tar(INODE node, void *buffer, uint32_t offset, uint32_t size)
 {
   return 0;
 }
 
-void open_tar(fs_node_t *node, uint32_t flags)
+void open_tar(INODE node, uint32_t flags)
 {
   return;
 }
 
-void close_tar(fs_node_t *node)
+void close_tar(INODE node)
 {
-  free(node);
+  /* free(node); */
   return;
 }
 
-struct dirent *tar_readdir(fs_node_t *node, uint32_t index)
+struct dirent *tar_readdir(INODE node, uint32_t index)
 {
   return 0;
 }
 
-fs_node_t *tar_finddir(fs_node_t *node, char *name)
+INODE tar_finddir(INODE node, const char *name)
 {
   tree_node_t *tn = (tree_node_t *)node->data;
   list_t *l;
@@ -177,23 +187,17 @@ fs_node_t *tar_finddir(fs_node_t *node, char *name)
     tarfs_entry_t *entry = cn->item;
     if(!strcmp(entry->name, name))
     {
-      fs_node_t *node = malloc(sizeof(fs_node_t));
-      memset(node, 0, sizeof(fs_node_t));
+      INODE node = calloc(1, sizeof(vfs_node_t));
       strcpy(node->name, entry->name);
-      node->write = &write_tar;
-      node->read = &read_tar;
-      node->open = &open_tar;
-      node->close = &close_tar;
-      node->readdir = &tar_readdir;
-      node->finddir = &tar_finddir;
+      node->d = &tarfs_driver;
       node->data = (void *)cn;
       node->length = tar_size(entry->tar->size);
       if(entry->tar->type[0] == TAR_TYPE_DIR)
       {
-        node->flags = FS_DIRECTORY;
+        node->type = FS_DIRECTORY;
       }
       else
-        node->flags = FS_FILE;
+        node->type = FS_FILE;
       return node;
     }
   }
@@ -214,6 +218,20 @@ fs_node_t *tarfs_init(tar_header_t *tar)
   node->readdir = &tar_readdir;
   node->finddir = &tar_finddir;
   node->flags = FS_DIRECTORY;
+
+  tree_t *tar_tree = build_tar_tree(tar);
+  node->data = (void *)tar_tree->root;
+
+  return node;
+}
+
+
+vfs_node_t *tarfs_init2(tar_header_t *tar)
+{
+  vfs_node_t *node = calloc(1,sizeof(vfs_node_t));
+  strcpy(node->name, "tarfs");
+  node->d = &tarfs_driver;
+  node->type = FS_DIRECTORY;
 
   tree_t *tar_tree = build_tar_tree(tar);
   node->data = (void *)tar_tree->root;

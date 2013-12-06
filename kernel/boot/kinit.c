@@ -51,14 +51,20 @@ registers_t *kinit(mboot_info_t *mboot, uint32_t mboot_magic)
 
   scheduler_init();
   timer_init(500);
-  vfs_init();
+  /* vfs_init(); */
   syscall_init();
   process_init((void(*)(void))&_idle);
 
   tar_header_t *tarfs_location = assert_higher((tar_header_t *)mods[0].mod_start);
   debug("[info] Mboot flags %x\n", mboot->mods_addr);
+  debug("[info] Mounting tarfs as root\n");
+  vfs_init();
+  vfs_mount("/", tarfs_init2(tarfs_location));
+  vfs_mount("/mnt/tarfs", tarfs_init2(tarfs_location));
+  vfs_print_tree();
+  for(;;);
 
-  vfs_mount("/", tarfs_init(tarfs_location));
+  /* vfs_mount("/", tarfs_init(tarfs_location)); */
   keyboard_init();
   vfs_mount("/dev/debug", debug_dev_init());
 
