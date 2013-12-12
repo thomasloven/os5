@@ -21,6 +21,7 @@
 #include <version.h>
 
 #include <stdio.h>
+#include <stdlib.h>
 
 void _idle(void)
 {
@@ -56,12 +57,26 @@ registers_t *kinit(mboot_info_t *mboot, uint32_t mboot_magic)
   process_init((void(*)(void))&_idle);
 
   tar_header_t *tarfs_location = assert_higher((tar_header_t *)mods[0].mod_start);
+
   debug("[info] Mboot flags %x\n", mboot->mods_addr);
   debug("[info] Mounting tarfs as root\n");
   vfs_init();
-  vfs_mount("/", tarfs_init2(tarfs_location));
-  vfs_mount("/mnt/tarfs", tarfs_init2(tarfs_location));
+  vfs_mount("/", tarfs_init(tarfs_location));
+  vfs_mount("/mnt/tarfs", tarfs_init(tarfs_location));
+  vfs_mount("/tarfs", tarfs_init(tarfs_location));
+  debug("[info] Opening hello.txt\n");
+  FILE *i = fopen("/hello.txt", "r");
+  debug("[info] Opened %x\n", i);
+  char *data = malloc(256);
+  fread(data, 256, 1, i);
+  debug(" Read:\n %s\n", data);
+  vfs_mount("/dev/debug", debug_dev_init());
+  debug(" [info] Mounted debug\n");
   vfs_print_tree();
+  FILE *dbg = fopen("/dev/debug", "w+");
+  debug("Opened %x\n", dbg);
+  fprintf(dbg, "Hello, world!\n");
+  fprintf(dbg, "Hello, again.\n");
   for(;;);
 
   /* vfs_mount("/", tarfs_init(tarfs_location)); */

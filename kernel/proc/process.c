@@ -159,12 +159,12 @@ process_t *fork_process()
   int i;
   for(i  = 0; i < NUM_FILEDES; i++)
   {
-    if(child->fd[i].node)
+    if(child->fd[i])
     {
-      fs_node_t *pnode = child->fd[i].node;
-      fs_node_t *cnode = child->fd[i].node = malloc(sizeof(fs_node_t));
-      memcpy(cnode, pnode, sizeof(fs_node_t));
-      vfs_open(cnode, child->fd[i].flags);
+      INODE pnode = child->fd[i]->ino;
+      INODE cnode = child->fd[i]->ino = malloc(sizeof(vfs_node_t));
+      memcpy(cnode, pnode, sizeof(vfs_node_t));
+      vfs_open(cnode, child->fd[i]->flags);
     }
   }
   // Copy signal handler table

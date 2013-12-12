@@ -71,8 +71,8 @@ unsigned char kbd_mapS[128] =
   0
 };
 
-fs_node_t *keyboard_pipe;
-fs_node_t *keyboard_raw;
+INODE keyboard_pipe;
+INODE keyboard_raw;
 char kbd_state = 0;
 
 unsigned char keyboard_decode(unsigned char scancode)
@@ -116,13 +116,13 @@ registers_t *keyboard_handler(registers_t *r)
   code[0] = keyboard_decode(scancode);
   if(code[0])
   {
-    vfs_write(keyboard_pipe, 0, 1, (char *)code);
+    vfs_write(keyboard_pipe, (char *)code, 1, 0);
     // Echo key to stdout
     fputc((int)code[0], stdout);
     fflush(stdout);
   }
   code[0] = scancode;
-  vfs_write(keyboard_raw, 0, 1, (char *)code);
+  vfs_write(keyboard_raw, (char *)code, 1, 0);
 
   return r;
 }

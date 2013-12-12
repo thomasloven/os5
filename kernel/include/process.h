@@ -32,10 +32,14 @@ typedef struct process_mem_struct
 
 typedef struct
 {
-  fs_node_t *node;
+  INODE ino;
   uint32_t offset;
   uint32_t flags;
+  uint32_t users;
 } file_desc_t;
+
+#define fd_get(fd) { (fd)->users++; }
+#define fd_put(fd) { (fd)->users--; if(!(fd)->users)free(fd); }
 
 typedef struct process_struct
 {
@@ -57,7 +61,7 @@ typedef struct process_struct
 
   process_mem_t mm;
 
-  file_desc_t fd[NUM_FILEDES];
+  file_desc_t *fd[NUM_FILEDES];
 
   void *signal_handler[NUM_SIGNALS];
   list_head_t signal_queue;

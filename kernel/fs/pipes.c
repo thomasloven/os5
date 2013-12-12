@@ -32,7 +32,7 @@ uint32_t pipe_unwritten_bytes(vfs_pipe_t *pipe)
     return pipe->read_pos - pipe->write_pos -1;
 }
 
-uint32_t read_pipe(fs_node_t *node, uint32_t offset, uint32_t size, char *buffer)
+uint32_t read_pipe(INODE node, void *buffer, uint32_t size, uint32_t offset)
 {
   vfs_pipe_t *pipe = (vfs_pipe_t *)node->data;
   uint32_t read = 0;
@@ -42,14 +42,14 @@ uint32_t read_pipe(fs_node_t *node, uint32_t offset, uint32_t size, char *buffer
       if(pipe->users == 1)
       {
         // If noone is writing to the pipe just return EOF
-        buffer[read++] = EOF;
+        ((char *)buffer)[read++] = EOF;
         spin_unlock(&pipe->semaphore);
         return read;
       }
       while(pipe_unread_bytes(pipe) > 0 && read < size)
       {
         // Read as much as is available
-        buffer[read++] = pipe->buffer[pipe->read_pos++];
+        ((char *)buffer)[read++] = pipe->buffer[pipe->read_pos++];
         if(pipe->read_pos == pipe->size) // XXX This is where the byte is wasted
           pipe->read_pos = 0;
       }
@@ -67,7 +67,7 @@ uint32_t read_pipe(fs_node_t *node, uint32_t offset, uint32_t size, char *buffer
   return read;
 }
 
-uint32_t write_pipe(fs_node_t *node, uint32_t offset, uint32_t size, char *buffer)
+uint32_t write_pipe(INODE node, void *buffer, uint32_t size, uint32_t offset)
 {
   vfs_pipe_t *pipe = (vfs_pipe_t *)node->data;
   uint32_t written = 0;
@@ -80,7 +80,7 @@ uint32_t write_pipe(fs_node_t *node, uint32_t offset, uint32_t size, char *buffe
         // write everything without bothering about overwriting
         while(written < size)
         {
-          pipe->buffer[pipe->write_pos++] = buffer[written++];
+          pipe->buffer[pipe->write_pos++] = ((char *)buffer)[written++];
           if(pipe->write_pos == pipe->size) // XXX And here
             pipe->write_pos = 0;
           // Make the read pointer follow along
@@ -94,7 +94,7 @@ uint32_t write_pipe(fs_node_t *node, uint32_t offset, uint32_t size, char *buffe
         while(pipe_unwritten_bytes(pipe) > 0 && written < size)
         {
           // Write as much as there is room for
-          pipe->buffer[pipe->write_pos++] = buffer[written++];
+          pipe->buffer[pipe->write_pos++] = ((char *)buffer)[written++];
           if(pipe->write_pos == pipe->size)
             pipe->write_pos = 0;
         }
@@ -111,14 +111,14 @@ uint32_t write_pipe(fs_node_t *node, uint32_t offset, uint32_t size, char *buffe
   return written;
 }
 
-void open_pipe(fs_node_t *node, uint32_t flags)
+void open_pipe(INODE node, uint32_t flags)
 {
   vfs_pipe_t *pipe = (vfs_pipe_t *)node->data;
   pipe->users = pipe->users + 1;
   return;
 }
 
-void close_pipe(fs_node_t *node)
+void close_pipe(INODE node)
 {
   vfs_pipe_t *pipe = (vfs_pipe_t *)node->data;
   pipe->users = pipe->users - 1;
@@ -130,7 +130,7 @@ void close_pipe(fs_node_t *node)
   return;
 }
 
-fs_node_t *new_pipe(uint32_t size)
+INODE new_pipe(uint32_t size)
 {
   vfs_pipe_t *pipe = malloc(sizeof(vfs_pipe_t));
   pipe->buffer = malloc(size);
@@ -142,17 +142,17 @@ fs_node_t *new_pipe(uint32_t size)
   init_list(pipe->waiting);
 
 
-  fs_node_t *node = malloc(sizeof(fs_node_t));
-  memset(node, 0, sizeof(fs_node_t));
-  sprintf(node->name, "[pipe]");
-  node->read = &read_pipe;
-  node->write = &write_pipe;
-  node->open = &open_pipe;
-  node->close = &close_pipe;
-  node->readdir = 0;
-  node->finddir = 0;
-  node->data = (void *)pipe;
-  node->flags = FS_PIPE;
+  INODE node = malloc(sizeof(vfs_node_t));
+  /* memset(node, 0, sizeof(fs_node_t)); */
+  /* sprintf(node->name, "[pipe]"); */
+  /* node->read = &read_pipe; */
+  /* node->write = &write_pipe; */
+  /* node->open = &open_pipe; */
+  /* node->close = &close_pipe; */
+  /* node->readdir = 0; */
+  /* node->finddir = 0; */
+  /* node->data = (void *)pipe; */
+  /* node->flags = FS_PIPE; */
 
-  return node;
+  return (INODE)node;
 }

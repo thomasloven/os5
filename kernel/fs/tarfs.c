@@ -9,16 +9,8 @@
 #include <stdio.h>
 #include <sys/stat.h>
 
-vfs_driver_t tarfs_driver =
-{
-  open_tar,
-  close_tar,
-  read_tar,
-  write_tar,
-  0,
-  tar_readdir,
-  tar_finddir
-};
+vfs_driver_t tarfs_driver;
+
 
 void tartree_add_node(tree_t *tree, tar_header_t *tar, char *path)
 {
@@ -135,7 +127,7 @@ tree_t *build_tar_tree(tar_header_t *tar)
 }
 
 
-uint32_t read_tar(INODE node, void *buffer, uint32_t offset, uint32_t size)
+uint32_t read_tar(INODE node, void *buffer, uint32_t size, uint32_t offset)
 {
   tree_node_t *tn = (tree_node_t *)node->data;
   tarfs_entry_t *te = (tarfs_entry_t *)tn->item;
@@ -156,30 +148,30 @@ uint32_t read_tar(INODE node, void *buffer, uint32_t offset, uint32_t size)
   return size;
 }
 
-uint32_t write_tar(INODE node, void *buffer, uint32_t offset, uint32_t size)
+uint32_t write_tar(INODE node, void *buffer, uint32_t size, uint32_t offset)
 {
   return 0;
 }
 
-void open_tar(INODE node, uint32_t flags)
+uint32_t open_tar(INODE node, uint32_t flags)
 {
-  return;
+  return 0;
 }
 
-void close_tar(INODE node)
+uint32_t close_tar(INODE node)
 {
   /* free(node); */
-  return;
+  return 0;
 }
 
-struct dirent *tar_readdir(INODE node, uint32_t index)
+dirent_t *tar_readdir(INODE node, uint32_t index)
 {
   return 0;
 }
 
-INODE tar_finddir(INODE node, const char *name)
+INODE tar_finddir(INODE dir, const char *name)
 {
-  tree_node_t *tn = (tree_node_t *)node->data;
+  tree_node_t *tn = (tree_node_t *)dir->data;
   list_t *l;
   for_each_in_list(&tn->children, l)
   {
@@ -206,27 +198,23 @@ INODE tar_finddir(INODE node, const char *name)
 }
 
 
-fs_node_t *tarfs_init(tar_header_t *tar)
+
+vfs_driver_t tarfs_driver =
 {
-  fs_node_t *node = malloc(sizeof(fs_node_t));
-  memset(node, 0, sizeof(fs_node_t));
-  strcpy(node->name, "tarfs");
-  node->write = &write_tar;
-  node->read = &read_tar;
-  node->open = &open_tar;
-  node->close = &close_tar;
-  node->readdir = &tar_readdir;
-  node->finddir = &tar_finddir;
-  node->flags = FS_DIRECTORY;
+  open_tar,
+  close_tar,
+  read_tar,
+  write_tar,
+  0,
+  0,
+  0,
+  0,
+  0,
+  tar_readdir,
+  tar_finddir
+};
 
-  tree_t *tar_tree = build_tar_tree(tar);
-  node->data = (void *)tar_tree->root;
-
-  return node;
-}
-
-
-vfs_node_t *tarfs_init2(tar_header_t *tar)
+INODE tarfs_init(tar_header_t *tar)
 {
   vfs_node_t *node = calloc(1,sizeof(vfs_node_t));
   strcpy(node->name, "tarfs");

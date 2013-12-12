@@ -85,7 +85,7 @@ elf_t kernel_elf;
 void  kernel_elf_init(mboot_info_t *mboot);
 char *kernel_lookup_symbol(uint32_t addr);
 
-int load_elf(fs_node_t *file);
-int is_elf(fs_node_t *file);
+int load_elf(INODE file);
+int is_elf(INODE file);
 
 #endif

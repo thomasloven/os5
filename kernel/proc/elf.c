@@ -53,7 +53,7 @@ char *kernel_lookup_symbol(uint32_t addr)
 }
 
 
-void load_elf_segment(fs_node_t *file, elf_phead *phead)
+void load_elf_segment(INODE file, elf_phead *phead)
 {
   uint32_t flags = MM_FLAG_READ | MM_FLAG_CANSHARE;
   if(phead->flags & ELF_PT_W) flags |= MM_FLAG_WRITE;
@@ -69,7 +69,7 @@ void load_elf_segment(fs_node_t *file, elf_phead *phead)
   if(memsize == 0) return; // Nothing to load
 
   // Read the data right into memory
-  vfs_read(file, filepos, filesize, (char *)mempos);
+  vfs_read(file, (char *)mempos, filesize, filepos);
   // Fill the rest of the area with zeros
   memset((void *)(mempos + filesize), 0, memsize-filesize);
 }
@@ -86,10 +86,10 @@ int _is_elf(elf_header *elf)
 
   return iself;
 }
-int is_elf(fs_node_t *file)
+int is_elf(INODE file)
 {
   elf_header *elf = malloc(sizeof(elf_header));
-  vfs_read(file, 0, sizeof(elf_header), (char *)elf);
+  vfs_read(file, (char *)elf, sizeof(elf_header), 0);
 
   int iself = _is_elf(elf);
 
@@ -97,11 +97,11 @@ int is_elf(fs_node_t *file)
   return iself;
 }
 
-int load_elf(fs_node_t *file)
+int load_elf(INODE file)
 {
   // Read elf header from the file
   elf_header *elf = malloc(sizeof(elf_header));
-  vfs_read(file, 0, sizeof(elf_header), (char *)elf);
+  vfs_read(file, (char *)elf, sizeof(elf_header), 0);
 
   // Check if the file is actually an elf executable
   if(_is_elf(elf) != ELF_TYPE_EXECUTABLE)
@@ -109,7 +109,7 @@ int load_elf(fs_node_t *file)
 
   // Read program headers from the file
   elf_phead *phead = malloc(sizeof(elf_phead)*elf->ph_num);
-  vfs_read(file, elf->ph_offset, sizeof(elf_phead)*elf->ph_num, (char *)phead);
+  vfs_read(file, (char *)phead, sizeof(elf_phead)*elf->ph_num, elf->ph_offset);
 
   // Prepare the memory manager
   process_mem_t *mm = &current->proc->mm;
