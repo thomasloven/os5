@@ -65,18 +65,12 @@ registers_t *kinit(mboot_info_t *mboot, uint32_t mboot_magic)
   vfs_mount("/mnt/tarfs", tarfs_init(tarfs_location));
   vfs_mount("/tarfs", tarfs_init(tarfs_location));
   debug("[info] Opening hello.txt\n");
-  FILE *i = fopen("/hello.txt", "r");
-  debug("[info] Opened %x\n", i);
-  char *data = malloc(256);
-  fread(data, 256, 1, i);
-  debug(" Read:\n %s\n", data);
   vfs_mount("/dev/debug", debug_dev_init());
   debug(" [info] Mounted debug\n");
   vfs_print_tree();
-  FILE *dbg = fopen("/dev/debug", "w+");
-  debug("Opened %x\n", dbg);
-  fprintf(dbg, "Hello, world!\n");
-  fprintf(dbg, "Hello, again.\n");
+  fopen("/dev/debug", "w");
+  fopen("/dev/debug", "w");
+  printf("Hello, world!\n");
   for(;;);
 
   /* vfs_mount("/", tarfs_init(tarfs_location)); */

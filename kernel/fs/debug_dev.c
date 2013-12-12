@@ -7,34 +7,24 @@
 
 
 
-uint32_t write_debug(INODE node, void *buffer, uint32_t size, uint32_t offset)
+uint32_t debug_write(INODE node, void *buffer, uint32_t size, uint32_t offset)
 {
-  // print everything to screen
-  ((char *)buffer)[size] = '\0';
-  kdbg_puts(buffer);
+  char *buf = calloc(size+1, 1);
+  memcpy(buf, buffer, size);
+  kdbg_puts(buf);
+  free(buf);
   return size;
 }
 
-uint32_t stat_debug(INODE node, struct stat *st)
+uint32_t debug_stat(INODE node, struct stat *st)
 {
-  st->st_dev = 0;
-  st->st_ino = 1;
+  memset(st, 0, sizeof(struct stat));
   st->st_mode = S_IFCHR;
-  st->st_nlink = 0;
-  st->st_uid = 0;
-  st->st_gid = 0;
-  st->st_rdev = 0;
-  st->st_size = 0;
-  st->st_atime = 0;
-  st->st_mtime = 0;
-  st->st_ctime = 0;
   return 0;
 }
 
-uint32_t isatty_debug(INODE node)
+uint32_t debug_isatty(INODE node)
 {
-  if(!node)
-    return 0;
   return 1;
 }
 
@@ -43,11 +33,11 @@ vfs_driver_t debug_driver =
   0,
   0,
   0,
-  write_debug,
+  debug_write,
   0,
   0,
-  stat_debug,
-  isatty_debug,
+  debug_stat,
+  debug_isatty,
   0,
   0,
   0
