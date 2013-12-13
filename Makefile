@@ -5,6 +5,7 @@ CC := i586-pc-myos-gcc
 DEP := $(CC) -MM
 
 CFLAGS := -ggdb
+# -Wall -Wextra -pedantic -std=c99 -U__STRICT_ANSI__ -Werror
 
 export BUILDROOT BUILDDIR
 export CC DEP CFLAGS

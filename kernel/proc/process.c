@@ -164,11 +164,12 @@ process_t *fork_process()
       INODE pnode = child->fd[i]->ino;
       INODE cnode = child->fd[i]->ino = malloc(sizeof(vfs_node_t));
       memcpy(cnode, pnode, sizeof(vfs_node_t));
-      vfs_open(cnode, child->fd[i]->flags);
+      /* vfs_open(cnode, child->fd[i]->flags); */
     }
   }
   // Copy signal handler table
   memcpy(child->signal_handler, parent->signal_handler, sizeof(uintptr_t)*NUM_SIGNALS);
+  init_list(child->signal_queue);
 
   // Fix the family
   child->parent = parent;

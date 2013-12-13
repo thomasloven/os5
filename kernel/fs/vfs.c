@@ -176,7 +176,7 @@ INODE vfs_find_root(char **path)
         mount = current;
         break;
       }
-      current = current->younger;
+      current = current->older;
     }
     if(!current)
     {
@@ -247,6 +247,7 @@ INODE vfs_namei_mount(const char *path, INODE root)
       vfs_root = root;
 
     free(current);
+    current = root;
   }
   return current;
 }
