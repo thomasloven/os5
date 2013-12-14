@@ -30,7 +30,7 @@ void serial_debug(char *str, ...)
   char *buf;
 
   vasprintf(&buf, str, args);
-  int i;
+  unsigned int i;
   for(i = 0; i < strlen(buf); i++)
     serial_send(SERIAL_COM1, buf[i]);
 

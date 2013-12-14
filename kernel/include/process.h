@@ -51,6 +51,8 @@ typedef struct process_struct
   struct process_struct *older_sibling;
   struct process_struct *younger_sibling;
 
+  char *cmdline;
+
   list_head_t threads;
   list_head_t proc_list;
   uintptr_t pd;

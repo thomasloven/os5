@@ -23,7 +23,7 @@ mem_area_t *alloc_area(uintptr_t start, uintptr_t end,
   uintptr_t flags, uintptr_t type, process_t *owner)
 {
   // Helper function. Allocate a new memory area and prepare it
-  mem_area_t *ma = malloc(sizeof(mem_area_t));
+  mem_area_t *ma = calloc(1, sizeof(mem_area_t));
   ma->start = start;
   ma->end = end;
   ma->flags = flags;
@@ -290,7 +290,17 @@ void print_areas(process_t *p)
   for_each_in_list(&p->mm.mem, area_list)
   {
     area = list_entry(area_list, mem_area_t, mem);
-    debug("0x%x-0x%x flags:0x%x\n", area->start, area->end, area->flags);
+    debug("0x%x-0x%x Owner: %x", area->start, area->end, area->owner->pid);
+    debug("Flags: %c%c%c%c%c%c%c%c", \
+        (area->flags & MM_FLAG_READ)?'R':'-', \
+        (area->flags & MM_FLAG_WRITE)?'W':'-', \
+        (area->flags & MM_FLAG_SHARED)?'S':'-', \
+        (area->flags & MM_FLAG_CANSHARE)?'s':'-', \
+        (area->flags & MM_FLAG_COW)?'O':'-', \
+        (area->flags & MM_FLAG_GROWSDOWN)?'D':'-', \
+        (area->flags & MM_FLAG_AUTOGROW)?'A':'-', \
+        (area->flags & MM_FLAG_ADDONUSE)?'a':'-');
+    debug("\n");
   }
   debug("[info]Memory areas end\n");
 }

@@ -12,6 +12,8 @@
 
 uint32_t next_pid = 1;
 
+extern int debug_enabled;
+
 list_head_t process_list;
 
 process_t *alloc_process()
@@ -155,21 +157,24 @@ process_t *fork_process()
   // Clone page directory
   child->pd = vmm_clone_pd();
   // Clone file descriptors
-  memcpy(child->fd, parent->fd, sizeof(file_desc_t)*NUM_FILEDES);
+  memcpy(child->fd, parent->fd, sizeof(file_desc_t *)*NUM_FILEDES);
   int i;
   for(i  = 0; i < NUM_FILEDES; i++)
   {
     if(child->fd[i])
     {
-      INODE pnode = child->fd[i]->ino;
-      INODE cnode = child->fd[i]->ino = malloc(sizeof(vfs_node_t));
-      memcpy(cnode, pnode, sizeof(vfs_node_t));
-      /* vfs_open(cnode, child->fd[i]->flags); */
+      /* INODE pnode = child->fd[i]->ino; */
+      /* INODE cnode = child->fd[i]->ino = malloc(sizeof(vfs_node_t)); */
+      /* memcpy(cnode, pnode, sizeof(vfs_node_t)); */
+      fd_get(child->fd[i]);
+      vfs_open(child->fd[i]->ino, child->fd[i]->flags);
     }
   }
   // Copy signal handler table
   memcpy(child->signal_handler, parent->signal_handler, sizeof(uintptr_t)*NUM_SIGNALS);
   init_list(child->signal_queue);
+
+  child->cmdline = strdup(parent->cmdline);
 
   // Fix the family
   child->parent = parent;

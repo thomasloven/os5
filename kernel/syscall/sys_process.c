@@ -69,6 +69,7 @@ int execve(char *name, char **argv, char **env)
   if(env)
   {
     while(env[envc++]);
+    envc++;
 
     temp_env = calloc(envc, sizeof(char *));
 
@@ -87,8 +88,9 @@ int execve(char *name, char **argv, char **env)
   if(argv)
   {
     while(argv[argc++]);
+    argc++;
 
-    temp_argv = calloc(argc, sizeof(char *));
+    temp_argv = calloc(argc+1, sizeof(char *));
 
     unsigned int i = 0;
     while(argv[i])
@@ -98,6 +100,10 @@ int execve(char *name, char **argv, char **env)
     }
     argv[argc] = 0;
   }
+
+  if(current->proc->cmdline)
+    free(current->proc->cmdline);
+  current->proc->cmdline = strdup(name);
 
   // Clear all process memory areas
   procmm_removeall(current->proc);
