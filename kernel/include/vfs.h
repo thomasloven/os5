@@ -33,15 +33,15 @@ struct vfs_fstat_st
 
 typedef struct vfs_driver_st
 {
-  uint32_t (*open)(INODE, uint32_t);
-  uint32_t (*close)(INODE);
+  int32_t (*open)(INODE, uint32_t);
+  int32_t (*close)(INODE);
   uint32_t (*read)(INODE, void *, uint32_t, uint32_t);
   uint32_t (*write)(INODE, void *, uint32_t, uint32_t);
-  uint32_t (*link)(INODE, INODE, const char *);
-  uint32_t (*unlink)(INODE, const char *);
-  uint32_t (*stat)(INODE, struct stat *st);
-  uint32_t (*isatty)(INODE);
-  uint32_t (*mkdir)(INODE, const char *);
+  int32_t (*link)(INODE, INODE, const char *);
+  int32_t (*unlink)(INODE, const char *);
+  int32_t (*stat)(INODE, struct stat *st);
+  int32_t (*isatty)(INODE);
+  int32_t (*mkdir)(INODE, const char *);
   dirent_t *(*readdir)(INODE, uint32_t);
   INODE (*finddir)(INODE, const char *);
 } vfs_driver_t;
@@ -56,8 +56,11 @@ typedef struct vfs_node_st
   INODE older, younger;
   vfs_driver_t *d;
   uint32_t type;
-  void *data;
   uint32_t length;
+
+  // Driver data
+  void *data;
+  uint32_t flags;
 } vfs_node_t;
 
 typedef struct vfs_pipe
@@ -66,20 +69,24 @@ typedef struct vfs_pipe
   uint32_t size;
   uint32_t read_pos;
   uint32_t write_pos;
-  uint32_t users;
+  uint32_t readers;
+  uint32_t writers;
   semaphore_t semaphore;
   list_head_t waiting;
 } vfs_pipe_t;
 
-uint32_t vfs_open(INODE ino, uint32_t mode);
-uint32_t vfs_close(INODE ino);
+#define PIPE_READ 0x1
+#define PIPE_WRITE 0x2
+
+int32_t vfs_open(INODE ino, uint32_t flags);
+int32_t vfs_close(INODE ino);
 uint32_t vfs_read(INODE ino, void *ptr, uint32_t length, uint32_t offset);
 uint32_t vfs_write(INODE ino, void *ptr, uint32_t length, uint32_t offset);
-uint32_t vfs_link(INODE ino, INODE parent, const char *name);
-uint32_t vfs_unlink(INODE ino, const char *name);
-uint32_t vfs_stat(INODE ino, struct stat *st);
-uint32_t vfs_isatty(INODE ino);
-uint32_t vfs_mkdir(INODE ino, const char *name);
+int32_t vfs_link(INODE ino, INODE parent, const char *name);
+int32_t vfs_unlink(INODE ino, const char *name);
+int32_t vfs_stat(INODE ino, struct stat *st);
+int32_t vfs_isatty(INODE ino);
+int32_t vfs_mkdir(INODE ino, const char *name);
 dirent_t *vfs_readdir(INODE ino, uint32_t num);
 INODE vfs_finddir(INODE ino, const char *name);
 
@@ -93,6 +100,6 @@ void vfs_print_tree();
 
 // Defined in fs/debug_dev.c
 INODE debug_dev_init();
-INODE new_pipe(uint32_t size);
+uint32_t new_pipe(uint32_t size, INODE *nodes);
 
 #endif

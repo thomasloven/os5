@@ -69,7 +69,6 @@ int execve(char *name, char **argv, char **env)
   if(env)
   {
     while(env[envc++]);
-    envc++;
 
     temp_env = calloc(envc, sizeof(char *));
 
@@ -88,7 +87,6 @@ int execve(char *name, char **argv, char **env)
   if(argv)
   {
     while(argv[argc++]);
-    argc++;
 
     temp_argv = calloc(argc+1, sizeof(char *));
 

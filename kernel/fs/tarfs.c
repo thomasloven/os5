@@ -150,22 +150,30 @@ uint32_t read_tar(INODE node, void *buffer, uint32_t size, uint32_t offset)
 
 uint32_t write_tar(INODE node, void *buffer, uint32_t size, uint32_t offset)
 {
+  (void)node;
+  (void)buffer;
+  (void)size;
+  (void)offset;
   return 0;
 }
 
-uint32_t open_tar(INODE node, uint32_t flags)
+int32_t open_tar(INODE node, uint32_t flags)
 {
+  (void)node;
+  (void)flags;
   return 0;
 }
 
-uint32_t close_tar(INODE node)
+int32_t close_tar(INODE node)
 {
-  /* free(node); */
+  (void)node;
   return 0;
 }
 
 dirent_t *tar_readdir(INODE node, uint32_t index)
 {
+  (void)node;
+  (void)index;
   return 0;
 }
 

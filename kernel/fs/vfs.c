@@ -5,6 +5,7 @@
 #include <k_debug.h>
 
 #include <stdlib.h>
+#include <errno.h>
 
 vfs_node_t *vfs_root;
 
@@ -48,17 +49,19 @@ void vfs_free(INODE ino)
     free(ino);
 }
 
-uint32_t vfs_open(INODE ino, uint32_t mode)
+int32_t vfs_open(INODE ino, uint32_t mode)
 {
   if(ino->d->open)
     return ino->d->open(ino, mode);
-  return 0;
+  errno = EACCES;
+  return -1;
 }
-uint32_t vfs_close(INODE ino)
+int32_t vfs_close(INODE ino)
 {
   if(ino->d->close)
     return ino->d->close(ino);
-  return 0;
+  errno = EBADF;
+  return -1;
 }
 uint32_t vfs_read(INODE ino, void *ptr, uint32_t length, uint32_t offset)
 {
@@ -72,35 +75,39 @@ uint32_t vfs_write(INODE ino, void *ptr, uint32_t length, uint32_t offset)
     return ino->d->write(ino, ptr, length, offset);
   return 0;
 }
-uint32_t vfs_link(INODE ino, INODE parent, const char *name)
+int32_t vfs_link(INODE ino, INODE parent, const char *name)
 {
   if(ino->d->link)
     return ino->d->link(ino, parent, name);
-  return 0;
+  errno = EACCES;
+  return -1;
 }
-uint32_t vfs_unlink(INODE ino, const char *name)
+int32_t vfs_unlink(INODE ino, const char *name)
 {
   if(ino->d->unlink)
     return ino->d->unlink(ino, name);
-  return 0;
+  errno = EACCES;
+  return -1;
 }
-uint32_t vfs_stat(INODE ino, struct stat *st)
+int32_t vfs_stat(INODE ino, struct stat *st)
 {
   if(ino->d->stat)
     return ino->d->stat(ino, st);
-  return 0;
+  errno = EBADF;
+  return -1;
 }
-uint32_t vfs_isatty(INODE ino)
+int32_t vfs_isatty(INODE ino)
 {
   if(ino->d->isatty)
     return ino->d->isatty(ino);
   return 0;
 }
-uint32_t vfs_mkdir(INODE ino, const char *name)
+int32_t vfs_mkdir(INODE ino, const char *name)
 {
   if(ino->d->mkdir)
     return ino->d->mkdir(ino, name);
-  return 0;
+  errno = EACCES;
+  return -1;
 }
 dirent_t *vfs_readdir(INODE ino, uint32_t num)
 {
