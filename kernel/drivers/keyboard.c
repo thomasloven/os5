@@ -3,9 +3,11 @@
 #include <arch.h>
 #include <vfs.h>
 #include <k_debug.h>
+#include <process.h>
 
 #include <stdio.h>
 #include <fcntl.h>
+#include <stdlib.h>
 
 unsigned char kbd_map[128] = 
 {
@@ -129,15 +131,24 @@ registers_t *keyboard_handler(registers_t *r)
 
 void keyboard_init()
 {
-  keyboard_pipe = new_pipe(1024);
-  /* vfs_mount("/dev/kbd", keyboard_pipe); */
-  /* vfs_open(keyboard_pipe, O_WRONLY); */
+  INODE tmp[2];
+  new_pipe(1024, tmp);
+  keyboard_pipe = tmp[1];
+  /* vfs_mount("/dev/kbd", tmp[0]); */
+  vfs_open(keyboard_pipe, O_WRONLY);
 
-  keyboard_raw = new_pipe(1024);
-  /* vfs_mount("/dev/kbdraw", keyboard_raw); */
-  /* vfs_open(keyboard_raw, O_WRONLY); */
+  // Make keyboard stdin (first entry in file descriptor table)
+  process_t *p = current->proc;
+  p->fd[0] = calloc(1, sizeof(file_desc_t));
+  fd_get(p->fd[0]);
+  p->fd[0]->ino = tmp[0];
+  p->fd[0]->flags = O_RDONLY;
+  vfs_open(tmp[0], O_RDONLY);
+
+  new_pipe(1024, tmp);
+  keyboard_raw = tmp[1];
+  vfs_mount("/dev/kbdraw", tmp[0]);
+  vfs_open(keyboard_raw, O_WRONLY);
 
   register_int_handler(IRQ2INT(IRQ_KBD), keyboard_handler);
-
 }
-
