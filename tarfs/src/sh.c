@@ -7,9 +7,8 @@
 
 #define BUF_SIZE 1024
 
-extern char **environ;
+char buffer2[BUF_SIZE];
 
-  char buffer2[BUF_SIZE];
 char *parse_command(char *buffer)
 {
   char *p = buffer;

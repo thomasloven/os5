@@ -57,6 +57,7 @@ typedef struct vfs_node_st
   vfs_driver_t *d;
   uint32_t type;
   uint32_t length;
+  uint32_t users;
 
   // Driver data
   void *data;

@@ -45,12 +45,13 @@ void vfs_init()
 
 void vfs_free(INODE ino)
 {
-  if(!ino->parent)
+  if(!ino->parent && !ino->users)
     free(ino);
 }
 
 int32_t vfs_open(INODE ino, uint32_t mode)
 {
+  ino->users++;
   if(ino->d->open)
     return ino->d->open(ino, mode);
   errno = EACCES;
@@ -58,6 +59,7 @@ int32_t vfs_open(INODE ino, uint32_t mode)
 }
 int32_t vfs_close(INODE ino)
 {
+  ino->users--;
   if(ino->d->close)
     return ino->d->close(ino);
   errno = EBADF;
