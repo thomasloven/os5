@@ -3,6 +3,7 @@
 
 #include <sys/stat.h>
 #include <sys/times.h>
+#include <signal.h>
 
 #define SYSCALL_EXIT 0x1
 #define SYSCALL_CLOSE 0x2
@@ -28,6 +29,8 @@
 #define SYSCALL_YIELD 0x15
 
 #define SYSCALL_SIGNAL 0x16
+
+#define SYSCALL_PDBG 0x17
 
 
 #define SYSCALL_OK 0x00
@@ -81,8 +84,9 @@ int waitpid(int pid);
 KDECL_SYSCALL(waitpid);
 void yield();
 KDECL_SYSCALL(yield);
-void *signal(int sig, void *handler);
+sig_t signal(int sig, sig_t handler);
 KDECL_SYSCALL(signal);
+KDECL_SYSCALL(process_debug);
 
 // sys_mem.c
 void *sbrk(int incr);

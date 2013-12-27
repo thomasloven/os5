@@ -6,6 +6,7 @@
 #include <elf.h>
 #include <idt.h>
 #include <string.h>
+#include <serial.h>
 
 uint16_t *vidmem = (uint16_t *)VIDMEM;
 
@@ -31,6 +32,7 @@ void kdbg_init()
   text_style = VGA_STYLE(GRAY, BLACK);
   memset((uint8_t *)vidmem, 0x0, SCRN_W*SCRN_H*2);
   debug_sem = 0;
+  init_serial(SERIAL_COM1);
 }
 
 void kdbg_setpos(uint32_t x, uint32_t y)

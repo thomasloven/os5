@@ -282,7 +282,7 @@ page_dir_t vmm_clone_pd()
 }
 
 
-void vmm_init()
+void vmm_init(uint32_t kernel_end)
 {
   // Setup the physical memory manager
 
@@ -292,6 +292,14 @@ void vmm_init()
 
   // Set current page directory to a copy of the kernel page directory.
   vmm_pd_set(vmm_clone_pd());
+  uint32_t i = 0;
+  uint32_t kspace = KERNEL_OFFSET;
+  for(i=0; i < kernel_end; i += PAGE_SIZE)
+  {
+    vmm_page_set(kspace, vmm_page_val(i, PAGE_PRESENT | PAGE_WRITE));
+    kspace += PAGE_SIZE;
+  }
+
   vmm_running = TRUE;
 }
 

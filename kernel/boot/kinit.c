@@ -18,8 +18,12 @@
 #include <vfs.h>
 #include <keyboard.h>
 #include <tarfs.h>
+#include <version.h>
 
 #include <stdio.h>
+#include <stdlib.h>
+
+int debug_enabled = 0;
 
 void _idle(void)
 {
@@ -37,9 +41,11 @@ registers_t *kinit(mboot_info_t *mboot, uint32_t mboot_magic)
   kdbg_init();
   assert(mboot_magic == MBOOT_MAGIC2);
 
+  mboot_mod_t *mods = (mboot_mod_t *)(assert_higher(mboot->mods_addr));
+
   kernel_elf_init(mboot);
   pmm_init(mboot);
-  vmm_init();
+  vmm_init(mods[0].mod_end);
   idt_init();
   tss_init();
 
@@ -48,35 +54,46 @@ registers_t *kinit(mboot_info_t *mboot, uint32_t mboot_magic)
 
   scheduler_init();
   timer_init(500);
-  vfs_init();
+  /* vfs_init(); */
   syscall_init();
   process_init((void(*)(void))&_idle);
 
-  keyboard_init();
-
-
-  mboot_mod_t *mods = (mboot_mod_t *)(assert_higher(mboot->mods_addr));
-
   tar_header_t *tarfs_location = assert_higher((tar_header_t *)mods[0].mod_start);
+  debug_enabled = 1;
 
+  debug("[info] Mboot flags %x\n", mboot->mods_addr);
+  debug("[info] Mounting tarfs as root\n");
+  vfs_init();
   vfs_mount("/", tarfs_init(tarfs_location));
+  vfs_mount("/mnt/tarfs", tarfs_init(tarfs_location));
+  vfs_mount("/dev/debug", debug_dev_init());
+  keyboard_init();
+  vfs_print_tree();
 
-  fopen("/dev/kbd", "r");
   fopen("/dev/debug", "w");
   fopen("/dev/debug", "w");
+  /* for(;;); */
+
+  /* vfs_mount("/", tarfs_init(tarfs_location)); */
+  /* keyboard_init(); */
+  /* vfs_mount("/dev/debug", debug_dev_init()); */
+
+  /* fopen("/dev/kbd", "r"); */
+  /* fopen("/dev/debug", "w"); */
+  /* fopen("/dev/debug", "w"); */
 
   execve("/bin/init",0,0);
 
-  printf("Os5\n");
-  printf("Kernel git data:\n");
-  printf("Commit Date: %s\n", GITDATE);
-  printf("Hash: %s", GITHASH);
-  if(!strcmp("yes",GITDIRTY))
-    printf(" (dirty) ");
-  printf("\n");
+  debug("[status]========================\n");
+  debug("[status] Os5 by Thomas Lovén\n");
+  debug("[status] Kernel git data: [%s (%s)] %s\n", __kernel_git_hash, (__kernel_git_dirty)?"dirty":"clean", __kernel_git_date);
+  debug("[status] %s: %s\n", __kernel_git_branch, __kernel_git_message);
+  debug("[status] Kernel compilation: %s %s\n", __kernel_build_date, __kernel_build_time);
+  debug("[status]========================\n");
 
   thread_t *init = new_thread((void(*)(void))current->proc->mm.code_entry,1);
   init->proc = current->proc;
 
+  debug("[status] Kernel booted\n");
   return switch_kernel_thread(0);
 }

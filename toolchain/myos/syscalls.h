@@ -26,6 +26,8 @@
 
 #define SYSCALL_SIGNAL 0x16
 
+#define SYSCALL_PDBG 0x17
+
 #define SYSCALL_OK 0x00
 #define ERROR_NOSYSCALL 0x01
 
@@ -51,7 +53,7 @@ int syscall_errno;
 
 DECL_SYSCALL1(exit, int);
 DECL_SYSCALL1(close, int);
-DECL_SYSCALL3(execve, char *, char **, char **);
+DECL_SYSCALL3(execve, const char *, char *const*, char **);
 DECL_SYSCALL0(fork);
 DECL_SYSCALL2(fstat, int, struct stat *);
 DECL_SYSCALL0(getpid);
@@ -73,6 +75,8 @@ DECL_SYSCALL1(waitpid, int);
 DECL_SYSCALL0(yield);
 
 DECL_SYSCALL2(signal, int, sighandler_t);
+
+DECL_SYSCALL0(pdbg);
 
 
 #else

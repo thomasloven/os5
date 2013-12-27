@@ -20,7 +20,7 @@ function rebuild_binutils {
   mkdir -p build-binutils
   pushd build-binutils
     ../binutils/configure --target=$TARGET --prefix=$PREFIX
-    make -j 100
+    make -j
     make install
   popd
 }
@@ -39,9 +39,9 @@ function rebuild_gcc {
   mkdir -p build-gcc
   pushd build-gcc
     ../gcc/configure --target=$TARGET --prefix=$PREFIX --disable-nls --enable-languages=c,c++
-    make all-gcc -j 100
+    make all-gcc -j
     make install-gcc
-    make all-target-libgcc -j 100
+    make all-target-libgcc -j
     make install-target-libgcc
   popd
 }
@@ -58,7 +58,7 @@ function prepare_newlib {
     mkdir -p build-automake
     pushd build-automake
       ../automake-1.12/configure --prefix=/usr/local/Cellar/automake/1.12
-      make all -j 100
+      make all -j
       make install
     popd
   fi
@@ -68,7 +68,7 @@ function prepare_newlib {
     mkdir -p build-autoconf
     pushd build-autoconf
       ../autoconf-2.64/configure --prefix=/usr/local/Cellar/autoconf/2.64
-      make all -j 100
+      make all -j
       make install
     popd
   fi
@@ -93,32 +93,20 @@ function prepare_newlib {
 
 }
 
-function rebuild_newlib_kernel {
-
-  pushd newlib/newlib/libc/sys/myos
-    cp $PATCHDIR/myos-kernel/* .
-  popd
-
-  mkdir -p build-newlib
-  pushd build-newlib
-    ../newlib/configure --target=$TARGET --prefix=$PREFIX
-    make -j 100
-    make install
-  popd
-
-  mv $PREFIX/$TARGET/lib/libc.a $PREFIX/$TARGET/lib/libkernel.a
-}
 
 function rebuild_newlib {
-  pushd newlib/newlib/libc/sys/myos
-    cp -r $PATCHDIR/myos/* .
-  popd
-
   mkdir -p build-newlib
   pushd build-newlib
     rm -rf *
     ../newlib/configure --target=$TARGET --prefix=$PREFIX
-    make -j 100
+    export CPPFLAGS_FOR_TARGET=-DKERNEL_MODE
+    make -j
+    make install
+    mv $PREFIX/$TARGET/lib/libc.a $PREFIX/$TARGET/lib/libkernel.a
+    rm -rf *
+    ../newlib/configure --target=$TARGET --prefix=$PREFIX
+    export CPPFLAGS_FOR_TARGET=
+    make -j
     make install
   popd
 }
@@ -138,6 +126,5 @@ rebuild_gcc
 brew unlink osdev
 brew link osdev
 prepare_newlib
-rebuild_newlib_kernel
 rebuild_newlib
 

@@ -46,8 +46,12 @@ registers_t *page_fault_handler(registers_t *r)
 
     // Processor was in kernel mode
     disable_interrupts();
-    debug("Page fault in kernel!");
-    debug("\n At: %x", fault_address);
+    debug("[error]Page fault in kernel!\n");
+    debug(" At: %x\n", fault_address);
+    debug(" Code: %x (%s,%s,%s)\n", r->err_code, \
+        (r->err_code & 0x4)?"user":"kernel", \
+        (r->err_code & 0x2)?"write":"read", \
+        (r->err_code & 0x1)?"protection":"non-present");
     print_registers(r);
     /*print_stack_trace();*/
     for(;;);
@@ -64,14 +68,16 @@ registers_t *page_fault_handler(registers_t *r)
     // once those are implemented.
 
       disable_interrupts();
-      debug("Page fault hapened!");
-      debug("\n At: %x", fault_address);
-      debug("\n Code: %x (%s,%s,%s)", r->err_code, \
+      debug("[error]Page fault hapened!\n");
+      debug(" At: %x\n", fault_address);
+      debug(" Code: %x (%s,%s,%s)\n", r->err_code, \
           (r->err_code & 0x4)?"user":"kernel", \
           (r->err_code & 0x2)?"write":"read", \
           (r->err_code & 0x1)?"protection":"non-present");
-      debug("\n From thread: %x", current->tid);
-      debug("\n From process: %x", current->proc->pid);
+      debug(" From thread: %x\n", current->tid);
+      debug(" From process: %x\n", current->proc->pid);
+      if(current->proc->cmdline)
+        debug("Name: %s\n", current->proc->cmdline);
       print_registers(r);
       for(;;);
   }

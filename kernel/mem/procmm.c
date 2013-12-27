@@ -23,7 +23,7 @@ mem_area_t *alloc_area(uintptr_t start, uintptr_t end,
   uintptr_t flags, uintptr_t type, process_t *owner)
 {
   // Helper function. Allocate a new memory area and prepare it
-  mem_area_t *ma = malloc(sizeof(mem_area_t));
+  mem_area_t *ma = calloc(1, sizeof(mem_area_t));
   ma->start = start;
   ma->end = end;
   ma->flags = flags;
@@ -51,7 +51,7 @@ mem_area_t *new_area(process_t *p, uintptr_t start,
     mem_area_t *a;
     if((a = find_including(p, i)))
     {
-      debug("\n AREA COLLISION! %x %x %x", a->start, a->end, start);
+      debug("[error]AREA COLLISION! %x %x %x\n", a->start, a->end, start);
       for(;;);
       return 0;
     }
@@ -286,12 +286,23 @@ void print_areas(process_t *p)
 {
   list_t *area_list;
   mem_area_t *area;
-  debug("\n Areas:");
+  debug("[info]Memory areas start\n");
   for_each_in_list(&p->mm.mem, area_list)
   {
     area = list_entry(area_list, mem_area_t, mem);
-    debug("\n %x-%x", area->start, area->end);
+    debug("0x%x-0x%x Owner: %x", area->start, area->end, area->owner->pid);
+    debug("Flags: %c%c%c%c%c%c%c%c", \
+        (area->flags & MM_FLAG_READ)?'R':'-', \
+        (area->flags & MM_FLAG_WRITE)?'W':'-', \
+        (area->flags & MM_FLAG_SHARED)?'S':'-', \
+        (area->flags & MM_FLAG_CANSHARE)?'s':'-', \
+        (area->flags & MM_FLAG_COW)?'O':'-', \
+        (area->flags & MM_FLAG_GROWSDOWN)?'D':'-', \
+        (area->flags & MM_FLAG_AUTOGROW)?'A':'-', \
+        (area->flags & MM_FLAG_ADDONUSE)?'a':'-');
+    debug("\n");
   }
+  debug("[info]Memory areas end\n");
 }
 
 uint32_t procmm_handle_page_fault(uintptr_t address, uint32_t flags)
@@ -372,7 +383,27 @@ uint32_t procmm_handle_page_fault(uintptr_t address, uint32_t flags)
   }
 
   return 1;
+}
 
+int procmm_check_address(uintptr_t address)
+{
+  // Return values:
+  // 1: Present, not writable
+  // 2: Present, on stack
+  // 3: Present, writable
+  mem_area_t *area = find_including(current->proc, address);
+  if(area)
+  {
+    if(area->flags & MM_FLAG_WRITE || area->flags & MM_FLAG_COW)
+      return 3;
+    else
+      return 1;
+  } else{
+    area = find_above(current->proc, address);
+    if(area && area->flags & MM_FLAG_GROWSDOWN)
+      return 2;
+  }
+  return 0;
 }
 
 void procmm_fork(process_t *parent, process_t *child)

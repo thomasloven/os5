@@ -11,6 +11,7 @@
 #include <strings.h>
 #include <string.h>
 #include <malloc.h>
+#include <signal.h>
 
 #undef errno
 extern int errno;
@@ -18,13 +19,18 @@ extern int errno;
 
 void  _exit(int rc)
 {
+  if(current->proc->flags & PROC_FLAG_DEBUG)
+  {
+    debug("[info]EXIT(%x)\n", rc);
+    print_areas(current->proc);
+  }
   exit_process(current->proc, rc);
 
   current->state = THREAD_STATE_FINISHED;
 
   schedule();
 
-  debug("ERROR! REACHED END OF EXIT SYSCALL!");
+  debug("[error]ERROR! REACHED END OF EXIT SYSCALL!\n");
   for(;;);
 }
 KDEF_SYSCALL(exit, r)
@@ -38,14 +44,22 @@ KDEF_SYSCALL(exit, r)
 
 int execve(char *name, char **argv, char **env)
 {
+  if(current->proc->flags & PROC_FLAG_DEBUG)
+  {
+    debug("[info]EXECVE(%s, %x, %x)\n", name, argv, env);
+  }
   // Find the executable
-  // Clear memory areas
-  // Load new areas
-  /* debug("EXECVE(%s, %x, %x)", name, argv, env); */
-  fs_node_t *executable = vfs_find_node(name);
+  INODE executable = vfs_namei(name);
   if(!executable)
   {
+    debug("[error] Executable %s not found.", name);
     errno = ENOENT;
+    return -1;
+  }
+  if(is_elf(executable) != 2)
+  {
+    errno = ENOEXEC;
+    debug("[error] Tried to load unexecutable file.");
     return -1;
   }
 
@@ -74,7 +88,7 @@ int execve(char *name, char **argv, char **env)
   {
     while(argv[argc++]);
 
-    temp_argv = calloc(argc, sizeof(char *));
+    temp_argv = calloc(argc+1, sizeof(char *));
 
     unsigned int i = 0;
     while(argv[i])
@@ -84,6 +98,10 @@ int execve(char *name, char **argv, char **env)
     }
     argv[argc] = 0;
   }
+
+  if(current->proc->cmdline)
+    free(current->proc->cmdline);
+  current->proc->cmdline = strdup(name);
 
   // Clear all process memory areas
   procmm_removeall(current->proc);
@@ -156,6 +174,10 @@ KDEF_SYSCALL(execve, r)
 
 int fork()
 {
+  if(current->proc->flags & PROC_FLAG_DEBUG)
+  {
+    debug("[info]FORK()\n");
+  }
   process_t *child = fork_process();
   thread_t *cth = list_entry(child->threads.next, thread_t, process_threads);
   cth->r.eax = 0;
@@ -172,6 +194,10 @@ KDEF_SYSCALL(fork, r)
 
 int getpid()
 {
+  if(current->proc->flags & PROC_FLAG_DEBUG)
+  {
+    debug("[info]GETPID()\n");
+  }
   errno = 0;
   return current->proc->pid;
 }
@@ -184,9 +210,29 @@ KDEF_SYSCALL(getpid, r)
 
 int kill(int pid, int sig)
 {
+  if(current->proc->flags & PROC_FLAG_DEBUG)
+  {
+    debug("[info]KILL(%d, %d)\n", pid, sig);
+  }
   /* debug("KILL(%d, %d)", pid, sig); */
+  if(pid <= 0)
+  {
+    errno = ESRCH;
+    return -1;
+  }
   process_t *r = get_process(pid);
   process_t *s = current->proc;
+
+  if(sig > NUM_SIGNALS)
+  {
+    errno = EINVAL;
+    return -1;
+  }
+  if(!r)
+  {
+    errno = ESRCH;
+    return -1;
+  }
 
   signal_t *signal = malloc(sizeof(signal_t));
   signal->sig = sig;
@@ -206,6 +252,10 @@ KDEF_SYSCALL(kill, r)
 
 int wait(int *status)
 {
+  if(current->proc->flags & PROC_FLAG_DEBUG)
+  {
+    debug("[info]WAIT(%x)\n", status);
+  }
   errno = ECHILD;
   return -1;
 }
@@ -219,6 +269,10 @@ KDEF_SYSCALL(wait, r)
 
 int waitpid(int pid)
 {
+  if(current->proc->flags & PROC_FLAG_DEBUG)
+  {
+    debug("[info]WAITPID(%d)\n", pid);
+  }
   process_t *proc = get_process(pid);
 
   while(proc->state != PROC_STATE_FINISHED)
@@ -244,6 +298,10 @@ KDEF_SYSCALL(waitpid, r)
 
 void yield()
 {
+  if(current->proc->flags & PROC_FLAG_DEBUG)
+  {
+    debug("[info]YIELD()\n");
+  }
   schedule();
   errno = 0;
 }
@@ -253,9 +311,26 @@ KDEF_SYSCALL(yield, r)
   return r;
 }
 
-void *signal(int sig, void *handler)
+sig_t signal(int sig, sig_t handler)
 {
+  if(current->proc->flags & PROC_FLAG_DEBUG)
+  {
+    debug("[info]SIGNAL(%d, %x)\n", sig, handler);
+  }
   /* debug("SIGNAL(%d %x)", sig, handler); */
+  if(sig > NUM_SIGNALS)
+  {
+    errno = EINVAL;
+    return (sig_t)-1;
+  }
+  if(sig == SIGKILL || sig == SIGSTOP)
+  {
+    if( handler != 0)
+    {
+      errno = EINVAL;
+      return (sig_t)-1;
+    }
+  }
   process_t *p = current->proc;
   void *old = p->signal_handler[sig];
   p->signal_handler[sig] = handler;
@@ -266,6 +341,18 @@ KDEF_SYSCALL(signal, r)
   process_stack stack = init_pstack();
   r->eax = (uint32_t)signal(stack[0], (void *)stack[1]);
   r->ebx = errno;
+  return r;
+}
+
+KDEF_SYSCALL(process_debug, r)
+{
+  if(current->proc->flags & PROC_FLAG_DEBUG)
+  {
+    debug("[info]PROCDB()\n");
+  }
+  debug("[info]Starting debug\n");
+  current->proc->flags |= PROC_FLAG_DEBUG;
+  debug("[info]Process: %x \n", current->proc->pid);
   return r;
 }
 

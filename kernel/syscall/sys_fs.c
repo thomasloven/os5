@@ -7,17 +7,31 @@
 
 #include <sys/stat.h>
 #include <errno.h>
+#include <stdlib.h>
+#include <stdio.h>
 
 #undef errno
 extern int errno;
 
 int close(int file)
 {
+  if(current->proc->flags & PROC_FLAG_DEBUG)
+  {
+    debug("[info]CLOSE(%x)\n", file);
+  }
   process_t *p = current->proc;
-  vfs_close(p->fd[file].node);
-  p->fd[file].node = 0;
-  errno = 0;
-  return 0;
+  if(!p->fd[file]->ino)
+  {
+    errno = EBADF;
+    return -1;
+  }
+
+  int retval = vfs_close(p->fd[file]->ino);
+  vfs_free(p->fd[file]->ino);
+  fd_put(p->fd[file]);
+  p->fd[file] = 0;
+
+  return retval;
 }
 KDEF_SYSCALL(close, r)
 {
@@ -29,20 +43,23 @@ KDEF_SYSCALL(close, r)
 
 int fstat(int file, struct stat *st)
 {
+  if(current->proc->flags & PROC_FLAG_DEBUG)
+  {
+    debug("[info]FSTAT(%d, %x)\n", file, st);
+  }
   process_t *p = current->proc;
-  fs_node_t *node = p->fd[file].node;
-  st->st_dev = 0;
-  st->st_ino = node->inode;
-  st->st_mode = node->mode;
-  st->st_nlink = 0;
-  st->st_uid = 0;
-  st->st_gid = 0;
-  st->st_rdev = 0;
-  st->st_size = node->length;
-  st->st_atime = 0;
-  st->st_mtime = 0;
-  st->st_ctime = 0;
-  return 0;
+  INODE node = p->fd[file]->ino;
+  if(!node)
+  {
+    errno = EBADF;
+    return -1;
+  }
+  if(kernel_booted && procmm_check_address(st) <= 1)
+  {
+    errno = EFAULT;
+    return -1;
+  }
+  return vfs_stat(node, st);
 }
 KDEF_SYSCALL(fstat, r)
 {
@@ -54,8 +71,15 @@ KDEF_SYSCALL(fstat, r)
 
 int isatty(int file)
 {
-  errno = 0;
-  return 1;
+  if(current->proc->flags & PROC_FLAG_DEBUG)
+  {
+    debug("[info]ISATTY(%d)\n", file);
+  }
+  process_t *p = current->proc;
+  INODE node = p->fd[file]->ino;
+  if(!node)
+    return 0;
+  return vfs_isatty(node);
 }
 KDEF_SYSCALL(isatty, r)
 {
@@ -67,6 +91,10 @@ KDEF_SYSCALL(isatty, r)
 
 int link(char *old, char *new)
 {
+  if(current->proc->flags & PROC_FLAG_DEBUG)
+  {
+    debug("[info]LINK(%s, %s)\n", old, new);
+  }
   errno = EMLINK;
   return -1;
 }
@@ -80,8 +108,14 @@ KDEF_SYSCALL(link, r)
 
 int lseek(int file, int ptr, int dir)
 {
+  if(current->proc->flags & PROC_FLAG_DEBUG)
+  {
+    debug("[info]LSEEK(%d, %x, %x)\n", file, ptr, dir);
+  }
+    debug("[info]LSEEK(%d, %x, %x)\n", file, ptr, dir);
   process_t *p = current->proc;
-  if(!p->fd[file].node)
+  INODE node = p->fd[file]->ino;
+  if(!node)
   {
     errno = EBADF;
     return -1;
@@ -92,27 +126,30 @@ int lseek(int file, int ptr, int dir)
     errno = EINVAL;
     return -1;
   }
-  if((int)p->fd[file].offset + ptr < 0)
+  if((int)p->fd[file]->offset + ptr < 0)
   {
     errno = EINVAL;
     return -1;
   }
+  if((node->type & FS_PIPE) == FS_PIPE)
+  {
+    errno = ESPIPE;
+    return -1;
+  }
   
-  fs_node_t *node = p->fd[file].node;
-  if(dir == 0) // SEEK_SET
+  if(dir == SEEK_SET) // 0
   {
-    p->fd[file].offset = ptr;
+    p->fd[file]->offset = ptr;
   }
-  if(dir == 1) // SEEK_CUR
+  if(dir == SEEK_CUR) // 1
   {
-    p->fd[file].offset += ptr;
+    p->fd[file]->offset += ptr;
   }
-  if(dir == 2) // SEEK_END
+  if(dir == SEEK_END) // 2
   {
-    p->fd[file].offset = node->length + ptr;
+    p->fd[file]->offset = node->length + ptr;
   }
-  errno = 0;
-  return p->fd[file].offset;
+  return p->fd[file]->offset;
 }
 KDEF_SYSCALL(lseek, r)
 {
@@ -124,39 +161,61 @@ KDEF_SYSCALL(lseek, r)
 
 int open(const char *name, int flags, int mode)
 {
-  process_t *p = current->proc;
+  if(current->proc->flags & PROC_FLAG_DEBUG)
+  {
+    debug("[info]OPEN(%s, %x, %x)\n", name, flags, mode);
+  }
+
+  // Sanity check path address
+  if(kernel_booted &&!procmm_check_address(&name[0]))
+  {
+    errno = EFAULT;
+    return -1;
+  }
 
   // Find a free descriptor
+  process_t *p = current->proc;
   int i;
   int fd = -1;
-  for(i=0; i < 256; i++)
+  for(i=0; i < NUM_FILEDES; i++)
   {
-    if(!p->fd[i].node)
-    {
-      fd = i;
-      break;
-    }
+    if(p->fd[i])
+      continue;
+    fd = i;
+    p->fd[fd] = calloc(1, sizeof(file_desc_t));
+    fd_get(p->fd[fd]);
+    break;
   }
   if(fd == -1)
   {
     // No free descriptors
-    errno = ENFILE;
+    errno = EMFILE;
+    fd_put(p->fd[fd]);
+    p->fd[fd] = 0;
     return fd;
   }
 
   // Open the file
-  fs_node_t *node = vfs_find_node(name);
+  INODE node = vfs_namei(name);
   if(!node)
   {
     errno = ENOENT;
+    fd_put(p->fd[fd]);
+    p->fd[fd] = 0;
     return -1;
   }
-  vfs_open(node, flags);
-  p->fd[fd].node = node;
-  p->fd[fd].offset = 0;
-  p->fd[fd].flags = flags;
+  int retval = vfs_open(node, flags);
+  if(retval < 0 )
+  {
+    vfs_free(node);
+    fd_put(p->fd[fd]);
+    p->fd[fd] = 0;
+    return -1;
+  }
+  p->fd[fd]->ino = node;
+  p->fd[fd]->offset = 0;
+  p->fd[fd]->flags = flags;
 
-  errno = 0;
   return fd;
 }
 KDEF_SYSCALL(open, r)
@@ -169,11 +228,25 @@ KDEF_SYSCALL(open, r)
 
 int read(int file, char *ptr, int len)
 {
+  if(current->proc->flags & PROC_FLAG_DEBUG)
+  {
+    debug("[info]READ(%d, %x, %x)\n", file, ptr, len);
+  }
+  if(kernel_booted && (procmm_check_address(ptr) <=1 ))
+  {
+    errno = EFAULT;
+    return -1;
+  }
+
   process_t *p = current->proc;
-  fs_node_t *node = p->fd[file].node;
-  errno = 0;
-  int ret = vfs_read(node, p->fd[file].offset, len, ptr);
-  p->fd[file].offset += ret;
+  INODE node = p->fd[file]->ino;
+  if(!node)
+  {
+    errno = EBADF;
+    return -1;
+  }
+  int ret = vfs_read(node, ptr, len, p->fd[file]->offset);
+  p->fd[file]->offset += ret;
   return ret;
 }
 KDEF_SYSCALL(read, r)
@@ -186,9 +259,24 @@ KDEF_SYSCALL(read, r)
 
 int stat(const char *file, struct stat *st)
 {
-  st->st_mode = S_IFCHR;
-  errno = 0;
-  return 0;
+  if(current->proc->flags & PROC_FLAG_DEBUG)
+  {
+    debug("[info]STAT(%s, %x)\n", file, st);
+  }
+  if(kernel_booted && !procmm_check_address(&file[0]))
+  {
+    errno = EFAULT;
+    return -1;
+  }
+  if(kernel_booted && procmm_check_address(st) <= 1)
+  {
+    errno = EFAULT;
+    return -1;
+  }
+  INODE node = vfs_namei(file);
+  int retval = vfs_stat(node, st);
+  vfs_free(node);
+  return retval;
 }
 KDEF_SYSCALL(stat, r)
 {
@@ -200,6 +288,10 @@ KDEF_SYSCALL(stat, r)
 
 int unlink(char *name)
 {
+  if(current->proc->flags & PROC_FLAG_DEBUG)
+  {
+    debug("[info]UNLINK(%s)\n", name);
+  }
   errno = ENOENT;
   return -1;
 }
@@ -213,17 +305,26 @@ KDEF_SYSCALL(unlink, r)
 
 int write(int file, char *ptr, int len)
 {
-  // Write called by both kernel and users
+  if(current->proc->flags & PROC_FLAG_DEBUG)
+  {
+    debug("[info]WRITE(%d, %x, %x)\n", file, ptr, len);
+  }
+  if(kernel_booted && !procmm_check_address(ptr))
+  {
+    errno = EFAULT;
+    return -1;
+  }
 
-  ptr[len] = '\0';
+  /* ptr[len] = '\0'; */
   process_t *p = current->proc;
-
-  fs_node_t *node = p->fd[file].node;
-
-  errno = 0;
-
-  int ret =  vfs_write(node, p->fd[file].offset, len, (char *)ptr);
-  p->fd[file].offset += ret;
+  INODE node = p->fd[file]->ino;
+  if(!node)
+  {
+    errno = EBADF;
+    return -1;
+  }
+  int ret =  vfs_write(node, ptr, len, p->fd[file]->offset);
+  p->fd[file]->offset += ret;
   return ret;
 }
 KDEF_SYSCALL(write, r)

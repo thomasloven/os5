@@ -1,14 +1,20 @@
 #include "syscalls.h"
 #include <sys/stat.h>
 #include <sys/times.h>
+#include <sys/time.h>
 #include <errno.h>
 #include <signal.h>
+
+#include <string.h>
+#include <stdlib.h>
 
 #undef errno
 extern int errno;
 
 #define NDEBUG
 extern char **environ;
+
+#ifndef KERNEL_MODE
 
 char *__env[1] = { 0 };
 
@@ -55,7 +61,7 @@ int close(int file)
   return ret;
 }
 
-int execve(char *name, char **argv, char **env)
+int execve(const char *name, char *const argv[], char *env[])
 {
 #ifndef NDEBUG
   _syscall_printf("\n Syscall execve(%s, %x, %x)", name, argv, env);
@@ -241,3 +247,44 @@ sig_t signal(int signum, sig_t handler)
   errno = syscall_errno;
   return ret;
 }
+
+#endif
+
+int execvp(const char *file, char *const argv[])
+{
+  int i = 0;
+  int addpath = 1;
+  while(file[i])
+  {
+    if(file[i] == '/')
+    {
+      addpath = 0;
+      break;
+    }
+    i++;
+  }
+
+  if(addpath)
+  {
+    char *path = strdup(getenv("PATH"));
+    if(!path) path = "/usr/sbin:/bin";
+    char *brk;
+    char *p = strtok_r(path, ":", &brk);
+    while(p)
+    {
+      char *fullpath = malloc(strlen(p) + strlen(file) + 1);
+      strcpy(fullpath, p);
+      strcat(fullpath, "/");
+      strcat(fullpath, file);
+
+      execve(fullpath, argv, environ);
+
+      p = strtok_r(NULL, ":", &brk);
+    }
+  } else {
+    execve(file, argv, environ);
+  }
+
+  return -1;
+}
+
