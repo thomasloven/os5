@@ -4,6 +4,12 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 TEMPDIR=~/osdev/
 
+CLR_NO="\\033[0m"
+CLR_RED="\\033[31m"
+CLR_GREEN="\\033[32m"
+CLR_YELLOW="\\033[33m"
+CLR_BLUE="\\033[36m"
+
 if [ -z $BUILDDIR ]; then
   BUILDDIR=$BUILDROOT/build
 fi
@@ -14,7 +20,10 @@ function gototmp() {
 }
 
 function dropout() {
-  echo "SOMETHING FAILED!"
+  echo -e "${CLR_RED}SOMETHING FAILED!${CLR_NO}"
+  if [ -f ${TEMPDIR}/error.log ]; then
+    cat ${TEMPDIR}/error.log
+  fi
   exit 1
 }
 
@@ -44,5 +53,13 @@ function gitclone() {
 function unzip() {
   echo "Extracting $1"
   tar -xf $1
+}
+
+# Patch files
+function dopatch() {
+  echo "Applying patch to $1"
+  pushd $2
+    patch -p1 < $3
+  popd
 }
 

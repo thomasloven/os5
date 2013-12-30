@@ -5,10 +5,12 @@
 #
 builddir := build
 
-all: targets
+all: targets tags
 
 ### Modules
 #
+dir := toolchain
+include $(dir)/Rules.mk
 dir := kernel
 include $(dir)/Rules.mk
 dir := tarfs/src
@@ -19,29 +21,29 @@ CLEAN := $(CLEAN) image.img
 ### General rules
 # Adapted for the build directory
 #
-$(builddir)/%.o: %.[cS]
+$(builddir)/%.o: %.[cS] $(TGT_TOOLCHAIN) $(TGT_LIB)
 	@mkdir -p $(dir $@)
 	$(COMP)
-%(builddir)/%: %.o
+%(builddir)/%: %.o $(TGT_TOOLCHAIN) $(TGT_LIB)
 	@mkdir -p $(dir $@)
 	$(LINK)
-%(builddir)/%: %.c
+%(builddir)/%: %.c $(TGT_TOOLCHAIN) $(TGT_LIB)
 	@mkdir -p $(dir $@)
 	$(COMPLINK)
-$(builddir)/%.d: %.[cS]
+$(builddir)/%.d: %.[cS] $(TGT_TOOLCHAIN) $(TGT_LIB)
 	@mkdir -p $(dir $@)
 	$(DEP)
 
 ### Build OS modules
 #
 .PHONY: targets
-targets: $(TGT_KERNEL) $(TGT_TARFS)
+targets: $(TGT_TARFS) $(TGT_KERNEL)
 
 ### Generate disk image
 #
 .PHONY: image
 image: image.img
-image.img: $(kernel) $(tarfs)
+image.img: $(TGT_KERNEL) $(TGT_TARFS)
 	@util/makedisk.sh
 
 ### Run emulator
@@ -55,5 +57,9 @@ emul: image.img
 .PHONY: clean
 clean: 
 	rm -f $(CLEAN)
+
+.PHONY: tags
+tags:
+	ctags -R .
 
 .SECONDARY: $(CLEAN)

@@ -6,6 +6,7 @@ LL_ALL =
 
 ### Build tools
 #
+toolchain := .toolchain
 CC = i586-pc-myos-gcc
 COMP = $(CC) $(CF_ALL) $(CF_TGT) -o $@ -c $<
 LINK = $(CC) $(LF_ALL) $(LF_TGT) -o $@ $^ $(LL_TGT) $(LL_ALL)
