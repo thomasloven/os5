@@ -2,6 +2,13 @@
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
+if [ -z $TARGET ]; then
+  TARGET=i586-pc-myos
+fi
+if [ -z $PREFIX ]; then
+  PREFIX=/usr/local/Cellar/osdev/1.0
+fi
+
 TEMPDIR=~/osdev/
 
 CLR_NO="\\033[0m"

@@ -6,12 +6,15 @@ LL_ALL =
 
 ### Build tools
 #
-toolchain := .toolchain
 CC = i586-pc-myos-gcc
 COMP = $(CC) $(CF_ALL) $(CF_TGT) -o $@ -c $<
 LINK = $(CC) $(LF_ALL) $(LF_TGT) -o $@ $^ $(LL_TGT) $(LL_ALL)
 COMPLINK = $(CC) $(CF_ALL) $(CF_TGT) $(LF_ALL) $(LF_TGT) -o $@ $< $(LL_TGT) $(LL_ALL)
 DEP = $(CC) -MM $(CF_ALL) $(CF_TGT) $< -o $@ -MT "$*.o $*.d"
+
+PREFIX=/usr/local/Cellar/osdev/1.0
+TARGET=i586-pc-myos
+export PREFIX TARGET
 
 ### Git status flags
 #
@@ -28,4 +31,5 @@ GITFLAGS := -DGITHASH='"$(GITHASH)"' -DGITDATE='"$(GITDATE)"' -DGITDIRTY='$(GITD
 findsource = $(addprefix $(3)/, \
 	     $(patsubst %.$(2), %.o, \
 	     $(shell find $(1) -name "*.$(2)")))
+
 include Rules.mk

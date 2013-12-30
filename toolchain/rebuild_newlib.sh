@@ -7,9 +7,6 @@ fi
 
 . $BUILDROOT/util/common.sh
 
-TARGET=i586-pc-myos
-PREFIX=/usr/local/Cellar/osdev/1.0
-
 newlibv=newlib-2.1.0
 
 function prepare_automake() {

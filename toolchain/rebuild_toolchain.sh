@@ -7,9 +7,6 @@ fi
 
 . $BUILDROOT/util/common.sh
 
-TARGET=i586-pc-myos
-PREFIX=/usr/local/Cellar/osdev/1.0
-
 binutilsv=binutils-2.24
 gccv=gcc-4.8.2
 

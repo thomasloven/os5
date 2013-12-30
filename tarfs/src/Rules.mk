@@ -8,10 +8,8 @@ OBJS_$(d) := $(call findsource,$(d),c,$(builddir))
 TGTS_$(d) := $(patsubst %.o,%,$(OBJS_$(d)))
 DEPS_$(d) := $(patsubst %,%.d,$(TGTS_$(d)))
 
-bindir = tarfs/bin
-
 CLEAN := $(CLEAN) $(TGTS_$(d)) $(TGT_TARFS)
-CLEAN := $(CLEAN) $(addprefix $(bindir)/, $(notdir $(TGTS_$(d)))) $(DEPS_$(d))
+CLEAN := $(CLEAN) $(addprefix tarfs/bin/, $(notdir $(TGTS_$(d)))) $(DEPS_$(d))
 
 $(TGT_TARFS): $(TGTS_$(d))
 	@mkdir -p tarfs/bin
