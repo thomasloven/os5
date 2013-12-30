@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 C_NO=`echo -e "\\033[0m"`
 C_RED=`echo -e "\\033[31m"`
@@ -6,8 +6,16 @@ C_GREEN=`echo -e "\\033[32m"`
 C_YELLOW=`echo -e "\\033[33m"`
 C_BLUE=`echo -e "\\033[36m"`
 
-exec make "$@" 2>&1 | sed \
+function colorize() {
+exec $@ | sed \
   -e "s/\(^make[^ ]*\)/${C_BLUE}\1${C_NO}/" \
   -e "s/\(.* [Ee]rror:\)/${C_RED}\1${C_NO}/" \
   -e "s/\(.* [Ww]arning:\)/${C_YELLOW}\1${C_NO}/"
+}
+
+if [ "$1" = "log" ]; then
+  colorize cat errors.log
+else
+  exec make "$@" 2> >( colorize tee errors.log )
+fi
 
