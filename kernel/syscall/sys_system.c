@@ -13,6 +13,7 @@ extern int errno;
 
 clock_t times(struct tms *buf)
 {
+  (void)buf;
   errno = 0;
   return -1;
 }

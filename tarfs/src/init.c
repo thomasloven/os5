@@ -5,6 +5,7 @@
 #include <unistd.h>
 
 extern char **environ;
+void _syscall_waitpid(uint32_t pid);
 
 int main()
 {

@@ -7,6 +7,8 @@
 
 #define BUF_SIZE 1024
 
+void _syscall_waitpid(uint32_t pid);
+
 char buffer2[BUF_SIZE];
 
 char *parse_command(char *buffer)
@@ -100,6 +102,7 @@ void print_prompt()
 
 int main(int argc, char **argv)
 {
+  (void)argc;
   char line[BUF_SIZE];
   
   while(1)

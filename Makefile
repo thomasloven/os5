@@ -1,6 +1,6 @@
 ### Common flags
 #
-CF_ALL = -ggdb
+CF_ALL = -ggdb -Wall -Wextra -std=gnu99
 LF_ALL =
 LL_ALL = 
 
