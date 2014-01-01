@@ -3,9 +3,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <syscalls.h>
 
 extern char **environ;
-void _syscall_waitpid(uint32_t pid);
 
 int main()
 {

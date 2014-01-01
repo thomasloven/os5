@@ -66,7 +66,7 @@ function unzip() {
 function dopatch() {
   echo "Applying patch to $1"
   pushd $2
-    patch -p1 < $3
+    patch -p1 -N < $3
   popd
 }
 

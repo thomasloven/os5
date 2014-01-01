@@ -4,8 +4,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <ctype.h>
-
-void _syscall_pdbg(void);
+#include <syscalls.h>
 
 int main(int argc, char **argv)
 {
