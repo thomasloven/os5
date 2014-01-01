@@ -30,7 +30,7 @@
 #define PF_USER 0x4
 
 #define vmm_page_val(page, flags) \
-  ((page & PAGE_MASK) | (flags & PAGE_FLAG_MASK))
+  (((page) & PAGE_MASK) | ((flags) & PAGE_FLAG_MASK))
 #define vmm_table_idx(page) (page >> 12)
 #define vmm_dir_idx(page) (page >> 22)
 

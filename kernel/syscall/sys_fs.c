@@ -4,6 +4,7 @@
 #include <thread.h>
 #include <process.h>
 #include <k_debug.h>
+#include <procmm.h>
 
 #include <sys/stat.h>
 #include <errno.h>
@@ -54,7 +55,7 @@ int fstat(int file, struct stat *st)
     errno = EBADF;
     return -1;
   }
-  if(kernel_booted && procmm_check_address(st) <= 1)
+  if(kernel_booted && procmm_check_address((uintptr_t)st) <= 1)
   {
     errno = EFAULT;
     return -1;
@@ -167,7 +168,7 @@ int open(const char *name, int flags, int mode)
   }
 
   // Sanity check path address
-  if(kernel_booted &&!procmm_check_address(&name[0]))
+  if(kernel_booted &&!procmm_check_address((uintptr_t)&name[0]))
   {
     errno = EFAULT;
     return -1;
@@ -232,7 +233,7 @@ int read(int file, char *ptr, int len)
   {
     debug("[info]READ(%d, %x, %x)\n", file, ptr, len);
   }
-  if(kernel_booted && (procmm_check_address(ptr) <=1 ))
+  if(kernel_booted && (procmm_check_address((uintptr_t)ptr) <=1 ))
   {
     errno = EFAULT;
     return -1;
@@ -263,12 +264,12 @@ int stat(const char *file, struct stat *st)
   {
     debug("[info]STAT(%s, %x)\n", file, st);
   }
-  if(kernel_booted && !procmm_check_address(&file[0]))
+  if(kernel_booted && !procmm_check_address((uintptr_t)&file[0]))
   {
     errno = EFAULT;
     return -1;
   }
-  if(kernel_booted && procmm_check_address(st) <= 1)
+  if(kernel_booted && procmm_check_address((uintptr_t)st) <= 1)
   {
     errno = EFAULT;
     return -1;
@@ -309,7 +310,7 @@ int write(int file, char *ptr, int len)
   {
     debug("[info]WRITE(%d, %x, %x)\n", file, ptr, len);
   }
-  if(kernel_booted && !procmm_check_address(ptr))
+  if(kernel_booted && !procmm_check_address((uintptr_t)ptr))
   {
     errno = EFAULT;
     return -1;

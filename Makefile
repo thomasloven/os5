@@ -1,39 +1,35 @@
-BUILDROOT := $(PWD)
-BUILDDIR := $(BUILDROOT)/build
+### Common flags
+#
+CF_ALL = -ggdb -Wall -Wextra -std=gnu99
+LF_ALL =
+LL_ALL = 
 
-CC := i586-pc-myos-gcc
-DEP := $(CC) -MM
+### Build tools
+#
+CC = i586-pc-myos-gcc
+COMP = $(CC) $(CF_ALL) $(CF_TGT) -o $@ -c $<
+LINK = $(CC) $(LF_ALL) $(LF_TGT) -o $@ $^ $(LL_TGT) $(LL_ALL)
+COMPLINK = $(CC) $(CF_ALL) $(CF_TGT) $(LF_ALL) $(LF_TGT) -o $@ $< $(LL_TGT) $(LL_ALL)
+DEP = $(CC) -M $(CF_ALL) $(CF_TGT) $< -o $@ -MT "$*.o $*.d"
 
-CFLAGS := -ggdb
-# -Wall -Wextra -pedantic -std=c99 -U__STRICT_ANSI__ -Werror
+PREFIX=/usr/local/Cellar/osdev/1.0
+TARGET=i586-pc-myos
+export PREFIX TARGET
 
-export BUILDROOT BUILDDIR
-export CC DEP CFLAGS
+### Git status flags
+#
+GITHASH := $(shell git log -1 --pretty="tformat:%h")
+GITDATE := $(shell git log -1 --pretty="tformat:%cd")
+GITDIRTY := $(shell [[ -n `git status -s 2> /dev/null` ]] && echo 1 || echo 0)
+GITMESSAGE := $(shell git log -1 --pretty="tformat:%s")
+GITBRANCH := $(shell git log -1 --pretty="tformat:%d")
+GITFLAGS := -DGITHASH='"$(GITHASH)"' -DGITDATE='"$(GITDATE)"' -DGITDIRTY='$(GITDIRTY)' -DGITMESSAGE='"$(GITMESSAGE)"' -DGITBRANCH='"$(GITBRANCH)"'
 
-# .SILENT:
+### Common functions
+#
+# $(call findsource, suffix, dir)
+findsource = $(addprefix $(3)/, \
+	     $(patsubst %.$(2), %.o, \
+	     $(shell find $(1) -name "*.$(2)")))
 
-.PHONY: kernel kernel-clean tarfs tarfs-clean clean emul tags
-
-
-all: kernel tarfs
-    
-kernel:
-	$(MAKE) -C build/kernel -f ../../kernel/Makefile
-kernel-clean:
-	$(MAKE) clean -C build/kernel -f ../../kernel/Makefile
-
-tarfs:
-	$(MAKE) -C tarfs/bin -f ../src/Makefile
-	tar -cf $(BUILDDIR)/tarfs.tar tarfs/*
-tarfs-clean:
-	$(MAKE) clean -C tarfs/bin -f ../src/Makefile
-	rm $(BUILDDIR)/tarfs.tar
-
-tags:
-	ctags -R .
-
-clean: kernel-clean tarfs-clean
-
-emul:
-	@util/qemul.sh
-
+include Rules.mk
