@@ -128,6 +128,23 @@ dirent_t *vfs_readdir(INODE ino, uint32_t num)
       return ret;
     }
   }
+  if(ino->child && num > 2)
+  {
+    num -= 2;
+    INODE n = ino->child;
+    while(num && n)
+    {
+      n = n->older;
+      num--;
+    }
+    if(n)
+    {
+      dirent_t *ret = calloc(1, sizeof(dirent_t));
+      ret->ino = n;
+      strcpy(ret->name, n->name);
+      return ret;
+    }
+  }
   if(ino->d->readdir)
     return ino->d->readdir(ino, num);
   return 0;
@@ -141,6 +158,16 @@ INODE vfs_finddir(INODE ino, const char *name)
       return ino;
     } else if(!strcmp(name, "..")) {
       return ino->parent;
+    }
+  }
+  if(ino->child)
+  {
+    INODE n = ino->child;
+    while(n)
+    {
+      if(!strcmp(name, n->name))
+        return n;
+      n = n->older;
     }
   }
   if(ino->d->finddir)
@@ -253,7 +280,10 @@ INODE vfs_namei_mount(const char *path, INODE root)
     strcpy(root->name, current->name);
     /* root->type |= FS_MOUNT; */
     if(current == vfs_root)
+    {
+      debug("Mounting to root\n");
       vfs_root = root;
+    }
 
     free(current);
     current = root;
