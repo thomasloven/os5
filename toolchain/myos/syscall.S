@@ -1,4 +1,5 @@
-#include "syscalls.h"
+#include <syscalls.h>
+
 
 #ifndef KERNEL_MODE
 
@@ -79,5 +80,8 @@ DEF_SYSCALL(signal, SYSCALL_SIGNAL)
 
 .global _syscall_pdbg
 DEF_SYSCALL(pdbg, SYSCALL_PDBG)
+
+.global _syscall_readdir
+DEF_SYSCALL(readdir, SYSCALL_READDIR);
 
 #endif

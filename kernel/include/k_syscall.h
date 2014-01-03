@@ -4,6 +4,7 @@
 #include <sys/stat.h>
 #include <sys/times.h>
 #include <signal.h>
+#include <sys/dirent.h>
 
 #define SYSCALL_EXIT 0x1
 #define SYSCALL_CLOSE 0x2
@@ -31,6 +32,7 @@
 #define SYSCALL_SIGNAL 0x16
 
 #define SYSCALL_PDBG 0x17
+#define SYSCALL_READDIR 0x18
 
 
 #define SYSCALL_OK 0x00
@@ -113,6 +115,8 @@ int unlink(char *name);
 KDECL_SYSCALL(unlink);
 int write(int file, char *ptr, int len);
 KDECL_SYSCALL(write);
+struct dirent *readdir(DIR *dirp);
+KDECL_SYSCALL(readdir);
 
 // sys_system.c
 clock_t times(struct tms *buf);

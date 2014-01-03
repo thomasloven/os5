@@ -10,6 +10,8 @@
 #include <errno.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <sys/dirent.h>
+#include <string.h>
 
 #undef errno
 extern int errno;
@@ -335,5 +337,50 @@ KDEF_SYSCALL(write, r)
   process_stack stack = init_pstack();
   r->eax = write(stack[0], (char *)stack[1], stack[2]);
   r->ebx = errno;
+  return r;
+}
+
+struct dirent *readdir(DIR *dirp)
+{
+  if(current->proc->flags & PROC_FLAG_DEBUG)
+  {
+    debug("[info]READDIR(%x, %x)\n", dirp->fd, dirp->cur_entry+1);
+  }
+  dirp->cur_entry++;
+
+  process_t *p = current->proc;
+  INODE node = p->fd[dirp->fd]->ino;
+  if(!node)
+  {
+    errno = EBADF;
+    return 0;
+  }
+  
+  dirent_t *d = 0;
+  d = vfs_readdir(node, dirp->cur_entry);
+  if(d == 0)
+    return 0;
+  struct dirent *de = calloc(1, sizeof(struct dirent));
+  strcpy(de->name, d->name);
+  de->ino = 0;
+
+  return de;
+}
+KDEF_SYSCALL(readdir, r)
+{
+  static DIR dirp;
+  process_stack stack = init_pstack();
+  dirp.fd = stack[0];
+  dirp.cur_entry = stack[1]-1;
+  struct dirent *de = readdir(&dirp);
+  if(de)
+  {
+    memcpy((void *)stack[2], de, sizeof(struct dirent));
+    free(de);
+    r->eax = 0;
+    return r;
+  }
+  free(de);
+  r->eax = -1;
   return r;
 }

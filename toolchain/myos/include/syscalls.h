@@ -26,8 +26,8 @@
 #define SYSCALL_YIELD 0x15
 
 #define SYSCALL_SIGNAL 0x16
-
 #define SYSCALL_PDBG 0x17
+#define SYSCALL_READDIR 0x18
 
 #define SYSCALL_OK 0x00
 #define ERROR_NOSYSCALL 0x01
@@ -78,6 +78,7 @@ DECL_SYSCALL0(yield);
 DECL_SYSCALL2(signal, int, sighandler_t);
 
 DECL_SYSCALL0(pdbg);
+DECL_SYSCALL3(readdir, int, int, struct dirent *);
 
 
 #else
