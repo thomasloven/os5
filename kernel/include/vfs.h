@@ -16,6 +16,7 @@
 #define FS_PIPE 0x5
 #define FS_SYMLINK 0x6
 #define FS_MOUNT 0x8
+#define FS_TYPE_MASK 0x7
 
 struct vfs_node_st;
 typedef struct vfs_node_st * INODE;
@@ -63,6 +64,8 @@ typedef struct vfs_node_st
   void *data;
   uint32_t flags;
 } vfs_node_t;
+
+#define in_vfs_tree(node) ((node)->parent != 0)
 
 typedef struct vfs_pipe
 {

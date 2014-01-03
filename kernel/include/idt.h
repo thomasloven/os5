@@ -119,7 +119,7 @@ extern void tss_flush(uint32_t segment);
 
 .macro INTNOERR num
   .global isr\num
-  .func irs\num
+  .func isr\num
   isr\num:
     cli
     push $0
@@ -130,7 +130,7 @@ extern void tss_flush(uint32_t segment);
 
 .macro INTERR num
   .global isr\num
-  .func irs\num
+  .func isr\num
   isr\num:
     cli
     push $\num

@@ -341,9 +341,9 @@ char *canonicalize_path(const char *path, const char *prefix)
     struct pth_stack *prev;
    } stack_item;
 
-  int length = strlen(path);
+  int length = strlen(path) + 1;
   if(prefix && path[0] != '/')
-    length += strlen(prefix);
+    length += strlen(prefix) + 1;
   char *pth = calloc(1, length);
   if(prefix && path[0] != '/')
   {

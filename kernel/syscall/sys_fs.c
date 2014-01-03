@@ -356,15 +356,17 @@ struct dirent *readdir(DIR *dirp)
     return 0;
   }
   
-  dirent_t *d = 0;
-  d = vfs_readdir(node, dirp->cur_entry);
-  if(d == 0)
+  dirent_t *de = 0;
+  if(!(de = vfs_readdir(node, dirp->cur_entry)))
     return 0;
-  struct dirent *de = calloc(1, sizeof(struct dirent));
-  strcpy(de->name, d->name);
-  de->ino = 0;
+  struct dirent *d = calloc(1, sizeof(struct dirent));
+  strcpy(d->name, de->name);
+  d->ino = 0;
 
-  return de;
+  vfs_free(de->ino);
+  free(de);
+
+  return d;
 }
 KDEF_SYSCALL(readdir, r)
 {
