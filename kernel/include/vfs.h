@@ -97,6 +97,8 @@ INODE vfs_umount(const char *path);
 INODE vfs_namei(const char *path);
 INODE vfs_mount(const char *path, INODE root);
 
+char *canonicalize_path(const char *path, const char *prefix);
+
 void vfs_print_tree();
 
 // Defined in fs/debug_dev.c

@@ -197,7 +197,9 @@ int open(const char *name, int flags, int mode)
   }
 
   // Open the file
-  INODE node = vfs_namei(name);
+  char *n = canonicalize_path(name, 0);
+  INODE node = vfs_namei(n);
+  free(n);
   if(!node)
   {
     errno = ENOENT;

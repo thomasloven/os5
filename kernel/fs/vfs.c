@@ -328,3 +328,75 @@ INODE vfs_mount(const char *path, INODE root)
   debug("[info] VFS mounting %s to %s\n", root->name, path);
   return vfs_namei_mount(path, root);
 }
+
+char *canonicalize_path(const char *path, const char *prefix)
+{
+  // Tokenize path and push every piece onto a stack
+  // Push everything onto another stack, remove all . and pop one item
+  // for ..
+  // Pop second stack into new path
+
+  typedef struct pth_stack{
+    char *name;
+    struct pth_stack *prev;
+   } stack_item;
+
+  int length = strlen(path);
+  if(prefix && path[0] != '/')
+    length += strlen(prefix);
+  char *pth = calloc(1, length);
+  if(prefix && path[0] != '/')
+  {
+    strcat(pth, prefix);
+    strcat(pth, "/");
+  }
+  strcat(pth, path);
+
+  stack_item *i = 0, *j = 0, *k = 0;
+  char *p = pth;
+  for(p = strtok(p, "/"); p; p = strtok(NULL, "/"))
+  {
+    if(!strcmp(p, "."))
+      continue;
+    if(!strcmp(p, ".."))
+    {
+      // Pop
+      i = j;
+      j = j->prev;
+      free(i->name);
+      free(i);
+      continue;
+    }
+    i = j;
+    j = calloc(1, sizeof(stack_item));
+    j->name = strdup(p);
+    j->prev = i;
+  }
+  free(pth);
+
+  // Turn stack around
+  while(j)
+  {
+    i = k;
+    k = calloc(1, sizeof(stack_item));
+    k->name = j->name;
+    k->prev = i;
+    i = j;
+    j = j->prev;
+    free(i);
+  }
+
+  char *ret = calloc(1, strlen(path)+1);
+  if(!k)
+    strcat(ret, "/");
+  while(k)
+  {
+    strcat(ret, "/");
+    strcat(ret, k->name);
+    i = k;
+    k = k->prev;
+    free(i->name);
+    free(i);
+  }
+ return ret;
+}
