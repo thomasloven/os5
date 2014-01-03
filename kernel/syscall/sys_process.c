@@ -24,6 +24,17 @@ void  _exit(int rc)
     debug("[info]EXIT(%x)\n", rc);
     print_areas(current->proc);
   }
+
+  int i;
+  process_t *p = current->proc;
+  for(i = 0; i < NUM_FILEDES; i++)
+  {
+    if(p->fd[i])
+    {
+      close(i);
+    }
+  }
+
   exit_process(current->proc, rc);
 
   current->state = THREAD_STATE_FINISHED;
@@ -52,14 +63,14 @@ int execve(char *name, char **argv, char **env)
   INODE executable = vfs_namei(name);
   if(!executable)
   {
-    debug("[error] Executable %s not found.", name);
+    debug("[error] Executable %s not found.\n", name);
     errno = ENOENT;
     return -1;
   }
   if(is_elf(executable) != 2)
   {
     errno = ENOEXEC;
-    debug("[error] Tried to load unexecutable file.");
+    debug("[error] Tried to load unexecutable file.\n");
     return -1;
   }
 
@@ -78,7 +89,7 @@ int execve(char *name, char **argv, char **env)
       temp_env[i] = strdup(env[i]);
       i++;
     }
-    temp_env[envc] = 0;
+    temp_env[envc-1] = 0;
   }
 
   // Save arguments in kernel space
@@ -88,7 +99,7 @@ int execve(char *name, char **argv, char **env)
   {
     while(argv[argc++]);
 
-    temp_argv = calloc(argc+1, sizeof(char *));
+    temp_argv = calloc(argc, sizeof(char *));
 
     unsigned int i = 0;
     while(argv[i])
@@ -96,7 +107,7 @@ int execve(char *name, char **argv, char **env)
       temp_argv[i] = strdup(argv[i]);
       i++;
     }
-    argv[argc] = 0;
+    temp_argv[argc-1] = 0;
   }
 
   if(current->proc->cmdline)
