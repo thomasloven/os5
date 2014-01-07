@@ -45,7 +45,7 @@ void vfs_init()
 
 void vfs_free(INODE ino)
 {
-  if(!ino->parent && !ino->users)
+  if(!in_vfs_tree(ino) && ino->users <= 0)
     free(ino);
 }
 
@@ -113,7 +113,9 @@ int32_t vfs_mkdir(INODE ino, const char *name)
 }
 dirent_t *vfs_readdir(INODE ino, uint32_t num)
 {
-  if(ino->type & FS_MOUNT)
+  if(!((ino->type & FS_TYPE_MASK) == FS_DIRECTORY))
+    return 0;
+  if(in_vfs_tree(ino))
   {
     if(num == 0)
     {
@@ -128,30 +130,32 @@ dirent_t *vfs_readdir(INODE ino, uint32_t num)
       return ret;
     }
   }
-  if(ino->child && num > 2)
+  dirent_t *de = 0;
+  if(ino->d->readdir)
+    de = ino->d->readdir(ino, num);
+
+  if(de && in_vfs_tree(ino))
   {
-    num -= 2;
+    // Replace inode with the one from the vfs tree if it exists.
     INODE n = ino->child;
-    while(num && n)
+    while(n)
     {
+      if(!strcmp(de->name, n->name))
+      {
+        vfs_free(de->ino);
+        de->ino = n;
+        break;
+      }
       n = n->older;
-      num--;
-    }
-    if(n)
-    {
-      dirent_t *ret = calloc(1, sizeof(dirent_t));
-      ret->ino = n;
-      strcpy(ret->name, n->name);
-      return ret;
     }
   }
-  if(ino->d->readdir)
-    return ino->d->readdir(ino, num);
-  return 0;
+  return de;
 }
 INODE vfs_finddir(INODE ino, const char *name)
 {
-  if(ino->type & FS_MOUNT)
+  if(!((ino->type & FS_TYPE_MASK) == FS_DIRECTORY))
+    return 0;
+  if(in_vfs_tree(ino))
   {
     if(!strcmp(name, "."))
     {
@@ -159,9 +163,8 @@ INODE vfs_finddir(INODE ino, const char *name)
     } else if(!strcmp(name, "..")) {
       return ino->parent;
     }
-  }
-  if(ino->child)
-  {
+
+    // Search through the mount tree first
     INODE n = ino->child;
     while(n)
     {
@@ -170,8 +173,10 @@ INODE vfs_finddir(INODE ino, const char *name)
       n = n->older;
     }
   }
+
   if(ino->d->finddir)
     return ino->d->finddir(ino, name);
+
   if(ino->d->readdir)
   {
     // Backup solution
