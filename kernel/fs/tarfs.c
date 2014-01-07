@@ -122,36 +122,90 @@ int32_t close_tar(INODE node)
   return 0;
 }
 
+INODE tar_finddir(INODE dir, const char *name);
 dirent_t *tar_readdir(INODE node, uint32_t index)
 {
-  (void)node;
-  (void)index;
-  return 0;
+  tree_node_t *tn = (tree_node_t *)node->data;
+  if(index == 0)
+  {
+    dirent_t *de = calloc(1, sizeof(dirent_t));
+    strcpy(de->name, ".");
+    de->ino = node;
+    return de;
+  }
+  if(index == 1)
+  {
+    dirent_t *de = calloc(1, sizeof(dirent_t));
+    strcpy(de->name, "..");
+    de->ino = tar_finddir(node, "..");
+    return de;
+  }
+  index -= 1;
+  list_t *l = tn->children.next;
+  for_each_in_list(&tn->children, l)
+  {
+    index--;
+    if(!index)
+      break;
+  }
+  if(index)
+  {
+    return 0;
+  }
+
+  tree_node_t *cn = list_entry(l, tree_node_t, siblings);
+  tarfs_entry_t *entry = cn->item;
+
+  dirent_t *de = calloc(1, sizeof(dirent_t));
+  strcpy(de->name, entry->name);
+  de->ino = tar_finddir(node, entry->name);
+  if(!de->ino)
+  {
+    debug(" Couldn't find %s\n", entry->name);
+    return 0;
+  }
+  return de;
 }
 
 INODE tar_finddir(INODE dir, const char *name)
 {
   tree_node_t *tn = (tree_node_t *)dir->data;
   list_t *l;
-  for_each_in_list(&tn->children, l)
+  tarfs_entry_t *entry = 0;
+  tree_node_t *cn = 0;
+  if(!strcmp(name, "."))
+    return dir;
+  if(!strcmp(name, ".."))
   {
-    tree_node_t *cn = list_entry(l, tree_node_t, siblings);
-    tarfs_entry_t *entry = cn->item;
-    if(!strcmp(entry->name, name))
+    cn = tn->parent;
+    entry = cn->item;
+  } else {
+    for_each_in_list(&tn->children, l)
     {
-      INODE node = calloc(1, sizeof(vfs_node_t));
-      strcpy(node->name, entry->name);
-      node->d = &tarfs_driver;
-      node->data = (void *)cn;
-      sscanf((char *)&entry->tar->size, "%o", &node->length);
-      if(entry->tar->type[0] == TAR_TYPE_DIR)
+      cn = list_entry(l, tree_node_t, siblings);
+      entry = cn->item;
+      if(!strcmp(entry->name, name))
       {
-        node->type = FS_DIRECTORY;
+        break;
       }
-      else
-        node->type = FS_FILE;
-      return node;
     }
+    if(l == &tn->children)
+      return 0;
+  }
+  if(entry)
+  {
+    INODE node = calloc(1, sizeof(vfs_node_t));
+    strcpy(node->name, entry->name);
+    node->d = &tarfs_driver;
+    node->data = (void *)cn;
+    sscanf((char *)&entry->tar->size, "%o", &node->length);
+    if(entry->tar->type[0] == TAR_TYPE_DIR)
+    {
+      node->type = FS_DIRECTORY;
+    }
+    else
+      node->type = FS_FILE;
+    return node;
   }
   return 0;
 }
