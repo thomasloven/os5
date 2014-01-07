@@ -231,6 +231,10 @@ INODE vfs_find_root(char **path)
 
 INODE vfs_namei_mount(const char *path, INODE root)
 {
+  if(root && in_vfs_tree(root))
+  {
+    debug("[error] Tried to mount node already in mount tree: %s->%s\n", root->name, path);
+  }
   char *npath = strdup(path);
   char *pth = &npath[1];
   // Find closest point in mount tree
@@ -241,24 +245,19 @@ INODE vfs_namei_mount(const char *path, INODE root)
     // Go through the path
     INODE next = vfs_finddir(current, name);
 
+    if(!next)
+    {
+      vfs_free(current);
+      return 0;
+    }
+
     if(root)
     {
     // Add node to mount tree if the goal is to mount something
-      if(!next)
-      {
-        // Add if it doesn't exist and is the last part of the path
-        if(pth)
-          return 0;
-        next = calloc(1, sizeof(vfs_node_t));
-        strcpy(next->name, name);
-        next->type = FS_DIRECTORY;
-      }
       next->parent = current;
       next->older = current->child;
       current->child = next;
     }
-    if(!next)
-      return 0;
 
     vfs_free(current);
     current = next;
@@ -269,23 +268,23 @@ INODE vfs_namei_mount(const char *path, INODE root)
   {
     // Replace node in mount tree
     root->parent = current->parent;
-    if(root->parent->child == current)
-      root->parent->child = root;
+    current->parent = 0;
+    if(root->parent->child == current) root->parent->child = root;
     root->older = current->older;
-    if(root->older)
-      root->older->younger = current;
+    if(root->older) root->older->younger = current;
     root->younger = current->younger;
-    if(root->younger)
-      root->younger->older = current;
+    if(root->younger) root->younger->older = current;
+    // Replace name
     strcpy(root->name, current->name);
-    /* root->type |= FS_MOUNT; */
+    root->type |= FS_MOUNT;
     if(current == vfs_root)
     {
       debug("Mounting to root\n");
       vfs_root = root;
     }
 
-    free(current);
+    vfs_free(current);
+    vfs_free(root);
     current = root;
   }
   return current;
@@ -303,16 +302,14 @@ INODE vfs_umount(const char *path)
   }
   if(ino->child)
   {
+    // TODO: Needs rewriting
     free(npath);
     return 0;
   } else {
     // Remove node from mount tree
-    if(ino->parent->child == ino)
-      ino->parent->child = ino->older;
-    if(ino->younger)
-      ino->younger->older = ino->older;
-    if(ino->older)
-      ino->older->younger = ino->younger;
+    if(ino->parent->child == ino) ino->parent->child = ino->older;
+    if(ino->younger) ino->younger->older = ino->older;
+    if(ino->older) ino->older->younger = ino->younger;
     free(npath);
     return ino;
   }
