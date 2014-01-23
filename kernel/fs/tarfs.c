@@ -38,7 +38,7 @@ void tartree_add_node(tree_t *tree, tar_header_t *tar, char *path)
     {
       tree_node_t *new = malloc(sizeof(tree_node_t));
       init_tree_node(new);
-      tarfs_entry_t *n = new->item = malloc(sizeof(tarfs_entry_t));
+      tarfs_entry_t *n = new->item = calloc(1, sizeof(tarfs_entry_t));
       n->name = strdup(p);
       n->tar = tar;
 
@@ -49,19 +49,21 @@ void tartree_add_node(tree_t *tree, tar_header_t *tar, char *path)
   free(s);
 }
 
-tree_t *build_tar_tree(tar_header_t *tar)
+tree_t *build_tar_tree(tar_header_t *tar, INODE node)
 {
   tree_t *tree = malloc(sizeof(tree_t));
 
   tree_node_t *root = tree->root = malloc(sizeof(tree_node_t));
   init_tree_node(root);
-  tarfs_entry_t *n = malloc(sizeof(tarfs_entry_t));
+  tarfs_entry_t *n = calloc(1, sizeof(tarfs_entry_t));
 
   char *s = strdup((const char *)tar->name);
   n->name = strdup(strtok(s, "/"));
   free(s);
   n->tar = tar;
   root->item = n;
+  n->buffer = node;
+  n->users = 1;
 
   while(tar->name[0])
   {
@@ -76,6 +78,47 @@ tree_t *build_tar_tree(tar_header_t *tar)
   return tree;
 }
 
+INODE tar_get_inode(tree_node_t *tn)
+{
+  tarfs_entry_t *entry = tn->item;
+  if(entry->buffer)
+  {
+    entry->users++;
+    return entry->buffer;
+  }
+
+  INODE node = entry->buffer = calloc(1, sizeof(vfs_node_t));
+  strcpy(node->name, entry->name);
+  node->d = &tarfs_driver;
+  node->data = (void *)tn;
+  sscanf((char *)&entry->tar->size, "%o", &node->length);
+  if(entry->tar->type[0] == TAR_TYPE_DIR)
+  {
+    node->type = FS_DIRECTORY;
+  } else {
+    node->type = FS_FILE;
+  }
+  entry->users = 1;
+
+  return node;
+}
+
+
+void flush_tar(INODE node)
+{
+  tree_node_t *tn = node->data;
+  tarfs_entry_t *entry = tn->item;
+  if(entry->buffer != node)
+  {
+    debug("[error] Free bad tars inode %x %x %s\n", node, entry->buffer, node->name);
+  }
+  entry->users--;
+  if(entry->users == 0)
+  {
+    free(entry->buffer);
+    entry->buffer = 0;
+  }
+}
 
 uint32_t read_tar(INODE node, void *buffer, uint32_t size, uint32_t offset)
 {
@@ -122,48 +165,45 @@ int32_t close_tar(INODE node)
   return 0;
 }
 
-INODE tar_finddir(INODE dir, const char *name);
 dirent_t *tar_readdir(INODE node, uint32_t index)
 {
   tree_node_t *tn = (tree_node_t *)node->data;
+  dirent_t *de = calloc(1, sizeof(dirent_t));
+
   if(index == 0)
   {
-    dirent_t *de = calloc(1, sizeof(dirent_t));
+    // Special case for .
     strcpy(de->name, ".");
-    de->ino = node;
+    de->ino = tar_get_inode(tn);
     return de;
   }
   if(index == 1)
   {
-    dirent_t *de = calloc(1, sizeof(dirent_t));
+    // Special case for ..
     strcpy(de->name, "..");
-    de->ino = tar_finddir(node, "..");
+    de->ino = tar_get_inode(tn->parent);
     return de;
   }
-  index -= 1;
-  list_t *l = tn->children.next;
+  index--;
+
+  list_t *l = 0;
   for_each_in_list(&tn->children, l)
   {
     index--;
-    if(!index)
-      break;
+    if(!index) break;
   }
   if(index)
   {
+    // Reached end of directory
+    free(de);
     return 0;
   }
 
   tree_node_t *cn = list_entry(l, tree_node_t, siblings);
   tarfs_entry_t *entry = cn->item;
 
-  dirent_t *de = calloc(1, sizeof(dirent_t));
   strcpy(de->name, entry->name);
-  de->ino = tar_finddir(node, entry->name);
-  if(!de->ino)
-  {
-    debug(" Couldn't find %s\n", entry->name);
-    return 0;
-  }
+  de->ino = tar_get_inode(cn);
   return de;
 }
 
@@ -173,40 +213,23 @@ INODE tar_finddir(INODE dir, const char *name)
   list_t *l;
   tarfs_entry_t *entry = 0;
   tree_node_t *cn = 0;
+
+  // Special cases for . and ..
   if(!strcmp(name, "."))
-    return dir;
+    return tar_get_inode(tn);
   if(!strcmp(name, ".."))
+    return tar_get_inode(tn->parent);
+
+  for_each_in_list(&tn->children, l)
   {
-    cn = tn->parent;
+    cn = list_entry(l, tree_node_t, siblings);
     entry = cn->item;
-  } else {
-    for_each_in_list(&tn->children, l)
+    if(!strcmp(entry->name, name))
     {
-      cn = list_entry(l, tree_node_t, siblings);
-      entry = cn->item;
-      if(!strcmp(entry->name, name))
-      {
-        break;
-      }
+      return tar_get_inode(cn);
     }
-    if(l == &tn->children)
-      return 0;
   }
-  if(entry)
-  {
-    INODE node = calloc(1, sizeof(vfs_node_t));
-    strcpy(node->name, entry->name);
-    node->d = &tarfs_driver;
-    node->data = (void *)cn;
-    sscanf((char *)&entry->tar->size, "%o", &node->length);
-    if(entry->tar->type[0] == TAR_TYPE_DIR)
-    {
-      node->type = FS_DIRECTORY;
-    }
-    else
-      node->type = FS_FILE;
-    return node;
-  }
+
   return 0;
 }
 
@@ -224,7 +247,8 @@ vfs_driver_t tarfs_driver =
   0,
   0,
   tar_readdir,
-  tar_finddir
+  tar_finddir,
+  flush_tar
 };
 
 INODE tarfs_init(tar_header_t *tar)
@@ -234,7 +258,7 @@ INODE tarfs_init(tar_header_t *tar)
   node->d = &tarfs_driver;
   node->type = FS_DIRECTORY;
 
-  tree_t *tar_tree = build_tar_tree(tar);
+  tree_t *tar_tree = build_tar_tree(tar, node);
   node->data = tar_tree->root;
   free(tar_tree);
 

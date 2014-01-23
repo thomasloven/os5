@@ -55,6 +55,7 @@ vfs_driver_t debug_driver =
   debug_isatty,
   0,
   0,
+  0,
   0
 };
 

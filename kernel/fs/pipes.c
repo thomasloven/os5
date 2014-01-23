@@ -119,6 +119,7 @@ vfs_driver_t pipe_driver =
   0,
   0,
   0,
+  0,
   0
 };
 

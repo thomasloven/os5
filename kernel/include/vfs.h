@@ -45,6 +45,7 @@ typedef struct vfs_driver_st
   int32_t (*mkdir)(INODE, const char *);
   dirent_t *(*readdir)(INODE, uint32_t);
   INODE (*finddir)(INODE, const char *);
+  void (*flush)(INODE);
 } vfs_driver_t;
 
 #define VFS_NAME_SZ 256

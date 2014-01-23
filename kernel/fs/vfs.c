@@ -45,7 +45,13 @@ void vfs_init()
 
 void vfs_free(INODE ino)
 {
-  if(!in_vfs_tree(ino) && ino->users <= 0)
+  if(in_vfs_tree(ino))
+    return;
+  if(ino->users > 0)
+    return;
+  if(ino->d && ino->d->flush)
+    ino->d->flush(ino);
+  else
     free(ino);
 }
 
