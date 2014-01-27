@@ -14,12 +14,10 @@ typedef struct tree_node
 
 typedef struct
 {
-  uint32_t size;
   tree_node_t *root;
 } tree_t;
 
 #define init_tree(tree) \
-  tree.size=0; \
   tree.root=(tree_node_t *)0;
 
 #define init_tree_node(node) \

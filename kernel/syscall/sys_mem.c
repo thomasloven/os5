@@ -17,6 +17,7 @@ void *sbrk(int incr)
 
     if(kmem_ptr + incr >= KERNEL_HEAP_END)
     {
+      debug("[error] Out of memory space for kernel!\n");
       errno = ENOMEM;
       return 0;
     }

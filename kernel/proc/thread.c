@@ -115,6 +115,7 @@ void clean_threads(process_t *p)
 
 void return_from_signal(registers_t *r)
 {
+  (void)r;
   thread_t *th = current;
   scheduler_wake(&th->waiting);
   th->state = THREAD_STATE_FINISHED;

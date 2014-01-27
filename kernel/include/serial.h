@@ -7,3 +7,4 @@
 
 void init_serial(short port);
 void serial_send(short port, char c);
+void serial_debug(char *str, ...);

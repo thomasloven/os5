@@ -1,6 +1,7 @@
 #pragma once
 
 
+
 #define SYSCALL_EXIT 0x1
 #define SYSCALL_CLOSE 0x2
 #define SYSCALL_EXECVE 0x3

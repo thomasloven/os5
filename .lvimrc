@@ -1,15 +1,14 @@
 let $SCRPATH=expand("<sfile>:p:h")
-set path=$SCRPATH/**
+set path=$SCRPATH/**,/usr/local/Cellar/osdev/1.0/i586-pc-myos/include
 
 let NERDTreeIgnore = ['\.o$']
 
 
-let g:syntastic_c_include_dirs = [ 'build/newlib/i386-elf/newlib/libc', 'library/include', 'kernel/include' ]
+let g:syntastic_c_include_dirs = [ '/usr/local/Cellar/osdev/1.0/i586-pc-myos/include', 'kernel/include' ]
 "let g:syntastic_c_checker = 'clang -fsyntax-only -Wall -Wextra -pedantic'
 let g:syntastic_c_compiler = 'clang'
 let g:syntastic_c_compiler_options = '-fsyntax-only -Wall -Wextra -pedantic -Wno-gnu -m32'
 let g:syntastic_c_check_header = 1
 
-let g:ctrlp_custom_ignore = 'newlib'
 call unite#custom#source('file_rec/async', 'ignore_pattern', 'newlib\|build')
 call unite#custom#source('file_rec', 'ignore_pattern', 'newlib\|build')

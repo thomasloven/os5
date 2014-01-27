@@ -49,9 +49,10 @@ int execve(char *name, char **argv, char **env)
     debug("[info]EXECVE(%s, %x, %x)\n", name, argv, env);
   }
   // Find the executable
-  fs_node_t *executable = vfs_find_node(name);
+  INODE executable = vfs_namei(name);
   if(!executable)
   {
+    debug("[error] Executable %s not found.", name);
     errno = ENOENT;
     return -1;
   }
@@ -87,7 +88,7 @@ int execve(char *name, char **argv, char **env)
   {
     while(argv[argc++]);
 
-    temp_argv = calloc(argc, sizeof(char *));
+    temp_argv = calloc(argc+1, sizeof(char *));
 
     unsigned int i = 0;
     while(argv[i])
@@ -97,6 +98,10 @@ int execve(char *name, char **argv, char **env)
     }
     argv[argc] = 0;
   }
+
+  if(current->proc->cmdline)
+    free(current->proc->cmdline);
+  current->proc->cmdline = strdup(name);
 
   // Clear all process memory areas
   procmm_removeall(current->proc);
