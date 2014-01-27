@@ -152,12 +152,12 @@ int lseek(int file, int ptr, int dir)
   return ret;
 }
 
-int open(const char *name, int flags, int mode)
+int open(const char *name, int flags, ...)
 {
 #ifndef NDEBUG
-  _syscall_printf("\n Syscall open(%s %x %x)", name, flags, mode);
+  _syscall_printf("\n Syscall open(%s %x)", name, flags);
 #endif
-  int ret = _syscall_open(name, flags, mode);
+  int ret = _syscall_open(name, flags, 0);
   errno = syscall_errno;
   return ret;
 }

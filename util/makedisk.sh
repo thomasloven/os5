@@ -70,6 +70,8 @@ EOF
 fi
 
 # Copy kernel and tarfs
+dito-rm ext2:$DISKFILE:1:/boot/kernel
+dito-rm ext2:$DISKFILE:1:/boot/tarfs
 dito-cp $BUILDDIR/kernel/kernel ext2:$DISKFILE:1:/boot/kernel
 dito-cp $BUILDDIR/tarfs.tar ext2:$DISKFILE:1:/boot/tarfs
 

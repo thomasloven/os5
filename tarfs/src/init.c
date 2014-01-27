@@ -10,7 +10,7 @@ extern char **environ;
 int main()
 {
   setenv("HOME","/",1);
-  setenv("PATH","/usr/sbin:/bin",1);
+  setenv("PATH","/bin:/usr/sbin:/bin",1);
 
   while(1)
   {

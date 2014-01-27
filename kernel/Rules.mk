@@ -3,6 +3,7 @@ dirstack_$(sp) := $(d)
 d := $(dir)
 
 TGT_KERNEL := $(builddir)/kernel/kernel
+versionfile := $(builddir)/kernel/boot/version.o
 # Find all source files in the kernel subdirectories
 # boot.S and kinit.o should be linked first, so they are added
 # separately.
@@ -19,12 +20,12 @@ $(TGT_KERNEL): LF_TGT := -nostdlib -T $(d)/include/Link.ld
 $(TGT_KERNEL): LL_TGT := -lkernel
 
 # Add git status to version.o
-$(builddir)/kernel/boot/version.o: CF_TGT += $(GITFLAGS)
+$(versionfile): CF_TGT += $(GITFLAGS)
 
 # If anything was rebuilt in the kernel, rebuilt version.o again
 $(TGT_KERNEL): $(OBJS_$(d))
-	rm -f $(builddir)/kernel/boot/version.o
-	$(MAKE) $(builddir)/kernel/boot/version.o
+	rm -f $(versionfile)
+	$(MAKE) $(versionfile)
 	$(LINK)
 
 ifneq ($(MAKECMDGOALS),clean)

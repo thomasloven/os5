@@ -45,7 +45,13 @@ void vfs_init()
 
 void vfs_free(INODE ino)
 {
-  if(!ino->parent && !ino->users)
+  if(in_vfs_tree(ino))
+    return;
+  if(ino->users > 0)
+    return;
+  if(ino->d && ino->d->flush)
+    ino->d->flush(ino);
+  else
     free(ino);
 }
 
@@ -113,7 +119,9 @@ int32_t vfs_mkdir(INODE ino, const char *name)
 }
 dirent_t *vfs_readdir(INODE ino, uint32_t num)
 {
-  if(ino->type & FS_MOUNT)
+  if(!((ino->type & FS_TYPE_MASK) == FS_DIRECTORY))
+    return 0;
+  if(in_vfs_tree(ino))
   {
     if(num == 0)
     {
@@ -128,13 +136,32 @@ dirent_t *vfs_readdir(INODE ino, uint32_t num)
       return ret;
     }
   }
+  dirent_t *de = 0;
   if(ino->d->readdir)
-    return ino->d->readdir(ino, num);
-  return 0;
+    de = ino->d->readdir(ino, num);
+
+  if(de && in_vfs_tree(ino))
+  {
+    // Replace inode with the one from the vfs tree if it exists.
+    INODE n = ino->child;
+    while(n)
+    {
+      if(!strcmp(de->name, n->name))
+      {
+        vfs_free(de->ino);
+        de->ino = n;
+        break;
+      }
+      n = n->older;
+    }
+  }
+  return de;
 }
 INODE vfs_finddir(INODE ino, const char *name)
 {
-  if(ino->type & FS_MOUNT)
+  if(!((ino->type & FS_TYPE_MASK) == FS_DIRECTORY))
+    return 0;
+  if(in_vfs_tree(ino))
   {
     if(!strcmp(name, "."))
     {
@@ -142,9 +169,20 @@ INODE vfs_finddir(INODE ino, const char *name)
     } else if(!strcmp(name, "..")) {
       return ino->parent;
     }
+
+    // Search through the mount tree first
+    INODE n = ino->child;
+    while(n)
+    {
+      if(!strcmp(name, n->name))
+        return n;
+      n = n->older;
+    }
   }
+
   if(ino->d->finddir)
     return ino->d->finddir(ino, name);
+
   if(ino->d->readdir)
   {
     // Backup solution
@@ -204,6 +242,10 @@ INODE vfs_find_root(char **path)
 
 INODE vfs_namei_mount(const char *path, INODE root)
 {
+  if(root && in_vfs_tree(root))
+  {
+    debug("[error] Tried to mount node already in mount tree: %s->%s\n", root->name, path);
+  }
   char *npath = strdup(path);
   char *pth = &npath[1];
   // Find closest point in mount tree
@@ -214,24 +256,19 @@ INODE vfs_namei_mount(const char *path, INODE root)
     // Go through the path
     INODE next = vfs_finddir(current, name);
 
+    if(!next)
+    {
+      vfs_free(current);
+      return 0;
+    }
+
     if(root)
     {
     // Add node to mount tree if the goal is to mount something
-      if(!next)
-      {
-        // Add if it doesn't exist and is the last part of the path
-        if(pth)
-          return 0;
-        next = calloc(1, sizeof(vfs_node_t));
-        strcpy(next->name, name);
-        next->type = FS_DIRECTORY;
-      }
       next->parent = current;
       next->older = current->child;
       current->child = next;
     }
-    if(!next)
-      return 0;
 
     vfs_free(current);
     current = next;
@@ -242,20 +279,23 @@ INODE vfs_namei_mount(const char *path, INODE root)
   {
     // Replace node in mount tree
     root->parent = current->parent;
-    if(root->parent->child == current)
-      root->parent->child = root;
+    current->parent = 0;
+    if(root->parent->child == current) root->parent->child = root;
     root->older = current->older;
-    if(root->older)
-      root->older->younger = current;
+    if(root->older) root->older->younger = current;
     root->younger = current->younger;
-    if(root->younger)
-      root->younger->older = current;
+    if(root->younger) root->younger->older = current;
+    // Replace name
     strcpy(root->name, current->name);
-    /* root->type |= FS_MOUNT; */
+    root->type |= FS_MOUNT;
     if(current == vfs_root)
+    {
+      debug("Mounting to root\n");
       vfs_root = root;
+    }
 
-    free(current);
+    vfs_free(current);
+    vfs_free(root);
     current = root;
   }
   return current;
@@ -273,16 +313,14 @@ INODE vfs_umount(const char *path)
   }
   if(ino->child)
   {
+    // TODO: Needs rewriting
     free(npath);
     return 0;
   } else {
     // Remove node from mount tree
-    if(ino->parent->child == ino)
-      ino->parent->child = ino->older;
-    if(ino->younger)
-      ino->younger->older = ino->older;
-    if(ino->older)
-      ino->older->younger = ino->younger;
+    if(ino->parent->child == ino) ino->parent->child = ino->older;
+    if(ino->younger) ino->younger->older = ino->older;
+    if(ino->older) ino->older->younger = ino->younger;
     free(npath);
     return ino;
   }
@@ -297,4 +335,76 @@ INODE vfs_mount(const char *path, INODE root)
 {
   debug("[info] VFS mounting %s to %s\n", root->name, path);
   return vfs_namei_mount(path, root);
+}
+
+char *canonicalize_path(const char *path, const char *prefix)
+{
+  // Tokenize path and push every piece onto a stack
+  // Push everything onto another stack, remove all . and pop one item
+  // for ..
+  // Pop second stack into new path
+
+  typedef struct pth_stack{
+    char *name;
+    struct pth_stack *prev;
+   } stack_item;
+
+  int length = strlen(path) + 1;
+  if(prefix && path[0] != '/')
+    length += strlen(prefix) + 1;
+  char *pth = calloc(1, length);
+  if(prefix && path[0] != '/')
+  {
+    strcat(pth, prefix);
+    strcat(pth, "/");
+  }
+  strcat(pth, path);
+
+  stack_item *i = 0, *j = 0, *k = 0;
+  char *p = pth;
+  for(p = strtok(p, "/"); p; p = strtok(NULL, "/"))
+  {
+    if(!strcmp(p, "."))
+      continue;
+    if(!strcmp(p, ".."))
+    {
+      // Pop
+      i = j;
+      j = j->prev;
+      free(i->name);
+      free(i);
+      continue;
+    }
+    i = j;
+    j = calloc(1, sizeof(stack_item));
+    j->name = strdup(p);
+    j->prev = i;
+  }
+  free(pth);
+
+  // Turn stack around
+  while(j)
+  {
+    i = k;
+    k = calloc(1, sizeof(stack_item));
+    k->name = j->name;
+    k->prev = i;
+    i = j;
+    j = j->prev;
+    free(i);
+  }
+
+  char *ret = calloc(1, strlen(path)+1);
+  if(!k)
+    strcat(ret, "/");
+  while(k)
+  {
+    strcat(ret, "/");
+    strcat(ret, k->name);
+    i = k;
+    k = k->prev;
+    free(i->name);
+    free(i);
+  }
+ return ret;
 }

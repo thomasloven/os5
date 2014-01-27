@@ -10,6 +10,8 @@
 #include <errno.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <sys/dirent.h>
+#include <string.h>
 
 #undef errno
 extern int errno;
@@ -197,7 +199,9 @@ int open(const char *name, int flags, int mode)
   }
 
   // Open the file
-  INODE node = vfs_namei(name);
+  char *n = canonicalize_path(name, 0);
+  INODE node = vfs_namei(n);
+  free(n);
   if(!node)
   {
     errno = ENOENT;
@@ -333,5 +337,52 @@ KDEF_SYSCALL(write, r)
   process_stack stack = init_pstack();
   r->eax = write(stack[0], (char *)stack[1], stack[2]);
   r->ebx = errno;
+  return r;
+}
+
+struct dirent *readdir(DIR *dirp)
+{
+  if(current->proc->flags & PROC_FLAG_DEBUG)
+  {
+    debug("[info]READDIR(%x, %x)\n", dirp->fd, dirp->cur_entry+1);
+  }
+  dirp->cur_entry++;
+
+  process_t *p = current->proc;
+  INODE node = p->fd[dirp->fd]->ino;
+  if(!node)
+  {
+    errno = EBADF;
+    return 0;
+  }
+  
+  dirent_t *de = 0;
+  if(!(de = vfs_readdir(node, dirp->cur_entry)))
+    return 0;
+  struct dirent *d = calloc(1, sizeof(struct dirent));
+  strcpy(d->name, de->name);
+  d->ino = 0;
+
+  vfs_free(de->ino);
+  free(de);
+
+  return d;
+}
+KDEF_SYSCALL(readdir, r)
+{
+  static DIR dirp;
+  process_stack stack = init_pstack();
+  dirp.fd = stack[0];
+  dirp.cur_entry = stack[1]-1;
+  struct dirent *de = readdir(&dirp);
+  if(de)
+  {
+    memcpy((void *)stack[2], de, sizeof(struct dirent));
+    free(de);
+    r->eax = 0;
+    return r;
+  }
+  free(de);
+  r->eax = -1;
   return r;
 }

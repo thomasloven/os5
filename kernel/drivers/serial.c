@@ -22,8 +22,11 @@ void serial_send(short port, char c) {
   outb(port, c);
 }
 
+extern int debug_enabled;
 void serial_debug(char *str, ...)
 {
+  if(!debug_enabled)
+    return;
   va_list args;
   va_start(args, str);
 
