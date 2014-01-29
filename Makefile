@@ -10,7 +10,7 @@ CC = i586-pc-myos-gcc
 COMP = $(CC) $(CF_ALL) $(CF_TGT) -o $@ -c $<
 LINK = $(CC) $(LF_ALL) $(LF_TGT) -o $@ $^ $(LL_TGT) $(LL_ALL)
 COMPLINK = $(CC) $(CF_ALL) $(CF_TGT) $(LF_ALL) $(LF_TGT) -o $@ $< $(LL_TGT) $(LL_ALL)
-DEP = $(CC) -M $(CF_ALL) $(CF_TGT) $< -o $@ -MT "$*.o $*.d"
+DEP = $(CC) -M $(CF_ALL) $(CF_TGT) $< -o $@ -MT "build/$*.o build/$*.d"
 
 PREFIX=/usr/local/Cellar/osdev/1.0
 TARGET=i586-pc-myos
