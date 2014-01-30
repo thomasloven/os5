@@ -17,6 +17,16 @@ void scheduler_insert(thread_t *th)
   append_to_list(run_queue, th->tasks);
   spin_unlock(&scheduler_sem);
 }
+void scheduler_cheat(thread_t *th)
+{
+  spin_lock(&scheduler_sem);
+  th->tasks.next = run_queue.next;
+  (run_queue.next)->prev = &th->tasks;
+  th->tasks.prev = &run_queue;
+  run_queue.next = &th->tasks;
+  /* list_insert_to_right(run_queue, th->tasks); */
+  spin_unlock(&scheduler_sem);
+}
 
 void scheduler_remove(thread_t *th)
 {

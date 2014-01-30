@@ -10,6 +10,7 @@ typedef struct
 } thread_list_t;
 
 void scheduler_insert(thread_t *th);
+void scheduler_cheat(thread_t *th);
 void scheduler_remove(thread_t *th);
 thread_t *scheduler_next();
 void scheduler_init();

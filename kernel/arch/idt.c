@@ -4,6 +4,7 @@
 #include <k_debug.h>
 #include <thread.h>
 #include <string.h>
+#include <signals.h>
 
 idt_entry_t idt[NUM_INTERRUPTS];
 int_handler_t int_handlers[NUM_INTERRUPTS];
