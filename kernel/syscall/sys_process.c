@@ -6,6 +6,7 @@
 #include <vmm.h>
 #include <procmm.h>
 #include <elf.h>
+#include <signals.h>
 
 #include <errno.h>
 #include <strings.h>
@@ -231,25 +232,18 @@ int kill(int pid, int sig)
     errno = ESRCH;
     return -1;
   }
-  process_t *r = get_process(pid);
-  process_t *s = current->proc;
-
   if(sig > NUM_SIGNALS)
   {
     errno = EINVAL;
     return -1;
   }
-  if(!r)
+  if(!get_process(pid))
   {
     errno = ESRCH;
     return -1;
   }
 
-  signal_t *signal = malloc(sizeof(signal_t));
-  signal->sig = sig;
-  signal->sender = s->pid;
-  init_list(signal->queue);
-  append_to_list(r->signal_queue, signal->queue);
+  signal_process(pid, sig);
 
   return 0;
 }
