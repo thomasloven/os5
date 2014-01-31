@@ -68,7 +68,6 @@ registers_t *kinit(mboot_info_t *mboot, uint32_t mboot_magic)
   vfs_mount("/mnt/tarfs", tarfs_init(tarfs_location));
   vfs_mount("/dev/debug", debug_dev_init());
   keyboard_init();
-  vfs_print_tree();
 
   fopen("/dev/debug", "w");
   fopen("/dev/debug", "w");

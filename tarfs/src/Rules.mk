@@ -9,7 +9,7 @@ TGTS_$(d) := $(patsubst %.o,%,$(OBJS_$(d)))
 DEPS_$(d) := $(patsubst %,%.d,$(TGTS_$(d)))
 
 CLEAN := $(CLEAN) $(TGTS_$(d)) $(TGT_TARFS)
-CLEAN := $(CLEAN) $(addprefix tarfs/bin/, $(notdir $(TGTS_$(d)))) $(DEPS_$(d))
+CLEAN += $(addprefix tarfs/bin/, $(notdir $(TGTS_$(d)))) $(DEPS_$(d))
 
 $(TGT_TARFS): $(TGTS_$(d))
 	@mkdir -p tarfs/bin

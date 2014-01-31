@@ -37,7 +37,6 @@ void vfs_print_tree()
 
 void vfs_init()
 {
-  debug("[info] vfs_init2\n");
   vfs_root = calloc(1, sizeof(vfs_node_t));
   vfs_root->parent = vfs_root;
   strcpy(vfs_root->name, "/");
@@ -289,10 +288,7 @@ INODE vfs_namei_mount(const char *path, INODE root)
     strcpy(root->name, current->name);
     root->type |= FS_MOUNT;
     if(current == vfs_root)
-    {
-      debug("Mounting to root\n");
       vfs_root = root;
-    }
 
     vfs_free(current);
     vfs_free(root);
