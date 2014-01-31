@@ -24,3 +24,9 @@ KDEF_SYSCALL(times, r)
   r->ebx = errno;
   return r;
 }
+
+
+KDEF_SYSCALL(vidmem, r)
+{
+  return r;
+}

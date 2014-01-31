@@ -6,6 +6,7 @@
 
 #include <k_debug.h>
 #include <string.h>
+#include <syscalls.h>
 
 syscall_t syscall_handlers[NUM_SYSCALLS];
 
@@ -32,15 +33,14 @@ void syscall_init()
   KREG_SYSCALL(unlink, SYSCALL_UNLINK);
   KREG_SYSCALL(wait, SYSCALL_WAIT);
   KREG_SYSCALL(write, SYSCALL_WRITE);
-
-  KREG_SYSCALL(printf, SYSCALL_PRINTF);
   KREG_SYSCALL(waitpid, SYSCALL_WAITPID);
   KREG_SYSCALL(yield, SYSCALL_YIELD);
-
   KREG_SYSCALL(signal, SYSCALL_SIGNAL);
-
-  KREG_SYSCALL(process_debug, SYSCALL_PDBG);
   KREG_SYSCALL(readdir, SYSCALL_READDIR);
+
+  KREG_SYSCALL(printf, SYSCALL_PRINTF);
+  KREG_SYSCALL(process_debug, SYSCALL_PDBG);
+  KREG_SYSCALL(vidmem, SYSCALL_VIDMEM);
 
 }
 

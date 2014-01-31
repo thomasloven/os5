@@ -65,10 +65,6 @@ DEF_SYSCALL(wait, SYSCALL_WAIT)
 .global _syscall_write
 DEF_SYSCALL(write, SYSCALL_WRITE)
 
-
-.global _syscall_printf
-DEF_SYSCALL(printf, SYSCALL_PRINTF)
-
 .global _syscall_waitpid
 DEF_SYSCALL(waitpid, SYSCALL_WAITPID)
 
@@ -82,6 +78,13 @@ DEF_SYSCALL(signal, SYSCALL_SIGNAL)
 DEF_SYSCALL(pdbg, SYSCALL_PDBG)
 
 .global _syscall_readdir
-DEF_SYSCALL(readdir, SYSCALL_READDIR);
+DEF_SYSCALL(readdir, SYSCALL_READDIR)
+
+
+.global _syscall_vidmem
+DEF_SYSCALL(vidmem, SYSCALL_VIDMEM)
+
+.global _syscall_printf
+DEF_SYSCALL(printf, SYSCALL_PRINTF)
 
 #endif

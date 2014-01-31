@@ -92,4 +92,6 @@ KDECL_SYSCALL(readdir);
 clock_t times(struct tms *buf);
 KDECL_SYSCALL(times);
 
+KDECL_SYSCALL(vidmem);
+
 #endif
