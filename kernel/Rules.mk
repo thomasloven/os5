@@ -15,7 +15,7 @@ DEPS_$(d) := $(patsubst %.o,%.d,$(OBJS_$(d)))
 
 CLEAN := $(CLEAN) $(OBJS_$(d)) $(TGT_KERNEL) $(DEPS_$(d))
 
-$(OBJS_$(d)) $(DEPS_$(d)): CF_TGT := -I$(d)/include
+$(OBJS_$(d)) $(DEPS_$(d)): CF_TGT := -I$(d)/include -DKERNEL_MODE
 $(TGT_KERNEL): LF_TGT := -nostdlib -T $(d)/include/Link.ld
 $(TGT_KERNEL): LL_TGT := -lkernel
 

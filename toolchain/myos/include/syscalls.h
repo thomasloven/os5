@@ -32,6 +32,7 @@
 #define SYSCALL_OK 0x00
 #define ERROR_NOSYSCALL 0x01
 
+#ifndef KERNEL_MODE
 #ifndef __ASSEMBLER__
 #include <stdint.h>
 #include <sys/stat.h>
@@ -96,4 +97,5 @@ DECL_SYSCALL3(readdir, int, int, struct dirent *);
   ret
 .endm
 
+#endif
 #endif

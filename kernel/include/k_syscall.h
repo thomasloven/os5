@@ -5,38 +5,8 @@
 #include <sys/times.h>
 #include <signal.h>
 #include <sys/dirent.h>
+#include <syscalls.h>
 
-#define SYSCALL_EXIT 0x1
-#define SYSCALL_CLOSE 0x2
-#define SYSCALL_EXECVE 0x3
-#define SYSCALL_FORK 0x4
-#define SYSCALL_FSTAT 0x5
-#define SYSCALL_GETPID 0x6
-#define SYSCALL_ISATTY 0x7
-#define SYSCALL_KILL 0x8
-#define SYSCALL_LINK 0x9
-#define SYSCALL_LSEEK 0xa
-#define SYSCALL_OPEN 0xb
-#define SYSCALL_READ 0xc
-#define SYSCALL_SBRK 0xd
-#define SYSCALL_STAT 0xe
-#define SYSCALL_TIMES 0xf
-#define SYSCALL_UNLINK 0x10
-#define SYSCALL_WAIT 0x11
-#define SYSCALL_WRITE 0x12
-
-#define SYSCALL_PRINTF 0x13
-#define SYSCALL_WAITPID 0x14
-#define SYSCALL_YIELD 0x15
-
-#define SYSCALL_SIGNAL 0x16
-
-#define SYSCALL_PDBG 0x17
-#define SYSCALL_READDIR 0x18
-
-
-#define SYSCALL_OK 0x00
-#define ERROR_NOSYSCALL 0x01
 
 #ifndef __ASSEMBLER__
 
