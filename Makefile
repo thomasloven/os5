@@ -28,10 +28,10 @@ GITFLAGS := -DGITHASH='"$(GITHASH)"' \
 	-DGITBRANCH='"$(GITBRANCH)"'
 
 ### Common functions
-# $(call findsource, suffix, dir)
-findsource = $(addprefix $(3)/, \
+# $(call findsource, suffix, dir, depth, builddir)
+findsource = $(addprefix $(4)/, \
 	     $(patsubst %.$(2), %.o, \
-	     $(shell find $(1) -name "*.$(2)")))
+	     $(shell find $(1) -maxdepth $(3) -name "*.$(2)")))
 
 
 include Rules.mk

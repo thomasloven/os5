@@ -8,8 +8,8 @@ TGT_KERNEL := $(builddir)/kernel/kernel
 # separately.
 OBJS_$(d) := $(builddir)/kernel/boot/boot.o
 OBJS_$(d) += $(builddir)/kernel/boot/kinit.o
-OBJS_$(d) += $(call findsource,$(d),S,$(builddir))
-OBJS_$(d) += $(call findsource,$(d),c,$(builddir))
+OBJS_$(d) += $(call findsource,$(d),S,5,$(builddir))
+OBJS_$(d) += $(call findsource,$(d),c,5,$(builddir))
 DEPS_$(d) := $(patsubst %.o,%.d,$(OBJS_$(d)))
 
 
