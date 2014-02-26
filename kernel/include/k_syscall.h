@@ -76,7 +76,7 @@ int link(char *old, char *new);
 KDECL_SYSCALL(link);
 int lseek(int file, int ptr, int dir);
 KDECL_SYSCALL(lseek);
-int open(const char *name, int flags, int mode);
+int open(const char *name, int flags, ...);
 KDECL_SYSCALL(open);
 int read(int file, char *ptr, int len);
 KDECL_SYSCALL(read);

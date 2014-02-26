@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <sys/dirent.h>
 #include <string.h>
+#include <fcntl.h>
 
 #undef errno
 extern int errno;
@@ -162,11 +163,11 @@ KDEF_SYSCALL(lseek, r)
   return r;
 }
 
-int open(const char *name, int flags, int mode)
+int open(const char *name, int flags, ...)
 {
   if(current->proc->flags & PROC_FLAG_DEBUG)
   {
-    debug("[info]OPEN(%s, %x, %x)\n", name, flags, mode);
+    debug("[info]OPEN(%s, %x)\n", name, flags);
   }
 
   // Sanity check path address
@@ -463,10 +464,56 @@ int pipe(int fildes[2])
   {
     debug("[info]PIPE(%x)\n", fildes);
   }
-  (void)fildes;
-  return -1;
+
+  process_t *p = current->proc;
+
+  // Find two free file descriptors
+  int i;
+  fildes[0] = -1;
+  for(i = 0; i < NUM_FILEDES; i++)
+  {
+    if(p->fd[i])
+      continue;
+    fildes[0] = i;
+    p->fd[fildes[0]] = calloc(1, sizeof(file_desc_t));
+    fd_get(p->fd[fildes[0]]);
+    break;
+  }
+  fildes[1] = -1;
+  for(i = 0; i < NUM_FILEDES; i++)
+  {
+    if(p->fd[i])
+      continue;
+    fildes[1] = i;
+    p->fd[fildes[1]] = calloc(1, sizeof(file_desc_t));
+    fd_get(p->fd[fildes[1]]);
+    break;
+  }
+
+  if(fildes[0] == -1 || fildes[1] == -1)
+  {
+    errno = EMFILE;
+    return -1;
+  }
+
+  // Create pipe
+  INODE tmp[2];
+  new_pipe(512, tmp);
+
+  // Set up and open file descriptors
+  p->fd[fildes[0]]->ino = tmp[0];
+  p->fd[fildes[0]]->flags = O_RDONLY;
+  vfs_open(tmp[0], O_RDONLY);
+  p->fd[fildes[1]]->ino = tmp[1];
+  p->fd[fildes[1]]->flags = O_WRONLY;
+  vfs_open(tmp[1], O_WRONLY);
+
+  return 0;
 }
 KDEF_SYSCALL(pipe, r)
 {
+  process_stack stack = init_pstack();
+  r->eax = pipe((int *)stack[0]);
+  r->ebx = errno;
   return r;
 }
