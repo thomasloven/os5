@@ -193,8 +193,6 @@ int open(const char *name, int flags, int mode)
   {
     // No free descriptors
     errno = EMFILE;
-    fd_put(p->fd[fd]);
-    p->fd[fd] = 0;
     return fd;
   }
 
@@ -384,5 +382,91 @@ KDEF_SYSCALL(readdir, r)
   }
   free(de);
   r->eax = -1;
+  return r;
+}
+
+int dup(int fildes)
+{
+  if(current->proc->flags & PROC_FLAG_DEBUG)
+  {
+    debug("[info]DUP(%x)\n", fildes);
+  }
+  process_t *p = current->proc;
+  if(!p->fd[fildes] || fildes < 0)
+  {
+    errno = EBADF;
+    return -1;
+  }
+  int i;
+  int fd = -1;
+  for(i=0; i < NUM_FILEDES; i++)
+  {
+    if(p->fd[i])
+      continue;
+    fd = i;
+    p->fd[fd] = p->fd[fildes];
+    fd_get(p->fd[fildes]);
+    break;
+  }
+  if(fd == -1)
+    errno = EMFILE;
+  return fd;
+}
+KDEF_SYSCALL(dup, r)
+{
+  process_stack stack = init_pstack();
+  r->eax = dup(stack[0]);
+  r->ebx = errno;
+  return r;
+}
+
+int dup2(int fildes1, int fildes2)
+{
+  if(current->proc->flags & PROC_FLAG_DEBUG)
+  {
+    debug("[info]DUP2(%x, %x)\n", fildes1, fildes2);
+  }
+  process_t *p = current->proc;
+  if(!p->fd[fildes1] || fildes1 < 0 || fildes2 < 0)
+  {
+    errno = EBADF;
+    return -1;
+  }
+  if(fildes1 >= NUM_FILEDES || fildes2 >= NUM_FILEDES)
+  {
+    errno = EMFILE;
+    return -1;
+  }
+
+  if(fildes1 == fildes2)
+    return fildes2;
+  if(p->fd[fildes2])
+  {
+    close(fildes2);
+  }
+  p->fd[fildes2] = p->fd[fildes1];
+  fd_get(p->fd[fildes1]);
+
+  return fildes2;
+}
+KDEF_SYSCALL(dup2, r)
+{
+  process_stack stack = init_pstack();
+  r->eax = dup2(stack[0], stack[1]);
+  r->ebx = errno;
+  return r;
+}
+
+int pipe(int fildes[2])
+{
+  if(current->proc->flags & PROC_FLAG_DEBUG)
+  {
+    debug("[info]PIPE(%x)\n", fildes);
+  }
+  (void)fildes;
+  return -1;
+}
+KDEF_SYSCALL(pipe, r)
+{
   return r;
 }

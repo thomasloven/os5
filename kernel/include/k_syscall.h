@@ -59,6 +59,7 @@ KDECL_SYSCALL(yield);
 sig_t signal(int sig, sig_t handler);
 KDECL_SYSCALL(signal);
 KDECL_SYSCALL(process_debug);
+KDECL_SYSCALL(thread_fork);
 
 // sys_mem.c
 void *sbrk(int incr);
@@ -87,6 +88,12 @@ int write(int file, char *ptr, int len);
 KDECL_SYSCALL(write);
 struct dirent *readdir(DIR *dirp);
 KDECL_SYSCALL(readdir);
+int dup(int fildes);
+KDECL_SYSCALL(dup);
+int dup2(int fildes1, int fildes2);
+KDECL_SYSCALL(dup2);
+int pipe(int fildes[2]);
+KDECL_SYSCALL(pipe);
 
 // sys_system.c
 clock_t times(struct tms *buf);

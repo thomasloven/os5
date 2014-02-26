@@ -361,3 +361,22 @@ KDEF_SYSCALL(process_debug, r)
   return r;
 }
 
+KDEF_SYSCALL(thread_fork, r)
+{
+  // example: thread_fork(stack, function, argument);
+  process_stack stack = init_pstack();
+  if(current->proc->flags & PROC_FLAG_DEBUG)
+  {
+    debug("[info]thread_fork(%x, %x, %x)\n", stack[0], stack[1], stack[2]);
+  }
+  thread_t *th = new_thread((void (*)(void))stack[1], 1);
+  append_to_list(current->proc->threads, th->process_threads);
+  th->proc = current->proc;
+  uint32_t *stk = (uint32_t *)stack[0];
+  *--stk = stack[2];
+  *--stk = SIGNAL_RETURN_ADDRESS;
+  th->r.useresp = th->r.ebp = (uint32_t)stk;
+  r->eax = th->tid;
+  return r;
+}
+

@@ -24,6 +24,10 @@
 #define SYSCALL_YIELD 0x14
 #define SYSCALL_SIGNAL 0x15
 #define SYSCALL_READDIR 0x16
+#define SYSCALL_DUP 0x17
+#define SYSCALL_DUP2 0x18
+#define SYSCALL_PIPE 0x19
+#define SYSCALL_THREAD 0x1A
 
 #define SYSCALL_PDBG 0xF0
 #define SYSCALL_PRINTF 0xF1
@@ -76,6 +80,10 @@ DECL_SYSCALL1(waitpid, int);
 DECL_SYSCALL0(yield);
 DECL_SYSCALL2(signal, int, sighandler_t);
 DECL_SYSCALL3(readdir, int, int, struct dirent *);
+DECL_SYSCALL1(dup, int);
+DECL_SYSCALL2(dup2, int, int);
+DECL_SYSCALL1(pipe, int[]);
+DECL_SYSCALL3(thread, void *, void *, int);
 
 DECL_SYSCALL1E(printf, char *);
 DECL_SYSCALL0(pdbg);
