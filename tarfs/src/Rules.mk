@@ -4,6 +4,9 @@ d := $(dir)
 
 TAR_TGTS :=
 
+dir := $(d)/terminal_src
+include $(dir)/Rules.mk
+
 TGT_TARFS := $(builddir)/tarfs.tar
 
 OBJS_$(d) := $(call findsource,$(d),c,1,$(builddir))
