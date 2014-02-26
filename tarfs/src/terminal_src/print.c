@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdio.h>
+#include <syscalls.h>
 
 void copybuffer(struct terminal *t)
 {
@@ -12,6 +13,13 @@ void copybuffer(struct terminal *t)
   if(!t->buffer)
     return;
   memcpy(vidmem, t->buffer, sizeof(uint16_t)*t->rows*t->cols);
+
+  unsigned short position = t->csr_row*80 + t->csr_col;
+
+  outb(0x3D4, 0x0F);
+  outb(0x3D5, (unsigned char)(position & 0xFF));
+  outb(0x3D4, 0x0E);
+  outb(0x3D5, (unsigned char)(position >> 8) & 0xF);
 }
 
 void terminal_putch(struct terminal *t, char c)
