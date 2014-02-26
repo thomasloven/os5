@@ -22,6 +22,7 @@ uint16_t *vidmem;
 struct terminal *vterm[NUM_TERM];
 uint32_t active_vterm;
 
-void terminal_putch(struct terminal *t, char c);
 void copybuffer(struct terminal *t);
+struct terminal *new_terminal(uint32_t rows, uint32_t cols, char **argv);
+void terminal_putch(struct terminal *t, char c);
 

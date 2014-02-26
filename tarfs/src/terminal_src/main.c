@@ -4,8 +4,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include "keyboard.h"
 
-void terminal_output(uint32_t a)
+void terminal_output_handler(uint32_t a)
 {
   while(1)
   {
@@ -58,15 +59,18 @@ int main(int argc, char **argv)
   vterm[0] = new_terminal(25,80, &argv[1]);
   // Keep a thread to take care of new output
   void *stack = calloc(1,1280);
-  _syscall_thread((void *)((uint32_t)stack + 1280), (void *)&terminal_output, 0);
+  _syscall_thread((void *)((uint32_t)stack + 1280), (void *)&terminal_output_handler, 0);
 
   while(1)
   {
     char c;
     c = fgetc(stdin);
-    terminal_putch(vterm[active_vterm], c);
-    copybuffer(vterm[active_vterm]);
-    write(vterm[active_vterm]->read_fd[1], &c, 1);
+    if((c = keyboard_decode(c)))
+    {
+      terminal_putch(vterm[active_vterm], c);
+      copybuffer(vterm[active_vterm]);
+      write(vterm[active_vterm]->read_fd[1], &c, 1);
+    }
   }
 
   for(;;);
