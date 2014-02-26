@@ -41,7 +41,7 @@ KDEF_SYSCALL(close, r)
 {
   process_stack stack = init_pstack();
   r->eax = close(stack[0]);
-  r->ebx = errno;
+  r->edx = errno;
   return r;
 }
 
@@ -69,7 +69,7 @@ KDEF_SYSCALL(fstat, r)
 {
   process_stack stack = init_pstack();
   r->eax = fstat(stack[0], (struct stat *) stack[1]);
-  r->ebx = errno;
+  r->edx = errno;
   return r;
 }
 
@@ -89,7 +89,7 @@ KDEF_SYSCALL(isatty, r)
 {
   process_stack stack = init_pstack();
   r->eax = isatty(stack[0]);
-  r->ebx = errno;
+  r->edx = errno;
   return r;
 }
 
@@ -106,7 +106,7 @@ KDEF_SYSCALL(link, r)
 {
   process_stack stack = init_pstack();
   r->eax = link((char *)stack[0], (char *)stack[1]);
-  r->ebx = errno;
+  r->edx = errno;
   return r;
 }
 
@@ -159,7 +159,7 @@ KDEF_SYSCALL(lseek, r)
 {
   process_stack stack = init_pstack();
   r->eax = lseek(stack[0], stack[1], stack[2]);
-  r->ebx = errno;
+  r->edx = errno;
   return r;
 }
 
@@ -226,7 +226,7 @@ KDEF_SYSCALL(open, r)
 {
   process_stack stack = init_pstack();
   r->eax = open((const char *)stack[0], stack[1], stack[2]);
-  r->ebx = errno;
+  r->edx = errno;
   return r;
 }
 
@@ -257,7 +257,7 @@ KDEF_SYSCALL(read, r)
 {
   process_stack stack = init_pstack();
   r->eax = read(stack[0], (char *)stack[1], stack[2]);
-  r->ebx = errno;
+  r->edx = errno;
   return r;
 }
 
@@ -286,7 +286,7 @@ KDEF_SYSCALL(stat, r)
 {
   process_stack stack = init_pstack();
   r->eax = stat((const char *)stack[0], (struct stat *)stack[1]);
-  r->ebx = errno;
+  r->edx = errno;
   return r;
 }
 
@@ -303,7 +303,7 @@ KDEF_SYSCALL(unlink, r)
 {
   process_stack stack = init_pstack();
   r->eax = unlink((char *)stack[0]);
-  r->ebx = errno;
+  r->edx = errno;
   return r;
 }
 
@@ -335,7 +335,7 @@ KDEF_SYSCALL(write, r)
 {
   process_stack stack = init_pstack();
   r->eax = write(stack[0], (char *)stack[1], stack[2]);
-  r->ebx = errno;
+  r->edx = errno;
   return r;
 }
 
@@ -417,7 +417,7 @@ KDEF_SYSCALL(dup, r)
 {
   process_stack stack = init_pstack();
   r->eax = dup(stack[0]);
-  r->ebx = errno;
+  r->edx = errno;
   return r;
 }
 
@@ -454,7 +454,7 @@ KDEF_SYSCALL(dup2, r)
 {
   process_stack stack = init_pstack();
   r->eax = dup2(stack[0], stack[1]);
-  r->ebx = errno;
+  r->edx = errno;
   return r;
 }
 
@@ -514,6 +514,6 @@ KDEF_SYSCALL(pipe, r)
 {
   process_stack stack = init_pstack();
   r->eax = pipe((int *)stack[0]);
-  r->ebx = errno;
+  r->edx = errno;
   return r;
 }

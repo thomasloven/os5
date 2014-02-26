@@ -54,7 +54,7 @@ registers_t *syscall_handler(registers_t *r)
   if(syscall_handlers[r->eax])
     r = syscall_handlers[r->eax](r);
   else
-    r->ebx = ERROR_NOSYSCALL;
+    r->edx = ERROR_NOSYSCALL;
 
   return r;
 }

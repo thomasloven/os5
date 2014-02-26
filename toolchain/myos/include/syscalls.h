@@ -97,11 +97,9 @@ DECL_SYSCALL0(vidmem);
   defsyscall num
 
 .macro defsyscall num
-  mov %ebx,(syscall_temp)
   mov $\num, %eax
   int $0x80
-  mov %ebx, (syscall_errno)
-  mov (syscall_temp), %ebx
+  mov %edx, (syscall_errno)
   ret
 .endm
 

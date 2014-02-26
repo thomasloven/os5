@@ -7,9 +7,6 @@
 .global syscall_errno
 syscall_errno:
   .int 0x00000000
-.global syscall_temp
-syscall_temp:
-  .int 0x00000000
 
 .global _syscall_exit
 DEF_SYSCALL(exit, SYSCALL_EXIT)

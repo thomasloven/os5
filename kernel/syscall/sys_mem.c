@@ -71,6 +71,6 @@ KDEF_SYSCALL(sbrk, r)
   // Return start of new area
   r->eax = (uint32_t)usr_sbrk(size);
   
-  r->ebx = errno;
+  r->edx = errno;
   return r;
 }

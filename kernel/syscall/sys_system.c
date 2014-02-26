@@ -23,7 +23,7 @@ KDEF_SYSCALL(times, r)
 {
   process_stack stack = init_pstack();
   r->eax = times((struct tms *)stack[0]);
-  r->ebx = errno;
+  r->edx = errno;
   return r;
 }
 
