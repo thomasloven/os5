@@ -25,4 +25,5 @@ uint32_t active_vterm;
 void copybuffer(struct terminal *t);
 struct terminal *new_terminal(uint32_t rows, uint32_t cols, char **argv);
 void terminal_putch(struct terminal *t, char c);
-
+void terminal_init(int num, uint32_t rows, uint32_t cols, char **argv);
+void screen_init();
