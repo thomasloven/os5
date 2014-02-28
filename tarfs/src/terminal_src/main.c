@@ -21,7 +21,6 @@ void switch_vterm(int num)
 int main(int argc, char **argv)
 {
   (void)argc;
-  _syscall_pdbg();
 
   screen_init();
   keyboard_init();

@@ -6,11 +6,13 @@
 
 struct terminal
 {
-  uint32_t rows;
-  uint32_t cols;
-  uint32_t csr_row;
-  uint32_t csr_col;
+  int32_t rows;
+  int32_t cols;
+  int32_t csr_row;
+  int32_t csr_col;
   uint16_t *buffer;
+  uint8_t fg_color;
+  uint8_t bg_color;
   uint8_t current_style;
   int read_fd[2];
   FILE *read_pipe[2];
