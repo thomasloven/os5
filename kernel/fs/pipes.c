@@ -102,8 +102,14 @@ uint32_t pipe_write(INODE ino, void *buffer, uint32_t size, uint32_t offset)
 int32_t pipe_stat(INODE node, struct stat *st)
 {
   (void)node;
-  (void)st;
+  memset(st, 0, sizeof(struct stat));
+  st->st_mode = S_IFCHR;
   return 0;
+}
+int32_t pipe_isatty(INODE node)
+{
+  (void)node;
+  return 1;
 }
 
 
@@ -116,7 +122,7 @@ vfs_driver_t pipe_driver =
   0,
   0,
   pipe_stat,
-  0,
+  pipe_isatty,
   0,
   0,
   0,

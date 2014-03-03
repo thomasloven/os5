@@ -55,7 +55,7 @@ char *kernel_lookup_symbol(uint32_t addr)
 
 void load_elf_segment(INODE file, elf_phead *phead)
 {
-  uint32_t flags = MM_FLAG_READ | MM_FLAG_CANSHARE;
+  uint32_t flags = MM_FLAG_READ;
   if(phead->flags & ELF_PT_W) flags |= MM_FLAG_WRITE;
   uint32_t type = MM_TYPE_DATA;
 

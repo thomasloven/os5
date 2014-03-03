@@ -176,7 +176,7 @@ KDEF_SYSCALL(execve, r)
 {
   process_stack stack = init_pstack();
   r->eax = execve((char *)stack[0], (char **)stack[1], (char **)stack[2]);
-  r->ebx = errno;
+  r->edx = errno;
   if(r->eax != (uint32_t)-1)
   {
     current->r.eip = current->proc->mm.code_entry;
@@ -200,7 +200,7 @@ int fork()
 KDEF_SYSCALL(fork, r)
 {
   r->eax = fork();
-  r->ebx = errno;
+  r->edx = errno;
   return r;
 }
 
@@ -216,7 +216,7 @@ int getpid()
 KDEF_SYSCALL(getpid, r)
 {
   r->eax = getpid();
-  r->ebx = errno;
+  r->edx = errno;
   return r;
 }
 
@@ -251,7 +251,7 @@ KDEF_SYSCALL(kill, r)
 {
   process_stack stack = init_pstack();
   r->eax = kill(stack[0], stack[1]);
-  r->ebx = errno;
+  r->edx = errno;
   return r;
 }
 
@@ -268,7 +268,7 @@ KDEF_SYSCALL(wait, r)
 {
   process_stack stack = init_pstack();
   r->eax = wait((int *)stack[0]);
-  r->ebx = errno;
+  r->edx = errno;
   return r;
 }
 
@@ -297,7 +297,7 @@ KDEF_SYSCALL(waitpid, r)
 {
   process_stack stack = init_pstack();
   r->eax = waitpid(stack[0]);
-  r->ebx = errno;
+  r->edx = errno;
   return r;
 }
 
@@ -345,7 +345,7 @@ KDEF_SYSCALL(signal, r)
 {
   process_stack stack = init_pstack();
   r->eax = (uint32_t)signal(stack[0], (sig_t)stack[1]);
-  r->ebx = errno;
+  r->edx = errno;
   return r;
 }
 
@@ -358,6 +358,25 @@ KDEF_SYSCALL(process_debug, r)
   debug("[info]Starting debug\n");
   current->proc->flags |= PROC_FLAG_DEBUG;
   debug("[info]Process: %x \n", current->proc->pid);
+  return r;
+}
+
+KDEF_SYSCALL(thread_fork, r)
+{
+  // example: thread_fork(stack, function, argument);
+  process_stack stack = init_pstack();
+  if(current->proc->flags & PROC_FLAG_DEBUG)
+  {
+    debug("[info]thread_fork(%x, %x, %x)\n", stack[0], stack[1], stack[2]);
+  }
+  thread_t *th = new_thread((void (*)(void))stack[1], 1);
+  append_to_list(current->proc->threads, th->process_threads);
+  th->proc = current->proc;
+  uint32_t *stk = (uint32_t *)stack[0];
+  *--stk = stack[2];
+  *--stk = SIGNAL_RETURN_ADDRESS;
+  th->r.useresp = th->r.ebp = (uint32_t)stk;
+  r->eax = th->tid;
   return r;
 }
 

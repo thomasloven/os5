@@ -295,7 +295,7 @@ void print_areas(process_t *p)
         (area->flags & MM_FLAG_READ)?'R':'-', \
         (area->flags & MM_FLAG_WRITE)?'W':'-', \
         (area->flags & MM_FLAG_SHARED)?'S':'-', \
-        (area->flags & MM_FLAG_CANSHARE)?'s':'-', \
+        (area->flags & MM_FLAG_NOSHARE)?'N':'-', \
         (area->flags & MM_FLAG_COW)?'O':'-', \
         (area->flags & MM_FLAG_GROWSDOWN)?'D':'-', \
         (area->flags & MM_FLAG_AUTOGROW)?'A':'-', \
@@ -417,6 +417,7 @@ void procmm_fork(process_t *parent, process_t *child)
   for_each_in_list(&parent->mm.mem, i)
   {
     mem_area_t *ma = list_entry(i, mem_area_t, mem);
+    if((ma->flags & MM_FLAG_NOSHARE) != MM_FLAG_NOSHARE)
     share_area(child, ma);
   }
 

@@ -20,23 +20,29 @@
 #define SYSCALL_UNLINK 0x10
 #define SYSCALL_WAIT 0x11
 #define SYSCALL_WRITE 0x12
+#define SYSCALL_WAITPID 0x13
+#define SYSCALL_YIELD 0x14
+#define SYSCALL_SIGNAL 0x15
+#define SYSCALL_READDIR 0x16
+#define SYSCALL_DUP 0x17
+#define SYSCALL_DUP2 0x18
+#define SYSCALL_PIPE 0x19
+#define SYSCALL_THREAD 0x1A
 
-#define SYSCALL_PRINTF 0x13
-#define SYSCALL_WAITPID 0x14
-#define SYSCALL_YIELD 0x15
-
-#define SYSCALL_SIGNAL 0x16
-#define SYSCALL_PDBG 0x17
-#define SYSCALL_READDIR 0x18
+#define SYSCALL_PDBG 0xF0
+#define SYSCALL_PRINTF 0xF1
+#define SYSCALL_VIDMEM 0xF2
 
 #define SYSCALL_OK 0x00
 #define ERROR_NOSYSCALL 0x01
 
+#ifndef KERNEL_MODE
 #ifndef __ASSEMBLER__
 #include <stdint.h>
 #include <sys/stat.h>
 #include <sys/times.h>
 #include <signal.h>
+#include <sys/dirent.h>
 
 int syscall_errno;
 
@@ -70,15 +76,35 @@ DECL_SYSCALL1(times, struct tms *);
 DECL_SYSCALL1(unlink, char *);
 DECL_SYSCALL1(wait, int *);
 DECL_SYSCALL3(write, int, char *, int);
-
-DECL_SYSCALL1E(printf, char *);
 DECL_SYSCALL1(waitpid, int);
 DECL_SYSCALL0(yield);
-
 DECL_SYSCALL2(signal, int, sighandler_t);
-
-DECL_SYSCALL0(pdbg);
 DECL_SYSCALL3(readdir, int, int, struct dirent *);
+DECL_SYSCALL1(dup, int);
+DECL_SYSCALL2(dup2, int, int);
+DECL_SYSCALL1(pipe, int[]);
+DECL_SYSCALL3(thread, void *, void *, int);
+
+DECL_SYSCALL1E(printf, char *);
+DECL_SYSCALL0(pdbg);
+DECL_SYSCALL0(vidmem);
+
+#define outb(port, val) \
+  __asm__ volatile ("outb %%al, %0" : : "dN" ((uint16_t)port), "a" ((uint16_t)val))
+
+#define outw(port, val) \
+  __asm__ volatile ("outw %1, %0" : : "dN" ((uint16_t)port), "a" ((uint16_t)val))
+
+#define inb(port) ({ \
+  uint8_t __ret; \
+  __asm__ volatile ("inb %1, %0" : "=a" (__ret) : "dN" ((uint16_t)port)); \
+  __ret; })
+
+#define inw(port) ({ \
+  uint16_t __ret; \
+  __asm__ volatile ("inw %1, %0" : "=a" (__ret) : "dN" ((uint16_t)port)); \
+  __ret; })
+
 
 
 #else
@@ -88,12 +114,11 @@ DECL_SYSCALL3(readdir, int, int, struct dirent *);
   defsyscall num
 
 .macro defsyscall num
-  mov %ebx,(syscall_temp)
   mov $\num, %eax
   int $0x80
-  mov %ebx, (syscall_errno)
-  mov (syscall_temp), %ebx
+  mov %edx, (syscall_errno)
   ret
 .endm
 
+#endif
 #endif

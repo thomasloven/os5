@@ -7,9 +7,6 @@
 .global syscall_errno
 syscall_errno:
   .int 0x00000000
-.global syscall_temp
-syscall_temp:
-  .int 0x00000000
 
 .global _syscall_exit
 DEF_SYSCALL(exit, SYSCALL_EXIT)
@@ -65,10 +62,6 @@ DEF_SYSCALL(wait, SYSCALL_WAIT)
 .global _syscall_write
 DEF_SYSCALL(write, SYSCALL_WRITE)
 
-
-.global _syscall_printf
-DEF_SYSCALL(printf, SYSCALL_PRINTF)
-
 .global _syscall_waitpid
 DEF_SYSCALL(waitpid, SYSCALL_WAITPID)
 
@@ -82,6 +75,25 @@ DEF_SYSCALL(signal, SYSCALL_SIGNAL)
 DEF_SYSCALL(pdbg, SYSCALL_PDBG)
 
 .global _syscall_readdir
-DEF_SYSCALL(readdir, SYSCALL_READDIR);
+DEF_SYSCALL(readdir, SYSCALL_READDIR)
+
+.global _syscall_dup
+DEF_SYSCALL(dup, SYSCALL_DUP)
+
+.global _syscall_dup2
+DEF_SYSCALL(dup2, SYSCALL_DUP2)
+
+.global _syscall_pipe
+DEF_SYSCALL(pipe, SYSCALL_PIPE)
+
+.global _syscall_thread
+DEF_SYSCALL(thread, SYSCALL_THREAD)
+
+
+.global _syscall_vidmem
+DEF_SYSCALL(vidmem, SYSCALL_VIDMEM)
+
+.global _syscall_printf
+DEF_SYSCALL(printf, SYSCALL_PRINTF)
 
 #endif

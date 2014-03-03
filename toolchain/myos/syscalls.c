@@ -248,6 +248,27 @@ sig_t signal(int signum, sig_t handler)
   return ret;
 }
 
+int dup(int fildes)
+{
+  int ret = _syscall_dup(fildes);
+  errno = syscall_errno;
+  return ret;
+}
+
+int dup2(int fildes1, int fildes2)
+{
+  int ret = _syscall_dup2(fildes1, fildes2);
+  errno = syscall_errno;
+  return ret;
+}
+
+int pipe(int fildes[2])
+{
+  int ret = _syscall_pipe(fildes);
+  errno = syscall_errno;
+  return ret;
+}
+
 #endif
 
 int execvp(const char *file, char *const argv[])

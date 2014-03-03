@@ -19,7 +19,7 @@ int main()
     {
       _syscall_waitpid(pid);
     } else {
-      char *command[] = {"/bin/sh"};
+      char *command[] = {"/bin/terminal", "/bin/sh", 0};
       execve(command[0], command, environ);
     }
   }

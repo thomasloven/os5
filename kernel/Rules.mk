@@ -8,14 +8,14 @@ TGT_KERNEL := $(builddir)/kernel/kernel
 # separately.
 OBJS_$(d) := $(builddir)/kernel/boot/boot.o
 OBJS_$(d) += $(builddir)/kernel/boot/kinit.o
-OBJS_$(d) += $(call findsource,$(d),S,$(builddir))
-OBJS_$(d) += $(call findsource,$(d),c,$(builddir))
+OBJS_$(d) += $(call findsource,$(d),S,5,$(builddir))
+OBJS_$(d) += $(call findsource,$(d),c,5,$(builddir))
 DEPS_$(d) := $(patsubst %.o,%.d,$(OBJS_$(d)))
 
 
 CLEAN := $(CLEAN) $(OBJS_$(d)) $(TGT_KERNEL) $(DEPS_$(d))
 
-$(OBJS_$(d)) $(DEPS_$(d)): CF_TGT := -I$(d)/include
+$(OBJS_$(d)) $(DEPS_$(d)): CF_TGT := -I$(d)/include -DKERNEL_MODE
 $(TGT_KERNEL): LF_TGT := -nostdlib -T $(d)/include/Link.ld
 $(TGT_KERNEL): LL_TGT := -lkernel
 
