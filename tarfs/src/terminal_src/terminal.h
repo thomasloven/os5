@@ -18,6 +18,7 @@ struct terminal
   FILE *read_pipe[2];
   int write_fd[2];
   FILE *write_pipe[2];
+  int pid;
 };
 
 uint16_t *vidmem;

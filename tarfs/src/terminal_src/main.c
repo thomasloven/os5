@@ -5,7 +5,9 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include "keyboard.h"
+#include <signal.h>
 
+int kill(int pid, int sig);
 char **command;
 
 void switch_vterm(int num)
@@ -45,6 +47,9 @@ int main(int argc, char **argv)
         case '4':
           switch_vterm(d-'1');
           continue;
+          break;
+        case 'c':
+          kill(vterm[active_vterm]->pid, 9);
         default:
           ;
       }

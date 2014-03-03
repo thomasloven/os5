@@ -4,8 +4,11 @@
 #include <string.h>
 #include <unistd.h>
 #include <ctype.h>
+#include <signal.h>
 
 #define BUF_SIZE 1024
+
+int fg_pid = 0;
 
 void _syscall_waitpid(uint32_t pid);
 
@@ -100,10 +103,20 @@ void print_prompt()
   }
 }
 
+int kill(int, int);
+void signal_transfer(int signum)
+{
+  printf("Sending signal %x to %x", signum, fg_pid);
+  if(fg_pid)
+    kill(fg_pid, signum);
+}
+
 int main(int argc, char **argv)
 {
   (void)argc;
   char line[BUF_SIZE];
+
+  /* signal(2, &signal_transfer); */
   
   while(1)
   {
@@ -125,11 +138,11 @@ int main(int argc, char **argv)
         continue;
       }
 
-      int pid = fork();
-      if(pid)
+      fg_pid = fork();
+      if(fg_pid)
       {
-        _syscall_waitpid(pid);
-
+        _syscall_waitpid(fg_pid);
+        fg_pid = 0;
       } else {
         if(execvp(tokens[0], tokens))
           printf("%s: command not found: %s\n", argv[0], tokens[0]);

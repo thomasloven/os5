@@ -295,11 +295,12 @@ void terminal_init(int num, uint32_t rows, uint32_t cols, char **argv)
   _syscall_thread((void *)((uint32_t)stack + 1280), (void *)&terminal_output_handler, num);
 
   // Start running program
-  if(!fork())
+  t->pid = fork();
+  if(!t->pid)
   {
     dup2(t->read_fd[0], 0);
     dup2(t->write_fd[1], 1);
-    dup2(t->write_fd[1], 1);
+    dup2(t->write_fd[1], 2);
     execvp(argv[0], &argv[0]);
     exit(1);
   }
