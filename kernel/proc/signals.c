@@ -101,6 +101,13 @@ int signal_process(int pid, int signum)
     // Handle signals immediately
     handle_signals(current);
   }
+  list_t *i = p->threads.next;
+  thread_t *th = list_entry(i, thread_t, process_threads);
+  if(th->state == THREAD_STATE_WAITING)
+  {
+    // Handle signals now
+    handle_signals(th);
+  }
   return 0;
 }
 
@@ -140,12 +147,15 @@ thread_t *handle_signals(thread_t *th)
   }
   if(signal)
   {
+    // Handle signal
     if(th->proc->signal_handler[signal->sig] == SIG_IGN)
     {
+      // Ignore
       remove_from_list(signal->queue);
       free(signal);
     } else if(th->proc->signal_handler[signal->sig] == SIG_DFL)
     {
+      // Default
       sig_t handler = default_sign[signal->sig];
       int signum = signal->sig;
       remove_from_list(signal->queue);
@@ -153,6 +163,8 @@ thread_t *handle_signals(thread_t *th)
       handler(signum);
     } else 
     {
+      // Custom
+      switch_process(th->proc);
       sig_t handler = th->proc->signal_handler[signal->sig];
       thread_t *h = new_thread((void (*)(void))handler, 1);
 
