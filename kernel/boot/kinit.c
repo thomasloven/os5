@@ -19,6 +19,7 @@
 #include <keyboard.h>
 #include <tarfs.h>
 #include <version.h>
+#include <ata.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -89,6 +90,8 @@ registers_t *kinit(mboot_info_t *mboot, uint32_t mboot_magic)
   debug("[status] %s: %s\n", __kernel_git_branch, __kernel_git_message);
   debug("[status] Kernel compilation: %s %s\n", __kernel_build_date, __kernel_build_time);
   debug("[status]========================\n");
+
+  init_ata();
 
   thread_t *init = new_thread((void(*)(void))current->proc->mm.code_entry,1);
   init->proc = current->proc;
