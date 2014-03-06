@@ -64,6 +64,8 @@
 #define ATA_CMD_WLWR 0x32
 #define ATA_CMD_WL 0x33
 
+#define ATA_SECTOR_SIZE 512
+
 struct ata_id
 {
   uint16_t configuration; // 0
@@ -135,5 +137,36 @@ struct ata_drive
   struct ata_id id;
 };
 
+#define MBR_OFFSET 446
+
+typedef struct
+{
+  uint8_t boot_indicator;
+  uint8_t start_head;
+  uint8_t start_sector;
+  uint8_t start_cylinder;
+  uint8_t system_id;
+  uint8_t end_head;
+  uint8_t end_sector;
+  uint8_t end_cylinder;
+  uint32_t start_LBA;
+  uint32_t num_sectors;
+}__attribute__((packed)) MBR_entry_t;
+
+
+typedef struct
+{
+  struct ata_drive *drive;
+  uint32_t partition;
+  uint32_t offset;
+  uint32_t length;
+} partition_t;
+
 void init_ata();
 struct ata_drive *ata_init_drive(int primary, int master);
+int ata_read_block(struct ata_drive *drv, uint32_t lba, void *buf);
+int ata_write_block(struct ata_drive *drv, uint32_t lba, void *buf);
+
+partition_t *init_partition(int primary, int master, uint32_t partition);
+uint32_t partition_readblocks(partition_t *p, void *buffer, uint32_t start, uint32_t len);
+uint32_t partition_writeblocks(partition_t *p, void *buffer, uint32_t start, uint32_t len);

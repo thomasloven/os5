@@ -28,6 +28,7 @@ int ata_wait(int bus)
     return 1;
   if(!(status & ATA_STATUS_DRQ))
     return 2;
+  return 0;
 }
 
 void ata_print_registers(int bus)
@@ -131,29 +132,7 @@ int ata_write_block(struct ata_drive *drv, uint32_t lba, void *buf)
 
   // Send data
   outsm(drv->bus + ATA_PORT_DATA, buf, 256);
-}
-
-void init_ata()
-{
-  debug("Initializing IDE drive\n");
-
-  struct ata_drive *drv = ata_init_drive(1,1);
-
-
-  uint16_t *memarea = calloc(1, 512);
-
-  ata_read_block(drv, 0, memarea);
-
-  // Print first block
-  int i;
-  for(i = 0; i < 256; i++)
-  {
-    debug("%04X ", memarea[i]);
-      debug(" ");
-    if((i+1)%8 == 0)
-      debug("\n");
-  }
-
+  return 0;
 }
 
 struct ata_drive *ata_init_drive(int primary, int master)
