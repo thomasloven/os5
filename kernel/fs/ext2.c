@@ -6,7 +6,7 @@
 #include <k_debug.h>
 
 
-
+vfs_driver_t ext2_driver;
 typedef struct
 {
   ext2_data_t *fs;
@@ -429,6 +429,35 @@ size_t ext2_read_data(ext2_data_t *fs, ext2_inode_t *node, void *buffer, uint32_
   return readcount;
 }
 
+INODE ext2_mkinode(ext2_data_t *fs, uint32_t num, char *name)
+{
+  vfs_node_t *node = calloc(1, sizeof(vfs_node_t));
+  strcpy(node->name, name);
+  node->d = &ext2_driver;
+
+  node->data = calloc(1, sizeof(ext2_data));
+  ext2data(node)->fs = fs;
+  ext2data(node)->inode_num = num;
+  if(!ext2_read_inode(fs, &ext2data(node)->inode, num))
+  {
+    free(node->data);
+    free(node);
+    return 0;
+  }
+
+  node->type = \
+    FS_FILE*((ext2data(node)->inode.type & 0xF000) == EXT2_REGULAR) + \
+    FS_DIRECTORY*((ext2data(node)->inode.type & 0xF000) == EXT2_DIR) + \
+    FS_CHARDEV*((ext2data(node)->inode.type & 0xF000) == EXT2_CHDEV) + \
+    FS_BLOCKDEV*((ext2data(node)->inode.type & 0xF000) == EXT2_BDEV) + \
+    FS_PIPE*((ext2data(node)->inode.type & 0xF000) == EXT2_FIFO) + \
+    FS_SYMLINK*((ext2data(node)->inode.type & 0xF000) == EXT2_SYMLINK);
+
+  node->length = ext2data(node)->inode.size_low;
+
+  return node;
+
+}
 
 
 int32_t ext2_open(INODE node, uint32_t flags)
@@ -597,14 +626,7 @@ dirent_t *ext2_readdir(INODE dir, uint32_t num)
     goto end;
 
   de = malloc(sizeof(dirent_t));
-  de->ino = calloc(1, sizeof(vfs_node_t));
-  strncpy(de->ino->name, di->name, di->name_length);
-  de->ino->d = dir->d;
-  de->ino->type = FS_DIRECTORY;
-  de->ino->data = calloc(1, sizeof(ext2_data));
-  ext2data(de->ino)->fs = ext2data(dir)->fs;
-  ext2data(de->ino)->inode_num = di->inode;
-  /* de->ino = di->inode; */
+  de->ino = ext2_mkinode(ext2data(dir)->fs, di->inode, di->name);
   strcpy(de->name, di->name);
 
 end:
@@ -637,40 +659,34 @@ vfs_driver_t ext2_driver =
 INODE ext2_init(partition_t *p)
 {
   debug("INIT EXT2\n");
-  vfs_node_t *node = calloc(1, sizeof(vfs_node_t));
-  strcpy(node->name, "ext2");
-  node->d = &ext2_driver;
-  node->data = calloc(1, sizeof(ext2_data));
-  ext2_data_t *data = ext2data(node)->fs = malloc(sizeof(ext2_data_t));
-  data->p = p;
-  node->type = FS_DIRECTORY;
-  ext2data(node)->inode_num = 2;
+  ext2_data_t *fs = malloc(sizeof(ext2_data_t));
+  fs->p = p;
 
   // Read superblock
-  data->superblock = malloc(EXT2_SUPERBLOCK_SIZE);
-  partition_readblocks(p, data->superblock, 2, 2);
-  data->superblock_dirty = 0;
+  fs->superblock = malloc(EXT2_SUPERBLOCK_SIZE);
+  partition_readblocks(p, fs->superblock, 2, 2);
+  fs->superblock_dirty = 0;
 
   // Calculate number of groups
-  data->num_groups = ext2_numgroups(data);
+  fs->num_groups = ext2_numgroups(fs);
 
   // Calculate size of group descriptors
-  size_t groups_size = data->num_groups*sizeof(ext2_groupd_t);
-  size_t groups_blocks = groups_size / ext2_blocksize(data);
-  if(groups_size % ext2_blocksize(data))
+  size_t groups_size = fs->num_groups*sizeof(ext2_groupd_t);
+  size_t groups_blocks = groups_size / ext2_blocksize(fs);
+  if(groups_size % ext2_blocksize(fs))
     groups_blocks++;
 
   // Find location of group descriptor table
-  data->groups = malloc(groups_blocks*ext2_blocksize(data));
+  fs->groups = malloc(groups_blocks*ext2_blocksize(fs));
   size_t groups_start = 1;
-  if(ext2_blocksize(data) == 1024)
+  if(ext2_blocksize(fs) == 1024)
     groups_start++;
 
   // Read group descriptor table
-  ext2_readblocks(ext2data(node)->fs, data->groups, groups_start, groups_blocks);
-  data->groups_dirty = 0;
+  ext2_readblocks(fs, fs->groups, groups_start, groups_blocks);
+  fs->groups_dirty = 0;
+
+  vfs_node_t *node = ext2_mkinode(fs, 2, "ext2");
 
   return node;
 }
-
-
