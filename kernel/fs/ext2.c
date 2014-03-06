@@ -710,8 +710,88 @@ int32_t ext2_link(INODE ino, INODE dir, const char *name)
 
 int32_t ext2_unlink(INODE dir, const char * name)
 {
-  (void)dir;
-  (void)name;
+  if(!dir)
+    return 1;
+  ext2_data_t *fs = ext2data(dir)->fs;
+
+  // Remove from directory listing
+  ext2_inode_t *dir_ino = malloc(sizeof(ext2_inode_t));
+  if(!ext2_read_inode(fs, dir_ino, ext2data(dir)->inode_num))
+    return 1;
+
+  ext2_dirinfo_t *buffer = malloc(dir_ino->size_low);
+  if(!ext2_read_data(fs, dir_ino, buffer, dir_ino->size_low))
+    return 1;
+
+  ext2_dirinfo_t *p = buffer, *di = buffer;
+  while((size_t)di < ((size_t)buffer + dir_ino->size_low))
+  {
+    p = di;
+    di = (ext2_dirinfo_t *)((size_t)di + di->record_length);
+    if(!strcmp(name, di->name))
+      break;
+  }
+  if(strcmp(name, di->name))
+    return 1;
+
+  uint32_t child = di->inode;
+
+  p->record_length += di->record_length;
+  ext2_write(dir, buffer, dir_ino->size_low, 0);
+
+  free(buffer);
+  free(dir_ino);
+
+  // Decrease link count
+  ext2_inode_t *child_ino = malloc(sizeof(ext2_inode_t));
+  if(!ext2_read_inode(fs, child_ino, child))
+    return 1;
+  
+  child_ino->link_count --;
+  if(child_ino->link_count < 1)
+  {
+    // Delete inode
+
+    // Mark as deleted
+    /* child_ino->dtime = time(0); */
+    
+    // Free blocks and inode if link count is zero
+    unsigned int indirect_num = ext2_count_indirect(fs, child_ino->size_low);
+    uint32_t *iblocks = calloc(indirect_num+1, sizeof(uint32_t));
+    uint32_t *blocks = ext2_get_blocks(fs, child_ino, iblocks);
+
+    unsigned int i=0;
+    while(blocks[i])
+    {
+      ext2_free_block(fs, blocks[i]);
+      i++;
+    }
+    i = 1;
+    while(i <= indirect_num)
+    {
+      ext2_free_block(fs, iblocks[i]);
+      i++;
+    }
+    free(iblocks);
+    free(blocks);
+
+    unsigned int group = child / fs->superblock->inodes_per_group;
+    i = child % fs->superblock->inodes_per_group;
+    i--;
+    uint8_t *inode_bitmap = malloc(ext2_blocksize(fs));
+    if(!ext2_readblocks(fs, inode_bitmap, fs->groups[group].inode_bitmap, 1))
+      return 1;
+    inode_bitmap[i/0x8] &= ~(1<<(i&0x7));
+    if(!ext2_writeblocks(fs, inode_bitmap, fs->groups[group].inode_bitmap, 1))
+      return 1;
+    free(inode_bitmap);
+    fs->groups[group].unallocated_inodes ++;
+    fs->groups_dirty = 1;
+  }
+  if(!ext2_write_inode(fs, child_ino, child))
+    return 1;
+  free(child_ino);
+
   return 0;
 }
 
@@ -725,7 +805,6 @@ int32_t ext2_mkdir(INODE ino, const char *name)
 
 dirent_t *ext2_readdir(INODE dir, uint32_t num)
 {
-  debug("Ext2 readdir\n");
   if(!dir)
     return 0;
   if(ext2data(dir)->inode_num < 2)
@@ -787,7 +866,6 @@ vfs_driver_t ext2_driver =
 
 INODE ext2_init(partition_t *p)
 {
-  debug("INIT EXT2\n");
   ext2_data_t *fs = malloc(sizeof(ext2_data_t));
   fs->p = p;
 

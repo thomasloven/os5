@@ -17,7 +17,6 @@ partition_t *init_partition(int primary, int master, uint32_t partition)
   p->offset = mbr[partition].start_LBA;
   p->length = mbr[partition].num_sectors;
 
-  debug("Offset: %x, Length %x\n", p->offset, p->length);
   return p;
 }
 
