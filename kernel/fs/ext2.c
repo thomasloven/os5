@@ -12,6 +12,7 @@ typedef struct
   ext2_data_t *fs;
   uint32_t inode_num;
   ext2_inode_t inode;
+  uint32_t inode_dirty;
 } ext2_data;
 
 #define ext2data(node) ((ext2_data *)((node)->data))
@@ -462,8 +463,20 @@ INODE ext2_mkinode(ext2_data_t *fs, uint32_t num, char *name)
 
 int32_t ext2_open(INODE node, uint32_t flags)
 {
+  // Check permissions and stuff
+  // Also set flags for appending and stuff
+  (void)node;
+  (void)flags;
   return 0;
 }
+
+int32_t ext2_close(INODE node)
+{
+  // If cached, write to disk
+  (void)node;
+  return 0;
+}
+
 uint32_t ext2_read(INODE ino, void *buffer, uint32_t length, uint32_t offset)
 {
   if(!ino)
@@ -524,7 +537,7 @@ error:
   return 0;
 }
 
-int32_t ext2_write(INODE ino, void *buffer, uint32_t length, uint32_t offset)
+uint32_t ext2_write(INODE ino, void *buffer, uint32_t length, uint32_t offset)
 {
   if(!ino)
     return 0;
@@ -593,6 +606,122 @@ error:
   return 0;
 }
 
+void ext2_flush(INODE ino)
+{
+  free(ino->data);
+}
+
+int32_t ext2_stat(INODE node, struct stat *st)
+{
+  memset(st, 0, sizeof(struct stat));
+  ext2_inode_t *ino = &ext2data(node)->inode;
+
+  st->st_dev = 0;
+  st->st_ino = ext2data(node)->inode_num;
+  st->st_nlink = ino->link_count;
+  st->st_uid = ino->uid;
+  st->st_gid = ino->gid;
+  st->st_size = ino->size_low;
+  st->st_atime = ino->atime;
+  st->st_mtime = ino->mtime;
+  st->st_ctime = ino->ctime;
+  return 0;
+}
+
+int32_t ext2_isatty(INODE node)
+{
+  (void)node;
+  return 0;
+}
+
+int32_t ext2_link(INODE ino, INODE dir, const char *name)
+{
+  if(!ino)
+    return 1;
+  if(!dir)
+    return 1;
+  if(!name)
+    return 1;
+
+  ext2_data_t *fs = ext2data(dir)->fs;
+
+  ext2_inode_t *dino = &ext2data(dir)->inode;
+  ext2_inode_t *iino = &ext2data(ino)->inode;
+  iino->link_count++;
+  ext2_write_inode(fs, iino, ext2data(ino)->inode_num);
+
+  ext2_dirinfo_t *di = malloc(dino->size_low + ext2_blocksize(fs));
+  ext2_read(dir, di, dino->size_low, 0);
+  ext2_dirinfo_t *next = di, *current = di;
+  // Find last direntry
+  while((size_t)next < ((size_t)di + dino->size_low))
+  {
+    current = next;
+    next = (void *)((size_t)current + current->record_length);
+  }
+  // New direntry is right after the last one
+  current->record_length = ((size_t)current->name + current->name_length + 1 - (size_t)current);
+  if(current->record_length < 12) current->record_length = 12;
+  current->record_length += (current->record_length%4)?4-current->record_length%4:0;
+  next = (void *)((size_t)current + current->record_length);
+
+  next->inode = ext2data(ino)->inode_num;
+  strcpy(next->name, name);
+  next->name_length = strlen(name);
+  next->file_type = \
+    (((iino->type & EXT2_FIFO) == EXT2_FIFO)?EXT2_DIR_FIFO:0) + \
+    (((iino->type & EXT2_CHDEV) == EXT2_CHDEV)?EXT2_DIR_CHDEV:0) + \
+    (((iino->type & EXT2_DIR) == EXT2_DIR)?EXT2_DIR_DIR:0) + \
+    (((iino->type & EXT2_BDEV) == EXT2_BDEV)?EXT2_DIR_BDEV:0) + \
+    (((iino->type & EXT2_REGULAR) == EXT2_REGULAR)?EXT2_DIR_REGULAR:0) + \
+    (((iino->type & EXT2_SYMLINK) == EXT2_SYMLINK)?EXT2_DIR_SYMLINK:0) + \
+    (((iino->type & EXT2_SOCKET) == EXT2_SOCKET)?EXT2_DIR_SOCKET:0);
+  next->record_length = (size_t)next->name + next->name_length + 1 - (size_t)next;
+  if(next->record_length < 12)
+    next->record_length = 12;
+
+  // Lengthen last entry
+  if(((uint32_t)next + next->record_length - (uint32_t)di) > dino->size_low)
+  {
+    // Increase size of directory
+    uint32_t *blocks = ext2_get_blocks(fs, dino, 0);
+    uint32_t *blocks2 = calloc(dino->size_low/ext2_blocksize(fs) + 1, sizeof(uint32_t));
+    uint32_t i = 0;
+    for(i = 0; i < dino->size_low/ext2_blocksize(fs); i++)
+    {
+      blocks2[i] = blocks[i];
+    }
+    blocks2[i] = ext2_alloc_block(fs, ext2data(ino)->inode_num/fs->superblock->inodes_per_group);
+    ext2_set_blocks(fs, dino, blocks2, ext2data(ino)->inode_num/fs->superblock->inodes_per_group, 0);
+    free(blocks);
+    free(blocks2);
+    dino->size_low += ext2_blocksize(fs);
+    ext2_write_inode(fs, dino, ext2data(dir)->inode_num);
+  }
+  next->record_length = dino->size_low - ((uint32_t)next - (uint32_t)di);
+
+  // Write index back
+  ext2_write(dir, di, dino->size_low, 0);
+
+  free(di);
+  
+  return 0;
+}
+
+int32_t ext2_unlink(INODE dir, const char * name)
+{
+  (void)dir;
+  (void)name;
+  return 0;
+}
+
+int32_t ext2_mkdir(INODE ino, const char *name)
+{
+  (void)ino;
+  (void)name;
+  return 0;
+}
+
 
 dirent_t *ext2_readdir(INODE dir, uint32_t num)
 {
@@ -643,17 +772,17 @@ end:
 vfs_driver_t ext2_driver =
 {
   ext2_open,
-  0,
+  ext2_close,
   ext2_read,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
+  ext2_write,
+  0, // link
+  0, // unlink
+  ext2_stat,
+  ext2_isatty,
+  0, // mkdir
   ext2_readdir,
-  0,
-  0
+  0, // finddir
+  ext2_flush
 };
 
 INODE ext2_init(partition_t *p)
