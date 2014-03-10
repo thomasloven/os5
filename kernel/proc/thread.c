@@ -137,4 +137,3 @@ registers_t *switch_kernel_thread(registers_t *r)
 
   return next->kernel_thread;
 }
-

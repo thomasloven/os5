@@ -301,6 +301,10 @@ void terminal_init(int num, uint32_t rows, uint32_t cols, char **argv)
     dup2(t->read_fd[0], 0);
     dup2(t->write_fd[1], 1);
     dup2(t->write_fd[1], 2);
+    close(t->read_fd[0]);
+    close(t->read_fd[1]);
+    close(t->write_fd[0]);
+    close(t->write_fd[1]);
     execvp(argv[0], &argv[0]);
     exit(1);
   }

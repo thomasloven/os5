@@ -118,6 +118,11 @@ int execve(char *name, char **argv, char **env)
   // Clear all process memory areas
   procmm_removeall(current->proc);
 
+  // Reset signal handlers
+  memset(current->proc->signal_handler, 0, sizeof(sig_t)*NUM_SIGNALS);
+  memset(current->proc->signal_blocked, 0, NUM_SIGNALS);
+  init_list(current->proc->signal_queue);
+
   // Load executable
   load_elf(executable);
 

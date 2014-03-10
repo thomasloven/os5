@@ -49,7 +49,8 @@ int main(int argc, char **argv)
           continue;
           break;
         case 'c':
-          kill(vterm[active_vterm]->pid, 9);
+          kill(vterm[active_vterm]->pid, 2);
+          continue;
         default:
           ;
       }

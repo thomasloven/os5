@@ -106,7 +106,6 @@ void print_prompt()
 int kill(int, int);
 void signal_transfer(int signum)
 {
-  printf("Sending signal %x to %x", signum, fg_pid);
   if(fg_pid)
     kill(fg_pid, signum);
 }
@@ -116,7 +115,7 @@ int main(int argc, char **argv)
   (void)argc;
   char line[BUF_SIZE];
 
-  /* signal(2, &signal_transfer); */
+  signal(2, &signal_transfer);
   
   while(1)
   {

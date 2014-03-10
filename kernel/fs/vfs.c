@@ -194,12 +194,11 @@ INODE vfs_finddir(INODE ino, const char *name)
         return 0;
       if(!strcmp(name, de->name))
         break;
-      free(de->name);
+      vfs_free(de->ino);
       free(de);
       num++;
     }
     INODE ret = de->ino;
-    free(de->name);
     free(de);
     return ret;
   }
