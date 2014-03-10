@@ -286,11 +286,11 @@ void print_areas(process_t *p)
 {
   list_t *area_list;
   mem_area_t *area;
-  debug("[info]Memory areas start\n");
+  debug("[info]Memory areas\n");
   for_each_in_list(&p->mm.mem, area_list)
   {
     area = list_entry(area_list, mem_area_t, mem);
-    debug("0x%x-0x%x Owner: %x", area->start, area->end, area->owner->pid);
+    debug("      0x%08x-0x%08x Owner: %x", area->start, area->end, area->owner->pid);
     debug("Flags: %c%c%c%c%c%c%c%c", \
         (area->flags & MM_FLAG_READ)?'R':'-', \
         (area->flags & MM_FLAG_WRITE)?'W':'-', \
@@ -302,7 +302,6 @@ void print_areas(process_t *p)
         (area->flags & MM_FLAG_ADDONUSE)?'a':'-');
     debug("\n");
   }
-  debug("[info]Memory areas end\n");
 }
 
 uint32_t procmm_handle_page_fault(uintptr_t address, uint32_t flags)
