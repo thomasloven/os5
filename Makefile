@@ -6,8 +6,11 @@ LL_ALL =
 
 builddir := build
 
+TOOLCHAIN := ~/osdev/toolchain
+TARGET := i586-pc-myos
+
 ### Build commands
-CC = ~/osdev/root/bin/i586-pc-myos-gcc
+CC = $(TOOLCHAIN)/bin/i586-pc-myos-gcc
 COMP = $(CC) $(CF_ALL) $(CF_TGT) -o $@ -c $<
 LINK = $(CC) $(LF_ALL) $(LF_TGT) -o $@ $^ $(LL_TGT) $(LL_ALL)
 COMPLINK = $(CC) $(CF_ALL) $(CF_TGT) $(LF_ALL) $(LF_TGT) \

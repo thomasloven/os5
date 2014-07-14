@@ -2,12 +2,8 @@ sp := $(sp).x
 dirstack_$(sp) := $(d)
 d := $(dir)
 
-PREFIX=~/osdev/root
-TARGET=i586-pc-myos
-export PREFIX TARGET
-
-TGT_LIB := $(PREFIX)/$(TARGET)/lib/libc.a
-TGT_TOOLCHAIN := $(PREFIX)/bin/$(TARGET)-gcc
+TGT_LIB := $(TOOLCHAIN)/$(TARGET)/lib/libc.a
+TGT_TOOLCHAIN := $(TOOLCHAIN)/bin/$(TARGET)-gcc
 
 OBJS_$(d) := $(shell find $(d)/myos -name "*")
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-readonly TEMPDIR=~/osdev/tmp
-readonly PREFIX=~/osdev/root
+readonly TEMPDIR=~/osdev/stash
+readonly PREFIX=~/osdev/toolchain
 readonly TARGET=i586-pc-myos
 
 readonly C_NO="\\033[0m"
