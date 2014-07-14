@@ -50,11 +50,11 @@ void *usr_sbrk(int incr)
       // The existing areas are enough
     } else {
       // Extend the area
-      new_area(p, area->end, p->mm.data_end + incr, MM_FLAG_READ | MM_FLAG_WRITE | MM_FLAG_CANSHARE, MM_TYPE_DATA);
+      new_area(p, area->end, p->mm.data_end + incr, MM_FLAG_READ | MM_FLAG_WRITE , MM_TYPE_DATA);
     }
   } else {
     // Create a new area
-      new_area(p, p->mm.data_end, p->mm.data_end + incr, MM_FLAG_READ | MM_FLAG_WRITE | MM_FLAG_CANSHARE, MM_TYPE_DATA);
+      new_area(p, p->mm.data_end, p->mm.data_end + incr, MM_FLAG_READ | MM_FLAG_WRITE, MM_TYPE_DATA);
   }
 
   p->mm.data_end = p->mm.data_end + incr;
@@ -71,6 +71,6 @@ KDEF_SYSCALL(sbrk, r)
   // Return start of new area
   r->eax = (uint32_t)usr_sbrk(size);
   
-  r->ebx = errno;
+  r->edx = errno;
   return r;
 }

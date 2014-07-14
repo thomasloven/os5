@@ -113,41 +113,6 @@ void clean_threads(process_t *p)
   }
 }
 
-void return_from_signal(registers_t *r)
-{
-  (void)r;
-  thread_t *th = current;
-  scheduler_wake(&th->waiting);
-  th->state = THREAD_STATE_FINISHED;
-  schedule();
-}
-
-thread_t *handle_signals(thread_t *th)
-{
-  if(!list_empty(th->proc->signal_queue))
-  {
-    // There are signals that need handling.
-    signal_t *signal = list_entry(th->proc->signal_queue.next, signal_t, queue);
-    void *handler = th->proc->signal_handler[signal->sig];
-    thread_t *h = new_thread((void (*)(void))handler, 1);
-
-    append_to_list(th->proc->threads, h->process_threads);
-    h->proc = th->proc;
-    uint32_t *stack = (uint32_t *)th->r.useresp;
-    *--stack = signal->sig; // Signal handler argument
-    *--stack = SIGNAL_RETURN_ADDRESS; // Signal handler return address
-    h->r.useresp = h->r.ebp = (uint32_t)stack;
-    remove_from_list(signal->queue);
-
-    scheduler_sleep(th, &h->waiting);
-
-    scheduler_insert(h);
-    schedule();
-
-
-  }
-  return th;
-}
 
 registers_t *switch_kernel_thread(registers_t *r)
 {
@@ -168,10 +133,7 @@ registers_t *switch_kernel_thread(registers_t *r)
 
   clean_threads(next->proc);
 
-  next = handle_signals(next);
-
   kernel_booted = TRUE;
 
   return next->kernel_thread;
 }
-

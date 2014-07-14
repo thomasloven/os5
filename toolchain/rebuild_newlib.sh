@@ -197,7 +197,7 @@ echo -en "${CLR_NO} Checking for ${CLR_BLUE}newlib${CLR_NO} ... "
 if [ ! -f $PREFIX/$TARGET/lib/libc.a ]; then
   echo -e "${CLR_RED}[Missing]${CLR_NO}"
   echo -e "${CLR_BLUE} Building newlib${CLR_NO}"
-  rebuild_newlib
+  rebuild_newlib $@
 else
   if [ "$1" = "force" ]; then
     echo -e "${CLR_YELLOW}[Forced]${CLR_NO}"

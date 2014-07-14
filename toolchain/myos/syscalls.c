@@ -152,12 +152,12 @@ int lseek(int file, int ptr, int dir)
   return ret;
 }
 
-int open(const char *name, int flags, int mode)
+int open(const char *name, int flags, ...)
 {
 #ifndef NDEBUG
-  _syscall_printf("\n Syscall open(%s %x %x)", name, flags, mode);
+  _syscall_printf("\n Syscall open(%s %x)", name, flags);
 #endif
-  int ret = _syscall_open(name, flags, mode);
+  int ret = _syscall_open(name, flags, 0);
   errno = syscall_errno;
   return ret;
 }
@@ -244,6 +244,27 @@ int write(int file, char *ptr, int len)
 sig_t signal(int signum, sig_t handler)
 {
   sig_t ret = (sig_t)_syscall_signal(signum, handler);
+  errno = syscall_errno;
+  return ret;
+}
+
+int dup(int fildes)
+{
+  int ret = _syscall_dup(fildes);
+  errno = syscall_errno;
+  return ret;
+}
+
+int dup2(int fildes1, int fildes2)
+{
+  int ret = _syscall_dup2(fildes1, fildes2);
+  errno = syscall_errno;
+  return ret;
+}
+
+int pipe(int fildes[2])
+{
+  int ret = _syscall_pipe(fildes);
   errno = syscall_errno;
   return ret;
 }

@@ -19,6 +19,8 @@
 #include <keyboard.h>
 #include <tarfs.h>
 #include <version.h>
+#include <ata.h>
+#include <ext2.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -68,7 +70,6 @@ registers_t *kinit(mboot_info_t *mboot, uint32_t mboot_magic)
   vfs_mount("/mnt/tarfs", tarfs_init(tarfs_location));
   vfs_mount("/dev/debug", debug_dev_init());
   keyboard_init();
-  vfs_print_tree();
 
   fopen("/dev/debug", "w");
   fopen("/dev/debug", "w");
@@ -90,6 +91,8 @@ registers_t *kinit(mboot_info_t *mboot, uint32_t mboot_magic)
   debug("[status] %s: %s\n", __kernel_git_branch, __kernel_git_message);
   debug("[status] Kernel compilation: %s %s\n", __kernel_build_date, __kernel_build_time);
   debug("[status]========================\n");
+
+  vfs_mount("/mnt/ext", ext2_init(init_partition(1,1,0)));
 
   thread_t *init = new_thread((void(*)(void))current->proc->mm.code_entry,1);
   init->proc = current->proc;

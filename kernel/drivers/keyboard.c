@@ -118,13 +118,14 @@ registers_t *keyboard_handler(registers_t *r)
   code[0] = keyboard_decode(scancode);
   if(code[0])
   {
-    vfs_write(keyboard_pipe, (char *)code, 1, 0);
+    /* vfs_write(keyboard_pipe, (char *)code, 1, 0); */
     // Echo key to stdout
-    fputc((int)code[0], stdout);
-    fflush(stdout);
+    /* fputc((int)code[0], stdout); */
+    /* fflush(stdout); */
   }
   code[0] = scancode;
   vfs_write(keyboard_raw, (char *)code, 1, 0);
+  vfs_write(keyboard_pipe, (char *)code, 1, 0);
 
   return r;
 }

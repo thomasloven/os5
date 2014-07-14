@@ -10,6 +10,9 @@
 #include <errno.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <sys/dirent.h>
+#include <string.h>
+#include <fcntl.h>
 
 #undef errno
 extern int errno;
@@ -38,7 +41,7 @@ KDEF_SYSCALL(close, r)
 {
   process_stack stack = init_pstack();
   r->eax = close(stack[0]);
-  r->ebx = errno;
+  r->edx = errno;
   return r;
 }
 
@@ -66,7 +69,7 @@ KDEF_SYSCALL(fstat, r)
 {
   process_stack stack = init_pstack();
   r->eax = fstat(stack[0], (struct stat *) stack[1]);
-  r->ebx = errno;
+  r->edx = errno;
   return r;
 }
 
@@ -86,7 +89,7 @@ KDEF_SYSCALL(isatty, r)
 {
   process_stack stack = init_pstack();
   r->eax = isatty(stack[0]);
-  r->ebx = errno;
+  r->edx = errno;
   return r;
 }
 
@@ -103,7 +106,7 @@ KDEF_SYSCALL(link, r)
 {
   process_stack stack = init_pstack();
   r->eax = link((char *)stack[0], (char *)stack[1]);
-  r->ebx = errno;
+  r->edx = errno;
   return r;
 }
 
@@ -156,15 +159,15 @@ KDEF_SYSCALL(lseek, r)
 {
   process_stack stack = init_pstack();
   r->eax = lseek(stack[0], stack[1], stack[2]);
-  r->ebx = errno;
+  r->edx = errno;
   return r;
 }
 
-int open(const char *name, int flags, int mode)
+int open(const char *name, int flags, ...)
 {
   if(current->proc->flags & PROC_FLAG_DEBUG)
   {
-    debug("[info]OPEN(%s, %x, %x)\n", name, flags, mode);
+    debug("[info]OPEN(%s, %x)\n", name, flags);
   }
 
   // Sanity check path address
@@ -191,13 +194,13 @@ int open(const char *name, int flags, int mode)
   {
     // No free descriptors
     errno = EMFILE;
-    fd_put(p->fd[fd]);
-    p->fd[fd] = 0;
     return fd;
   }
 
   // Open the file
-  INODE node = vfs_namei(name);
+  char *n = canonicalize_path(name, 0);
+  INODE node = vfs_namei(n);
+  free(n);
   if(!node)
   {
     errno = ENOENT;
@@ -223,7 +226,7 @@ KDEF_SYSCALL(open, r)
 {
   process_stack stack = init_pstack();
   r->eax = open((const char *)stack[0], stack[1], stack[2]);
-  r->ebx = errno;
+  r->edx = errno;
   return r;
 }
 
@@ -254,7 +257,7 @@ KDEF_SYSCALL(read, r)
 {
   process_stack stack = init_pstack();
   r->eax = read(stack[0], (char *)stack[1], stack[2]);
-  r->ebx = errno;
+  r->edx = errno;
   return r;
 }
 
@@ -283,7 +286,7 @@ KDEF_SYSCALL(stat, r)
 {
   process_stack stack = init_pstack();
   r->eax = stat((const char *)stack[0], (struct stat *)stack[1]);
-  r->ebx = errno;
+  r->edx = errno;
   return r;
 }
 
@@ -300,7 +303,7 @@ KDEF_SYSCALL(unlink, r)
 {
   process_stack stack = init_pstack();
   r->eax = unlink((char *)stack[0]);
-  r->ebx = errno;
+  r->edx = errno;
   return r;
 }
 
@@ -332,6 +335,185 @@ KDEF_SYSCALL(write, r)
 {
   process_stack stack = init_pstack();
   r->eax = write(stack[0], (char *)stack[1], stack[2]);
-  r->ebx = errno;
+  r->edx = errno;
+  return r;
+}
+
+struct dirent *readdir(DIR *dirp)
+{
+  if(current->proc->flags & PROC_FLAG_DEBUG)
+  {
+    debug("[info]READDIR(%x, %x)\n", dirp->fd, dirp->cur_entry+1);
+  }
+  dirp->cur_entry++;
+
+  process_t *p = current->proc;
+  INODE node = p->fd[dirp->fd]->ino;
+  if(!node)
+  {
+    errno = EBADF;
+    return 0;
+  }
+  
+  dirent_t *de = 0;
+  if(!(de = vfs_readdir(node, dirp->cur_entry)))
+    return 0;
+  struct dirent *d = calloc(1, sizeof(struct dirent));
+  strcpy(d->name, de->name);
+  d->ino = 0;
+
+  vfs_free(de->ino);
+  free(de);
+
+  return d;
+}
+KDEF_SYSCALL(readdir, r)
+{
+  static DIR dirp;
+  process_stack stack = init_pstack();
+  dirp.fd = stack[0];
+  dirp.cur_entry = stack[1]-1;
+  struct dirent *de = readdir(&dirp);
+  if(de)
+  {
+    memcpy((void *)stack[2], de, sizeof(struct dirent));
+    free(de);
+    r->eax = 0;
+    return r;
+  }
+  free(de);
+  r->eax = -1;
+  return r;
+}
+
+int dup(int fildes)
+{
+  if(current->proc->flags & PROC_FLAG_DEBUG)
+  {
+    debug("[info]DUP(%x)\n", fildes);
+  }
+  process_t *p = current->proc;
+  if(!p->fd[fildes] || fildes < 0)
+  {
+    errno = EBADF;
+    return -1;
+  }
+  int i;
+  int fd = -1;
+  for(i=0; i < NUM_FILEDES; i++)
+  {
+    if(p->fd[i])
+      continue;
+    fd = i;
+    p->fd[fd] = p->fd[fildes];
+    fd_get(p->fd[fildes]);
+    break;
+  }
+  if(fd == -1)
+    errno = EMFILE;
+  return fd;
+}
+KDEF_SYSCALL(dup, r)
+{
+  process_stack stack = init_pstack();
+  r->eax = dup(stack[0]);
+  r->edx = errno;
+  return r;
+}
+
+int dup2(int fildes1, int fildes2)
+{
+  if(current->proc->flags & PROC_FLAG_DEBUG)
+  {
+    debug("[info]DUP2(%x, %x)\n", fildes1, fildes2);
+  }
+  process_t *p = current->proc;
+  if(!p->fd[fildes1] || fildes1 < 0 || fildes2 < 0)
+  {
+    errno = EBADF;
+    return -1;
+  }
+  if(fildes1 >= NUM_FILEDES || fildes2 >= NUM_FILEDES)
+  {
+    errno = EMFILE;
+    return -1;
+  }
+
+  if(fildes1 == fildes2)
+    return fildes2;
+  if(p->fd[fildes2])
+  {
+    close(fildes2);
+  }
+  p->fd[fildes2] = p->fd[fildes1];
+  fd_get(p->fd[fildes1]);
+
+  return fildes2;
+}
+KDEF_SYSCALL(dup2, r)
+{
+  process_stack stack = init_pstack();
+  r->eax = dup2(stack[0], stack[1]);
+  r->edx = errno;
+  return r;
+}
+
+int pipe(int fildes[2])
+{
+  if(current->proc->flags & PROC_FLAG_DEBUG)
+  {
+    debug("[info]PIPE(%x)\n", fildes);
+  }
+
+  process_t *p = current->proc;
+
+  // Find two free file descriptors
+  int i;
+  fildes[0] = -1;
+  for(i = 0; i < NUM_FILEDES; i++)
+  {
+    if(p->fd[i])
+      continue;
+    fildes[0] = i;
+    p->fd[fildes[0]] = calloc(1, sizeof(file_desc_t));
+    fd_get(p->fd[fildes[0]]);
+    break;
+  }
+  fildes[1] = -1;
+  for(i = 0; i < NUM_FILEDES; i++)
+  {
+    if(p->fd[i])
+      continue;
+    fildes[1] = i;
+    p->fd[fildes[1]] = calloc(1, sizeof(file_desc_t));
+    fd_get(p->fd[fildes[1]]);
+    break;
+  }
+
+  if(fildes[0] == -1 || fildes[1] == -1)
+  {
+    errno = EMFILE;
+    return -1;
+  }
+
+  // Create pipe
+  INODE tmp[2];
+  new_pipe(512, tmp);
+
+  // Set up and open file descriptors
+  p->fd[fildes[0]]->ino = tmp[0];
+  p->fd[fildes[0]]->flags = O_RDONLY;
+  vfs_open(tmp[0], O_RDONLY);
+  p->fd[fildes[1]]->ino = tmp[1];
+  p->fd[fildes[1]]->flags = O_WRONLY;
+  vfs_open(tmp[1], O_WRONLY);
+
+  return 0;
+}
+KDEF_SYSCALL(pipe, r)
+{
+  process_stack stack = init_pstack();
+  r->eax = pipe((int *)stack[0]);
+  r->edx = errno;
   return r;
 }

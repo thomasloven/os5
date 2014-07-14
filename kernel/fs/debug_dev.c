@@ -24,7 +24,8 @@ uint32_t debug_write(INODE node, void *buffer, uint32_t size, uint32_t offset)
   (void)offset;
   char *buf = calloc(size+1, 1);
   memcpy(buf, buffer, size);
-  kdbg_puts(buf);
+  /* kdbg_puts(buf); */
+  serial_debug(buf);
   free(buf);
   return size;
 }
@@ -53,6 +54,7 @@ vfs_driver_t debug_driver =
   0,
   debug_stat,
   debug_isatty,
+  0,
   0,
   0,
   0

@@ -53,8 +53,6 @@ thread_info_t *current_thread_info();
 
 thread_t *new_thread(void (*func)(void), uint8_t user);
 void free_thread(thread_t *th);
-void return_from_signal(registers_t *r);
-thread_t *handle_signals(thread_t *th);
 registers_t *switch_kernel_thread(registers_t *r);
 thread_t *clone_thread(thread_t *th);
 

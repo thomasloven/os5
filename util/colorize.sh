@@ -5,6 +5,7 @@ C_RED=`echo -e "\\033[31m"`
 C_GREEN=`echo -e "\\033[32m"`
 C_YELLOW=`echo -e "\\033[33m"`
 C_BLUE=`echo -e "\\033[36m"`
+IFS=''
 
 while read line; do
   echo $line | sed \

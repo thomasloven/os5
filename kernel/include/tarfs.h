@@ -28,6 +28,8 @@ typedef struct
 {
   char *name;
   tar_header_t *tar;
+  INODE buffer;
+  uint32_t users;
 } tarfs_entry_t;
 
 #define TAR_TYPE_FILE 0

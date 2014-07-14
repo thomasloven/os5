@@ -286,23 +286,22 @@ void print_areas(process_t *p)
 {
   list_t *area_list;
   mem_area_t *area;
-  debug("[info]Memory areas start\n");
+  debug("[info]Memory areas\n");
   for_each_in_list(&p->mm.mem, area_list)
   {
     area = list_entry(area_list, mem_area_t, mem);
-    debug("0x%x-0x%x Owner: %x", area->start, area->end, area->owner->pid);
+    debug("      0x%08x-0x%08x Owner: %x", area->start, area->end, area->owner->pid);
     debug("Flags: %c%c%c%c%c%c%c%c", \
         (area->flags & MM_FLAG_READ)?'R':'-', \
         (area->flags & MM_FLAG_WRITE)?'W':'-', \
         (area->flags & MM_FLAG_SHARED)?'S':'-', \
-        (area->flags & MM_FLAG_CANSHARE)?'s':'-', \
+        (area->flags & MM_FLAG_NOSHARE)?'N':'-', \
         (area->flags & MM_FLAG_COW)?'O':'-', \
         (area->flags & MM_FLAG_GROWSDOWN)?'D':'-', \
         (area->flags & MM_FLAG_AUTOGROW)?'A':'-', \
         (area->flags & MM_FLAG_ADDONUSE)?'a':'-');
     debug("\n");
   }
-  debug("[info]Memory areas end\n");
 }
 
 uint32_t procmm_handle_page_fault(uintptr_t address, uint32_t flags)
@@ -417,6 +416,7 @@ void procmm_fork(process_t *parent, process_t *child)
   for_each_in_list(&parent->mm.mem, i)
   {
     mem_area_t *ma = list_entry(i, mem_area_t, mem);
+    if((ma->flags & MM_FLAG_NOSHARE) != MM_FLAG_NOSHARE)
     share_area(child, ma);
   }
 

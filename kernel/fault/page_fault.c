@@ -5,6 +5,7 @@
 #include <thread.h>
 #include <arch.h>
 #include <procmm.h>
+#include <signals.h>
 
 registers_t *page_fault_handler(registers_t *r)
 {
@@ -64,21 +65,25 @@ registers_t *page_fault_handler(registers_t *r)
     }
 
     // Processor was in user mode
-    // This should just kill the process, or at least send it a signal,
-    // once those are implemented.
-
-      disable_interrupts();
+    if(current->proc->flags & PROC_FLAG_DEBUG)
+    {
       debug("[error]Page fault hapened!\n");
-      debug(" At: %x\n", fault_address);
-      debug(" Code: %x (%s,%s,%s)\n", r->err_code, \
+      debug("[error] At: %x\n", fault_address);
+      debug("[error] Code: %x (%s,%s,%s)\n", r->err_code, \
           (r->err_code & 0x4)?"user":"kernel", \
           (r->err_code & 0x2)?"write":"read", \
           (r->err_code & 0x1)?"protection":"non-present");
-      debug(" From thread: %x\n", current->tid);
-      debug(" From process: %x\n", current->proc->pid);
+      debug("[error] From thread: %x\n", current->tid);
+      debug("[error] From process: %x\n", current->proc->pid);
       if(current->proc->cmdline)
         debug("Name: %s\n", current->proc->cmdline);
       print_registers(r);
-      for(;;);
+    }
+
+    signal_process(current->proc->pid, SIGSEGV);
+    schedule();
+
+    debug("[error]Shouldn't reach this point...\n");
+    for(;;);
   }
 }

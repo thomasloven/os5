@@ -6,10 +6,12 @@
 #include <synch.h>
 #include <vfs.h>
 
+#include <signal.h>
+
 #ifndef __ASSEMBLER__
 
 #define NUM_FILEDES 256
-#define NUM_SIGNALS 256
+#define NUM_SIGNALS 32
 
 #define PROC_FLAG_DEBUG 0x1
 
@@ -65,7 +67,8 @@ typedef struct process_struct
 
   file_desc_t *fd[NUM_FILEDES];
 
-  void *signal_handler[NUM_SIGNALS];
+  sig_t signal_handler[NUM_SIGNALS];
+  uint8_t signal_blocked[NUM_SIGNALS];
   list_head_t signal_queue;
 } process_t;
 

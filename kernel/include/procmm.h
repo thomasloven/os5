@@ -20,7 +20,7 @@ typedef struct mem_area_struct
 #define MM_FLAG_READ (1<<0)
 #define MM_FLAG_WRITE (1<<1)
 #define MM_FLAG_SHARED (1<<2)
-#define MM_FLAG_CANSHARE (1<<3)
+#define MM_FLAG_NOSHARE (1<<3)
 #define MM_FLAG_COW (1<<4)
 #define MM_FLAG_GROWSDOWN (1<<5)
 #define MM_FLAG_AUTOGROW (1<<6)

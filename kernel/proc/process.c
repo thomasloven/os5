@@ -9,6 +9,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <signal.h>
 
 uint32_t next_pid = 1;
 
@@ -27,6 +28,12 @@ process_t *alloc_process()
   init_list(p->proc_list);
   init_list(p->waiting);
   init_list(p->signal_queue);
+
+  int i;
+  for(i = 0; i < NUM_SIGNALS; i++)
+  {
+    p->signal_handler[i] = SIG_DFL;
+  }
 
   append_to_list(process_list, p->proc_list);
 
