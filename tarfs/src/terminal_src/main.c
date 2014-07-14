@@ -34,18 +34,19 @@ int main(int argc, char **argv)
 
   while(1)
   {
-    char c, d;
+    char c, d[2];
+    d[1] = '\0';
     c = fgetc(stdin);
-    d = keyboard_decode(c);
+    d[0] = keyboard_decode(c);
     if(kbd_ctrl)
     {
-      switch(d)
+      switch(d[0])
       {
         case '1':
         case '2':
         case '3':
         case '4':
-          switch_vterm(d-'1');
+          switch_vterm(d[0]-'1');
           continue;
           break;
         case 'c':
@@ -55,11 +56,11 @@ int main(int argc, char **argv)
           ;
       }
     }
-    if(d)
+    if(d[0])
     {
-      terminal_putch(vterm[active_vterm], d);
+      terminal_puts(vterm[active_vterm], d);
       copybuffer(vterm[active_vterm]);
-      write(vterm[active_vterm]->read_fd[1], &d, 1);
+      write(vterm[active_vterm]->read_fd[1], d, 1);
     }
   }
 

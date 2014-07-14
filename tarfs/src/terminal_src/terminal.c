@@ -7,22 +7,12 @@
 #include <syscalls.h>
 #include <ctype.h>
 
-void copybuffer(struct terminal *t)
-{
-  if(!t)
-    return;
-  if(!t->buffer)
-    return;
-  memcpy(vidmem, t->buffer, sizeof(uint16_t)*t->rows*t->cols);
 
-  unsigned short position = t->csr_row*80 + t->csr_col;
-
-  outb(0x3D4, 0x0F);
-  outb(0x3D5, (unsigned char)(position & 0xFF));
-  outb(0x3D4, 0x0E);
-  outb(0x3D5, (unsigned char)(position >> 8) & 0xF);
-}
-
+int ansi_state = 0;
+char ansi_buffer[256];
+char *ansi_bufp;
+uint32_t ansi_args[16];
+uint32_t *ansi_argp;
 int ansi_escape_char(char c)
 {
   // 0 - Not part of a command
@@ -40,21 +30,12 @@ int ansi_escape_char(char c)
     return 3;
   return 0;
 }
-
-int ansi_state = 0;
-char ansi_buffer[256];
-char *ansi_bufp;
-uint32_t ansi_args[16];
-uint32_t *ansi_argp;
-void terminal_putc(struct terminal *t, char c);
-
 int count_saved_args()
 {
   int i = 0;
   while(ansi_argp != &ansi_args[i] && i < 16)i++;
   return i;
 }
-
 int check_for_escape(struct terminal *t, char c)
 {
   int i;
@@ -206,69 +187,138 @@ bail_print:
   // What we got wasn't an ansi escape sequence
   // Give up and print everything
   i = 0;
+  if(ansi_buffer[0])
+    terminal_puts(t, ansi_buffer);
   while(ansi_buffer[i])
   {
     if(isprint((int)ansi_buffer[i]))
-      terminal_putc(t, ansi_buffer[i]);
+      terminal_puts(t, ansi_buffer);
     i++;
   }
   return 1;
 }
 
-void terminal_putc(struct terminal *t, char c)
+
+void copy_data(struct terminal *t)
 {
-  char stl = 0;
-  if(t->current_style & 0x2) // reverse
-    stl = (t->fg_color<<4) + (t->bg_color & 0xF);
-  else
-    stl = (t->bg_color<<4) + (t->fg_color & 0xF);
-  if(t->current_style & 0x1) // Bright
-    stl |= 0x8;
+  if(!t)
+    return;
+  if(!t->buffer)
+    return;
 
-  t->buffer[t->csr_row*t->cols + t->csr_col] = (stl << 8) | c;
-  t->csr_col++;
+  uint32_t s1 = &t->buffer[t->buffer_size] - t->buf_ptr;
+  int32_t s2 = t->cols*t->rows - s1;
+  if(s1 > t->cols*t->rows)
+    s1 = t->cols*t->rows;
+  if(s2 < 0)
+    s2 = 0;
+  printf("S1: %x, S2: %x b: %x\n", s1, s2, t->buf_ptr);
 
-  if(t->csr_col > t->cols)
-  {
-    t->csr_col = 0;
-    if(++t->csr_row > t->rows)
-    {
-      // TODO Scroll buffer
-      t->csr_row = 0;
-    }
-  }
-  
+  memcpy(vidmem, t->buf_ptr, s1*sizeof(uint16_t));
+  memcpy(&vidmem[s1], t->buffer, s2*sizeof(uint16_t));
 }
 
-void terminal_putch(struct terminal *t, char c)
+void copybuffer(struct terminal *t)
+{
+  if(!t)
+    return;
+  if(!t->buffer)
+    return;
+
+  copy_data(t);
+
+  unsigned short position = t->csr_row*80 + t->csr_col;
+
+  outb(0x3D4, 0x0F);
+  outb(0x3D5, (unsigned char)(position & 0xFF));
+  outb(0x3D4, 0x0E);
+  outb(0x3D5, (unsigned char)(position >> 8) & 0xF);
+}
+
+
+uint8_t get_style(uint8_t fg, uint8_t bg, uint8_t style)
+{
+  uint8_t stl;
+  if(style & 0x2)
+    stl = (fg << 4) + (bg & 0x0F);
+  else
+    stl = (bg << 4) + (fg & 0x0F);
+  if(style & 0x1)
+    stl |= 0x8;
+  return stl;
+}
+
+void terminal_puts(struct terminal *t, char *c)
 {
   if (!t)
     return;
   if(!t->buffer)
     return;
-  if(check_for_escape(t, c))
-    return;
-  switch(c)
+  while(*c)
   {
-    case '\n':
-      t->csr_row++;
-      t->csr_col = 0;
-      break;
+    if(check_for_escape(t, *c))
+    {
+      c++;
+      continue;
+    }
+    switch(*c)
+    {
+      case '\n':
+        t->csr_col = 0;
+        t->csr_row++;
+        break;
 
-    default:
-      if(isprint((int)c))
-        terminal_putc(t, c);
+      default:
+        if(isprint((int)*c))
+        {
+          // Write character
+          uint8_t stl = get_style(t->fg_color, t->bg_color, t->current_style);
+          // HÄR ÄR FELET!
+          uint32_t pos = t->csr_row*t->cols + t->csr_col;
+          pos += t->buf_ptr - t->buffer;
+          pos %= t->buffer_size;
+          t->buffer[pos] = (stl << 8) | *c;
+          /* t->buf_ptr[t->csr_row*t->cols + t->csr_col] = (stl << 8) | *c; */
+
+          // Advance pointer
+          t->csr_col ++;
+          
+        }
+    }
+    while(t->csr_col > t->cols)
+    {
+      t->csr_col = 0;
+      t->csr_row++;
+    }
+
+    while(t->csr_row >= t->rows)
+    {
+      // Scroll down one line
+      t->buf_ptr = &t->buf_ptr[t->cols];
+
+      uint32_t m = (t->rows-1)*t->cols;
+      uint32_t pos = (m + (t->buf_ptr-t->buffer)) % t->buffer_size;
+      memset(&t->buffer[pos], 0, t->cols*sizeof(uint16_t));
+      
+      t->csr_row--;
+    }
+
+    if(((uint32_t)t->buf_ptr -(uint32_t)t->buffer) >= t->buffer_size)
+      t->buf_ptr = t->buffer;
+    c++;
   }
 }
 
 void terminal_output_handler(uint32_t a)
 {
+  struct terminal *t = vterm[a];
   while(1)
   {
-    char c = fgetc(vterm[a]->write_pipe[0]);
-    terminal_putch(vterm[a], c);
+    int cnt = read(t->write_fd[0], t->output_buffer, 256);
+    t->output_buffer[cnt] = '\0';
+    terminal_puts(t, t->output_buffer);
     if(active_vterm == a)
-      copybuffer(vterm[a]);
+      copybuffer(t);
   }
 }
 
@@ -278,7 +328,10 @@ void terminal_init(int num, uint32_t rows, uint32_t cols, char **argv)
   t->rows = rows;
   t->cols = cols;
   t->fg_color=7;
-  t->buffer = calloc(rows*cols, sizeof(uint16_t));
+  t->buffer_size = 2*rows*cols;
+  t->buffer = calloc(t->buffer_size, sizeof(uint16_t));
+  t->buf_ptr = t->buffer;
+  t->output_buffer = calloc(256, 1);
 
   // Setup reading side (keyboard)
   pipe(t->read_fd);

@@ -11,6 +11,11 @@ struct terminal
   int32_t csr_row;
   int32_t csr_col;
   uint16_t *buffer;
+  uint16_t *buf_ptr;
+  char *input_buffer;
+  char *input_ptr;
+  uint32_t buffer_size;
+  char *output_buffer;
   uint8_t fg_color;
   uint8_t bg_color;
   uint8_t current_style;
@@ -27,6 +32,6 @@ uint32_t active_vterm;
 
 void copybuffer(struct terminal *t);
 struct terminal *new_terminal(uint32_t rows, uint32_t cols, char **argv);
-void terminal_putch(struct terminal *t, char c);
+void terminal_puts(struct terminal *t, char *c);
 void terminal_init(int num, uint32_t rows, uint32_t cols, char **argv);
 void screen_init();
