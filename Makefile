@@ -7,7 +7,7 @@ LL_ALL =
 builddir := build
 
 ### Build commands
-CC = i586-pc-myos-gcc
+CC = ~/osdev/root/bin/i586-pc-myos-gcc
 COMP = $(CC) $(CF_ALL) $(CF_TGT) -o $@ -c $<
 LINK = $(CC) $(LF_ALL) $(LF_TGT) -o $@ $^ $(LL_TGT) $(LL_ALL)
 COMPLINK = $(CC) $(CF_ALL) $(CF_TGT) $(LF_ALL) $(LF_TGT) \
