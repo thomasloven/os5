@@ -1,0 +1,76 @@
+#!/usr/bin/env bash
+
+. ./util/common.sh
+
+readonly DISKSIZE="20M"
+readonly DISKFILE="image.img"
+
+function get_grub() {
+  local package=grub-0.97-i386-pc
+  local url=ftp://alpha.gnu.org/gnu/grub/${package}.tar.gz
+
+  if [[ ! -d ${TEMPDIR}/${package} ]]; then
+    get_package ${package} ${url}
+  fi
+}
+
+function make_disk() {
+  local grubdir=${TEMPDIR}/grub-0.97-i386-pc
+
+  if [[ -f ${DISKFILE} ]]; then
+    return
+  fi
+
+  dito-generate ${DISKFILE} ${DISKSIZE}
+  dito-format ${DISKFILE}:1 ext2 || fail
+  dito-mkdir ext2:${DISKFILE}:1:/boot || fail
+  dito-mkdir ext2:${DISKFILE}:1:/boot/grub || fail
+  dito-cp ${grubdir}/boot/grub/stage2 ext2:${DISKFILE}:1:/boot/grub/stage2 || fail
+
+  # Stage 1.5 address
+  printf '\x20' | \
+    dd of=${grubdir}/boot/grub/stage1 bs=1 seek=67 count=1 conv=notrunc \
+    >/dev/null 2>/dev/null || fail
+  # Stage 1.5 segment
+  printf '\x02' \
+    | dd of=${grubdir}/boot/grub/stage1 bs=1 seek=73 count=1 conv=notrunc \
+    >/dev/null 2>/dev/null || fail
+  # Stage 1.5 block count
+  printf '\x12' \
+    | dd of=${grubdir}/boot/grub/e2fs_stage1_5 bs=1 seek=508 count=1 conv=notrunc \
+    >/dev/null 2>/dev/null || fail
+  # Stage 1.5 disk and partition
+  printf '\x00\xff\xff\xff' \
+    | dd of=${grubdir}/boot/grub/e2fs_stage1_5 bs=1 seek=535 count=4 conv=notrunc \
+    >/dev/null 2>/dev/null || fail
+
+  dd if=${grubdir}/boot/grub/stage1 of=${DISKFILE} bs=1 count=445 conv=notrunc \
+    >/dev/null 2>/dev/null || fail
+  dd if=${grubdir}/boot/grub/e2fs_stage1_5 of=${DISKFILE} bs=512 seek=1 conv=notrunc \
+    >/dev/null 2>/dev/null || fail
+
+  dito-cp - ext2:${DISKFILE}:1:/boot/grub/menu.lst << -----
+default 0
+timeout 0
+
+title os5
+root (hd0,0)
+kernel /boot/kernel
+module /boot/tarfs
+-----
+}
+
+function copy_data() {
+  dito-rm ext2:${DISKFILE}:1:/boot/kernel
+  dito-rm ext2:${DISKFILE}:1:/boot/tarfs
+  dito-cp ./build/kernel/kernel ext2:${DISKFILE}:1:/boot/kernel
+  dito-cp ./build/tarfs.tar ext2:${DISKFILE}:1:/boot/tarfs
+}
+
+function main() {
+  get_grub
+  make_disk
+  copy_data
+}
+
+main $@

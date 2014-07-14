@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+
+. ./util/common.sh
+
+function install_binutils() {
+  local package=binutils-2.24
+  local url=ftp://ftp.gnu.org/gnu/binutils/${package}.tar.gz
+  local patches=$(pwd)/binutils.patch
+
+  get_package ${package} ${url} ${patches}
+  build_package ${package} ${PREFIX}/bin/${TARGET}-ld "--target=${TARGET} --disable-werror"
+}
+
+function install_gcc() {
+  local package=gcc-4.8.2
+  local url=ftp://ftp.gnu.org/gnu/gcc/${package}/${package}.tar.gz
+  local patches=$(pwd)/gcc.patch
+
+  local gcclocation=${PREFIX}/bin/${TARGET}-gcc
+  local liblocation=${PREFIX}/lib/gcc/${TARGET}/4.8.2/libgcc.a
+
+  get_package ${package} ${url} ${patches}
+  build_package ${package} ${gcclocation} "--target=${TARGET} --disable-nls --enable-languages=c,c++" "-gcc"
+  build_package ${package} ${liblocation} "--target=${TARGET} --disable-nls --enable-languages=c,c++" "-target-libgcc"
+}
+
+function install_gdb() {
+  local package=gdb-7.7.1
+  local url=ftp://ftp.gnu.org/gnu/gdb/${package}.tar.gz
+  local patches=
+
+  local gdblocation=${PREFIX}/bin/i586-elf-gdb
+
+  get_package ${package} ${url} ${patches}
+  build_package ${package} ${gdblocation} "--target=i586-elf --disable-debug --disable-dependency-tracking --with-python=/usr"
+}
+
+function main() {
+
+  while getopts "f" OPTION
+  do
+    case ${OPTION} in
+      f)
+        readonly FORCE=1
+        ;;
+    esac
+  done
+
+  install_binutils
+  PATH=${PREFIX}/bin/:${PATH}
+  install_gcc
+  install_gdb
+}
+
+main $@

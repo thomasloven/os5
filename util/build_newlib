@@ -1,0 +1,68 @@
+#!/usr/bin/env bash
+
+. ./util/common.sh
+
+function install_automake() {
+  local package=automake-1.12
+  local url=ftp://ftp.gnu.org/gnu/automake/${package}.tar.gz
+  local patches=
+
+  get_package ${package} ${url} ${patches}
+  build_package ${package} ${PREFIX}/bin/automake
+}
+
+function install_autoconf() {
+  local package=autoconf-2.65
+  local url=ftp://ftp.gnu.org/gnu/autoconf/${package}.tar.gz
+  local patches=
+
+  get_package ${package} ${url} ${patches}
+  build_package ${package} ${PREFIX}/bin/autoconf
+}
+
+function install_newlib() {
+  local package=newlib-2.1.0
+  local url=ftp://sourceware.org/pub/newlib/${package}.tar.gz
+  local patches=$(pwd)/newlib.patch
+
+  local liblocation=${PREFIX}/${TARGET}/lib/libc.a
+  local kernliblocation=${PREFIX}/${TARGET}/lib/libkernel.a
+
+  get_package ${package} ${url} ${patches}
+
+  print_task Customizing ${package}
+  cp -r $(pwd)/toolchain/myos ${TEMPDIR}/${package}/newlib/libc/sys || fail
+  pushd ${TEMPDIR}/${package}/newlib/libc/sys >/dev/null
+    autoconf >/dev/null 2>${TEMPDIR}/error.log || fail
+    pushd myos >/dev/null
+      autoreconf >/dev/null 2>${TEMPDIR}/error.log || fail
+    popd >/dev/null
+  popd >/dev/null
+  print_done
+
+  build_package ${package} ${kernliblocation} "--target=${TARGET}" " CPPFLAGS_FOR_TARGET=-DKERNEL_MODE"
+  if [[ ! -f ${kernliblocation} ]]; then 
+    mv ${liblocation} ${kernliblocation}
+  fi
+  build_package ${package} ${liblocation} "--target=${TARGET}"
+}
+
+function main() {
+
+  while getopts "f" OPTION
+  do
+    case ${OPTION} in
+      f)
+        readonly FORCE=1
+        rm ${PREFIX}/${TARGET}/lib/libc.a ${PREFIX}/${TARGET}/lib/libkernel.a 2>/dev/null
+        ;;
+    esac
+  done
+
+  install_automake
+  install_autoconf
+  PATH=${PREFIX}/bin/:${PATH}
+  install_newlib
+}
+
+main $@

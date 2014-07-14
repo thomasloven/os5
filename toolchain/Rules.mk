@@ -2,20 +2,21 @@ sp := $(sp).x
 dirstack_$(sp) := $(d)
 d := $(dir)
 
-PREFIX=/usr/local/Cellar/osdev/1.0
+PREFIX=~/osdev/root
 TARGET=i586-pc-myos
 export PREFIX TARGET
 
 TGT_LIB := $(PREFIX)/$(TARGET)/lib/libc.a
-TGT_TOOLCHAIN := /usr/local/bin/$(TARGET)-gcc
+TGT_TOOLCHAIN := $(PREFIX)/bin/$(TARGET)-gcc
 
 OBJS_$(d) := $(shell find $(d)/myos -name "*")
 
 $(TGT_LIB): $(OBJS_$(d))
-	toolchain/rebuild_newlib.sh force
+	echo $(TGT_LIB)
+	util/build_newlib -f
 
 $(TGT_TOOLCHAIN):
-	toolchain/rebuild_toolchain.sh
+	util/build_toolchain
 
 d := $(dirstack_$(sp))
 sp := $(basename $(sp))

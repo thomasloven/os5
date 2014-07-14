@@ -1,72 +1,134 @@
 #!/usr/bin/env bash
 
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+readonly TEMPDIR=~/osdev/tmp
+readonly PREFIX=~/osdev/root
+readonly TARGET=i586-pc-myos
 
-if [ -z $TARGET ]; then
-  TARGET=i586-pc-myos
-fi
-if [ -z $PREFIX ]; then
-  PREFIX=/usr/local/Cellar/osdev/1.0
-fi
+readonly C_NO="\\033[0m"
+readonly C_RED="\\033[31m"
+readonly C_GREEN="\\033[32m"
+readonly C_YELLOW="\\033[33m"
+readonly C_BLUE="\\033[36m"
 
-TEMPDIR=~/osdev/
-
-CLR_NO="\\033[0m"
-CLR_RED="\\033[31m"
-CLR_GREEN="\\033[32m"
-CLR_YELLOW="\\033[33m"
-CLR_BLUE="\\033[36m"
-
-if [ -z $BUILDDIR ]; then
-  BUILDDIR=$BUILDROOT/build
-fi
-
-function gototmp() {
-  mkdir -p $TEMPDIR
-  pushd $TEMPDIR
-}
-
-function dropout() {
-  echo -e "${CLR_RED}SOMETHING FAILED!${CLR_NO}"
-  if [ -f ${TEMPDIR}/error.log ]; then
-    cat ${TEMPDIR}/error.log
-  fi
+function fail() {
+  echo -e "${C_RED}[FAILED]${C_NO}"
   exit 1
 }
+function print_done() {
+  local spaces=$1
 
-# Download name url file
+  echo -e "${spaces}${C_GREEN}[DONE]${C_NO}"
+}
+function print_skip() {
+  local spaces=$1
+
+  echo -e "${spaces}${C_YELLOW}[SKIP]${C_NO}"
+}
+function print_task() {
+  local task=$1
+  local package=$2
+
+  echo -e "${task} ${C_BLUE}${package}${C_NO}"
+}
+
 function download() {
-  echo "Downloading $1"
-  if [ ! -f "$3" ]; then
-    curl -# -O "$2/$3"
-    echo " Done"
+  local package=$1
+  local url=$2
+
+  local filename=`basename $2`
+
+  pushd ${TEMPDIR} >/dev/null
+  print_task "  Downloading" ${package}
+  if [[ ! -f ${filename} ]]; then
+    /usr/bin/env curl -# -O ${url} || fail
+    print_done "  "
   else
-    echo " Already downloaded"
+    print_skip "  "
+  fi
+  popd >/dev/null
+}
+
+function unpack() {
+  local package=$1
+
+  pushd ${TEMPDIR} >/dev/null
+  print_task "  Unpacking" ${package}
+  if [[ ! -d ${TEMPDIR}/${package} ]]; then
+    /usr/bin/env tar -xf ${package}.tar.gz
+    print_done "  "
+  else
+    print_skip "  "
+  fi
+  popd >/dev/null
+}
+
+function patch() {
+  local package=$1
+  local patch=$2
+
+  local patchname=`basename ${patch}`
+
+  pushd ${TEMPDIR}/${package} >/dev/null
+  print_task "  Patching" ${package}
+  if [[ ! -f .patch-${patchname} ]]; then
+    /usr/bin/env patch -p1 -N < ${patch}
+    touch .patch-${patchname}
+    print_done "  "
+  else
+    print_skip "  "
+  fi
+  popd >/dev/null
+}
+
+
+function get_package() {
+  local package=$1 ; shift
+  local url=$1 ; shift
+  local patches=$@
+
+  print_task " Preparing" ${package}
+  download ${package} ${url}
+  unpack ${package}
+  local i
+  for i in ${patches}
+  do
+    patch ${package} ${i}
+  done
+  print_done " "
+}
+
+function build_package() {
+  local package=$1
+  local checkfile=$2
+  local configflags=$3
+  local makesuffix=$4
+
+  print_task " Building" ${package}
+  if [[ ! -f ${checkfile} ]]; then
+    mkdir -p ${TEMPDIR}/build-${package}
+    pushd ${TEMPDIR}/build-${package} >/dev/null || fail
+    rm -rf *
+
+    print_task "  Configuring" ${package}
+    ../${package}/configure \
+      --prefix=${PREFIX} \
+      ${configflags} \
+      >/dev/null 2>${TEMPDIR}/error.log || fail
+    print_done "  "
+
+    print_task "  Making" ${package}
+    make -j all${makesuffix} \
+      >/dev/null 2>${TEMPDIR}/error.log || fail
+    print_done "  "
+
+    print_task "  Installing" ${package}
+    make -j install${makesuffix} \
+      >/dev/null 2>${TEMPDIR}/error.log || fail
+    print_done "  "
+
+    print_done " "
+  popd >/dev/null
+  else
+    print_skip " "
   fi
 }
-
-# Clone name git
-function gitclone() {
-  echo "Cloning $1"
-  if [ ! -d "$1" ]; then
-    git clone --depth=1 $2
-    echo " Done"
-  else
-    echo " Already downloaded"
-  fi
-}
-
-# Extract file
-function unzip() {
-  echo "Extracting $1"
-  tar -xf $1
-}
-
-# Patch files
-function dopatch() {
-  echo "Applying patch to $1"
-  pushd $2
-    patch -p1 -N < $3
-  popd
-}
-

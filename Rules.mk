@@ -23,12 +23,12 @@ tarfs: $(TGT_TARFS)
 image: $(imagefile)
 
 image.img: $(TGT_KERNEL) $(TGT_TARFS)
-	@util/makedisk.sh
+	@util/makedisk
 
 ### Special targets
 .PHONY: emul clean tags
 emul: $(imagefile)
-	@util/qemul.sh
+	@util/qemul
 clean: 
 	rm -f $(CLEAN)
 tags:
