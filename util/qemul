@@ -1,16 +1,18 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-# if tmux info | grep $TTY ; then
-if [[ -n $TMUX ]]; then
-  echo > serial.out
-  # tmux split-window -h 'qemu-system-i386 -kernel build/kernel/kernel -initrd "build/tarfs.tar" -curses -monitor telnet:localhost:4444,server -s -S -serial file:serial.out'
-  # tmux split-window -h 'qemu-system-i386 -hda image.img -curses -monitor telnet:localhost:4444,server -s -S -serial file:serial.out'
-  tmux split-window -dh -t 0 'sleep 1; ~/osdev/toolchain/bin/i586-elf-gdb 2>output.log'
-  tmux split-window -dv -t 0 'tail -f serial.out | util/colorize.sh'
-  qemu-system-i386 -hda image.img -monitor stdio -s -S -serial file:serial.out
-  # qemu-system-i386 -hda image.img -vnc :5500,reverse -monitor stdio -s -S -serial file:serial.out
-  tmux kill-pane -a -t 0
+. ./util/common.sh
 
-else
-  qemu-system-i386 -kernel build/kernel/kernel -initrd "build/tarfs.tar" -display curses -monitor stdio -s -S
-fi
+function main() {
+  local debugger="${TOOLCHAIN}/bin/i586-elf-gdb"
+  local serial="tail -f serial.out | ./util/colorize.sh"
+  local emulator="qemu-system-i386 -s -S -serial file:serial.out -monitor stdio"
+
+  emulator="${emulator} -hda image.img"
+  emulator="${emulator} -vnc :5500,reverse"
+
+  tmux new-window -n "emul" "${emulator}; tmux kill-window -t osdev:emul"
+  tmux split-window -dh -t osdev:emul.0 "sleep 1; ${debugger} 2>output.log"
+  tmux split-window -dv -t osdev:emul.0 "${serial}"
+}
+
+main $@

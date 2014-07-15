@@ -9,13 +9,13 @@ function get_grub() {
   local package=grub-0.97-i386-pc
   local url=ftp://alpha.gnu.org/gnu/grub/${package}.tar.gz
 
-  if [[ ! -d ${TEMPDIR}/${package} ]]; then
+  if [[ ! -d ${STASH}/${package} ]]; then
     get_package ${package} ${url}
   fi
 }
 
 function make_disk() {
-  local grubdir=${TEMPDIR}/grub-0.97-i386-pc
+  local grubdir=${STASH}/grub-0.97-i386-pc
 
   if [[ -f ${DISKFILE} ]]; then
     return

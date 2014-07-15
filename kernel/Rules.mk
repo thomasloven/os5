@@ -21,6 +21,10 @@ $(TGT_KERNEL): LL_TGT := -lkernel
 
 # Add git status to version.o
 versionfile := $(builddir)/kernel/boot/version.o
+
+# The dates in the version file messes up automatic processing of GNU
+# make results
+.SILENT: $(versionfile)
 $(versionfile): CF_TGT += $(GITFLAGS)
 
 # If anything was rebuilt in the kernel, rebuilt version.o again

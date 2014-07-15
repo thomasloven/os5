@@ -1,3 +1,0 @@
-display_library: x, options="gui_debug"
-  ata0-master: type=disk, path="image.img", translation=lba, cylinders=325, heads=2, spt=63
-boot: disk

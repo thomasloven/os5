@@ -8,7 +8,7 @@ function install_binutils() {
   local patches=$(pwd)/binutils.patch
 
   get_package ${package} ${url} ${patches}
-  build_package ${package} ${PREFIX}/bin/${TARGET}-ld "--target=${TARGET} --disable-werror"
+  build_package ${package} ${TOOLCHAIN}/bin/${TARGET}-ld "--target=${TARGET} --disable-werror"
 }
 
 function install_gcc() {
@@ -16,8 +16,8 @@ function install_gcc() {
   local url=ftp://ftp.gnu.org/gnu/gcc/${package}/${package}.tar.gz
   local patches=$(pwd)/gcc.patch
 
-  local gcclocation=${PREFIX}/bin/${TARGET}-gcc
-  local liblocation=${PREFIX}/lib/gcc/${TARGET}/4.8.2/libgcc.a
+  local gcclocation=${TOOLCHAIN}/bin/${TARGET}-gcc
+  local liblocation=${TOOLCHAIN}/lib/gcc/${TARGET}/4.8.2/libgcc.a
 
   get_package ${package} ${url} ${patches}
   build_package ${package} ${gcclocation} "--target=${TARGET} --disable-nls --enable-languages=c,c++" "-gcc"
@@ -29,7 +29,7 @@ function install_gdb() {
   local url=ftp://ftp.gnu.org/gnu/gdb/${package}.tar.gz
   local patches=
 
-  local gdblocation=${PREFIX}/bin/i586-elf-gdb
+  local gdblocation=${TOOLCHAIN}/bin/i586-elf-gdb
 
   get_package ${package} ${url} ${patches}
   build_package ${package} ${gdblocation} "--target=i586-elf --disable-debug --disable-dependency-tracking --with-python=/usr"
@@ -47,7 +47,7 @@ function main() {
   done
 
   install_binutils
-  PATH=${PREFIX}/bin/:${PATH}
+  PATH=${TOOLCHAIN}/bin/:${PATH}
   install_gcc
   install_gdb
 }

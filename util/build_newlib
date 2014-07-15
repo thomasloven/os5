@@ -8,7 +8,7 @@ function install_automake() {
   local patches=
 
   get_package ${package} ${url} ${patches}
-  build_package ${package} ${PREFIX}/bin/automake
+  build_package ${package} ${TOOLCHAIN}/bin/automake
 }
 
 function install_autoconf() {
@@ -17,7 +17,7 @@ function install_autoconf() {
   local patches=
 
   get_package ${package} ${url} ${patches}
-  build_package ${package} ${PREFIX}/bin/autoconf
+  build_package ${package} ${TOOLCHAIN}/bin/autoconf
 }
 
 function install_newlib() {
@@ -25,17 +25,17 @@ function install_newlib() {
   local url=ftp://sourceware.org/pub/newlib/${package}.tar.gz
   local patches=$(pwd)/newlib.patch
 
-  local liblocation=${PREFIX}/${TARGET}/lib/libc.a
-  local kernliblocation=${PREFIX}/${TARGET}/lib/libkernel.a
+  local liblocation=${TOOLCHAIN}/${TARGET}/lib/libc.a
+  local kernliblocation=${TOOLCHAIN}/${TARGET}/lib/libkernel.a
 
   get_package ${package} ${url} ${patches}
 
   print_task Customizing ${package}
-  cp -r $(pwd)/toolchain/myos ${TEMPDIR}/${package}/newlib/libc/sys || fail
-  pushd ${TEMPDIR}/${package}/newlib/libc/sys >/dev/null
-    autoconf >/dev/null 2>${TEMPDIR}/error.log || fail
+  cp -r $(pwd)/toolchain/myos ${STASH}/${package}/newlib/libc/sys || fail
+  pushd ${STASH}/${package}/newlib/libc/sys >/dev/null
+    autoconf >/dev/null 2>${STASH}/error.log || fail
     pushd myos >/dev/null
-      autoreconf >/dev/null 2>${TEMPDIR}/error.log || fail
+      autoreconf >/dev/null 2>${STASH}/error.log || fail
     popd >/dev/null
   popd >/dev/null
   print_done
@@ -54,14 +54,14 @@ function main() {
     case ${OPTION} in
       f)
         readonly FORCE=1
-        rm ${PREFIX}/${TARGET}/lib/libc.a ${PREFIX}/${TARGET}/lib/libkernel.a 2>/dev/null
+        rm ${TOOLCHAIN}/${TARGET}/lib/libc.a ${TOOLCHAIN}/${TARGET}/lib/libkernel.a 2>/dev/null
         ;;
     esac
   done
 
   install_automake
   install_autoconf
-  PATH=${PREFIX}/bin/:${PATH}
+  PATH=${TOOLCHAIN}/bin/:${PATH}
   install_newlib
 }
 
