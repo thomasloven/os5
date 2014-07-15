@@ -12,7 +12,7 @@ readonly C_YELLOW="\\033[33m"
 readonly C_BLUE="\\033[36m"
 function ce()
 {
-  echo -e $@
+  echo -e "${@}"
 }
 
 function fail() {
@@ -40,12 +40,12 @@ function download() {
   local package=$1
   local url=$2
 
-  local filename=`basename $2`
+  local filename=$(basename "${url}")
 
-  pushd ${STASH} >/dev/null
-  print_task "  Downloading" ${package}
+  pushd "${STASH}" >/dev/null
+  print_task "  Downloading" "${package}"
   if [[ ! -f ${filename} ]]; then
-    /usr/bin/env curl -# -O ${url} || fail
+    /usr/bin/env curl -# -O "${url}" || fail
     print_done "  "
   else
     print_skip "  "
@@ -56,10 +56,10 @@ function download() {
 function unpack() {
   local package=$1
 
-  pushd ${STASH} >/dev/null
-  print_task "  Unpacking" ${package}
+  pushd "${STASH}" >/dev/null
+  print_task "  Unpacking" "${package}"
   if [[ ! -d ${STASH}/${package} ]]; then
-    /usr/bin/env tar -xf ${package}.tar.gz
+    /usr/bin/env tar -xf "${package}.tar.gz"
     print_done "  "
   else
     print_skip "  "
@@ -71,13 +71,13 @@ function patch() {
   local package=$1
   local patch=$2
 
-  local patchname=`basename ${patch}`
+  local patchname=$(basename "${patch}")
 
-  pushd ${STASH}/${package} >/dev/null
-  print_task "  Patching" ${package}
+  pushd "${STASH}/${package}" >/dev/null
+  print_task "  Patching" "${package}"
   if [[ ! -f .patch-${patchname} ]]; then
-    /usr/bin/env patch -p1 -N < ${patch}
-    touch .patch-${patchname}
+    /usr/bin/env patch -p1 -N < "${patch}"
+    touch ".patch-${patchname}"
     print_done "  "
   else
     print_skip "  "
@@ -89,15 +89,15 @@ function patch() {
 function get_package() {
   local package=$1 ; shift
   local url=$1 ; shift
-  local patches=$@
+  local patches="${@}"
 
-  print_task " Preparing" ${package}
-  download ${package} ${url}
-  unpack ${package}
+  print_task " Preparing" "${package}"
+  download "${package}" "${url}"
+  unpack" ${package}"
   local i
   for i in ${patches}
   do
-    patch ${package} ${i}
+    patch "${package}" "${i}"
   done
   print_done " "
 }
@@ -108,27 +108,27 @@ function build_package() {
   local configflags=$3
   local makesuffix=$4
 
-  print_task " Building" ${package}
+  print_task " Building"" ${package}"
   if [[ ! -f ${checkfile} ]]; then
-    mkdir -p ${STASH}/build-${package}
-    pushd ${STASH}/build-${package} >/dev/null || fail
-    rm -rf *
+    mkdir -p "${STASH}/build-${package}"
+    pushd "${STASH}/build-${package}" >/dev/null || fail
+    rm -rf ./*
 
-    print_task "  Configuring" ${package}
-    ../${package}/configure \
+    print_task "  Configuring"" ${package}"
+    "../${package}/configure \
       --prefix=${TOOLCHAIN} \
-      ${configflags} \
-      >/dev/null 2>${STASH}/error.log || fail
+      ${configflags}" \
+      >/dev/null 2>"${STASH}/error.log" || fail
     print_done "  "
 
-    print_task "  Making" ${package}
-    make -j all${makesuffix} \
-      >/dev/null 2>${STASH}/error.log || fail
+    print_task "  Making" "${package}"
+    make -j "all${makesuffix}" \
+      >/dev/null 2>"${STASH}/error.log" || fail
     print_done "  "
 
-    print_task "  Installing" ${package}
-    make -j install${makesuffix} \
-      >/dev/null 2>${STASH}/error.log || fail
+    print_task "  Installing"" ${package}"
+    make -j "install${makesuffix}" \
+      >/dev/null 2>"${STASH}/error.log" || fail
     print_done "  "
 
     print_done " "

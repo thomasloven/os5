@@ -7,8 +7,8 @@ function install_binutils() {
   local url=ftp://ftp.gnu.org/gnu/binutils/${package}.tar.gz
   local patches=$(pwd)/binutils.patch
 
-  get_package ${package} ${url} ${patches}
-  build_package ${package} ${TOOLCHAIN}/bin/${TARGET}-ld "--target=${TARGET} --disable-werror"
+  get_package "${package}" "${url}" "${patches}"
+  build_package "${package}" "${TOOLCHAIN}/bin/${TARGET}-ld" "--target=${TARGET} --disable-werror"
 }
 
 function install_gcc() {
@@ -19,9 +19,9 @@ function install_gcc() {
   local gcclocation=${TOOLCHAIN}/bin/${TARGET}-gcc
   local liblocation=${TOOLCHAIN}/lib/gcc/${TARGET}/4.8.2/libgcc.a
 
-  get_package ${package} ${url} ${patches}
-  build_package ${package} ${gcclocation} "--target=${TARGET} --disable-nls --enable-languages=c,c++" "-gcc"
-  build_package ${package} ${liblocation} "--target=${TARGET} --disable-nls --enable-languages=c,c++" "-target-libgcc"
+  get_package "${package}" "${url}" "${patches}"
+  build_package "${package}" "${gcclocation}" "--target=${TARGET} --disable-nls --enable-languages=c,c++" "-gcc"
+  build_package "${package}" "${liblocation}" "--target=${TARGET} --disable-nls --enable-languages=c,c++" "-target-libgcc"
 }
 
 function install_gdb() {
@@ -31,8 +31,8 @@ function install_gdb() {
 
   local gdblocation=${TOOLCHAIN}/bin/i586-elf-gdb
 
-  get_package ${package} ${url} ${patches}
-  build_package ${package} ${gdblocation} "--target=i586-elf --disable-debug --disable-dependency-tracking --with-python=/usr"
+  get_package "${package}" "${url}" "${patches}"
+  build_package "${package}" "${gdblocation}" "--target=i586-elf --disable-debug --disable-dependency-tracking --with-python=/usr"
 }
 
 function main() {
@@ -52,4 +52,4 @@ function main() {
   install_gdb
 }
 
-main $@
+main "${@}"

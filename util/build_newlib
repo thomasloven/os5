@@ -7,8 +7,8 @@ function install_automake() {
   local url=ftp://ftp.gnu.org/gnu/automake/${package}.tar.gz
   local patches=
 
-  get_package ${package} ${url} ${patches}
-  build_package ${package} ${TOOLCHAIN}/bin/automake
+  get_package "${package}" "${url}" "${patches}"
+  build_package "${package}" "${TOOLCHAIN}/bin/automake"
 }
 
 function install_autoconf() {
@@ -16,8 +16,8 @@ function install_autoconf() {
   local url=ftp://ftp.gnu.org/gnu/autoconf/${package}.tar.gz
   local patches=
 
-  get_package ${package} ${url} ${patches}
-  build_package ${package} ${TOOLCHAIN}/bin/autoconf
+  get_package "${package}" "${url}" "${patches}"
+  build_package "${package}" "${TOOLCHAIN}/bin/autoconf"
 }
 
 function install_newlib() {
@@ -28,23 +28,23 @@ function install_newlib() {
   local liblocation=${TOOLCHAIN}/${TARGET}/lib/libc.a
   local kernliblocation=${TOOLCHAIN}/${TARGET}/lib/libkernel.a
 
-  get_package ${package} ${url} ${patches}
+  get_package "${package}" "${url}" "${patches}"
 
   print_task Customizing ${package}
-  cp -r $(pwd)/toolchain/myos ${STASH}/${package}/newlib/libc/sys || fail
-  pushd ${STASH}/${package}/newlib/libc/sys >/dev/null
-    autoconf >/dev/null 2>${STASH}/error.log || fail
+  cp -r "$(pwd)/toolchain/myos" "${STASH}/${package}/newlib/libc/sys" || fail
+  pushd "${STASH}/${package}/newlib/libc/sys" >/dev/null
+    autoconf >/dev/null 2>"${STASH}/error.log" || fail
     pushd myos >/dev/null
-      autoreconf >/dev/null 2>${STASH}/error.log || fail
+      autoreconf >/dev/null 2>"${STASH}/error.log" || fail
     popd >/dev/null
   popd >/dev/null
   print_done
 
-  build_package ${package} ${kernliblocation} "--target=${TARGET}" " CPPFLAGS_FOR_TARGET=-DKERNEL_MODE"
-  if [[ ! -f ${kernliblocation} ]]; then 
-    mv ${liblocation} ${kernliblocation}
+  build_package "${package}" "${kernliblocation}" "--target=${TARGET}" " CPPFLAGS_FOR_TARGET=-DKERNEL_MODE"
+  if [[ ! -f "${kernliblocation}" ]]; then 
+    mv "${liblocation}" "${kernliblocation}"
   fi
-  build_package ${package} ${liblocation} "--target=${TARGET}"
+  build_package ${package} "${liblocation}" "--target=${TARGET}"
 }
 
 function main() {
@@ -54,7 +54,7 @@ function main() {
     case ${OPTION} in
       f)
         readonly FORCE=1
-        rm ${TOOLCHAIN}/${TARGET}/lib/libc.a ${TOOLCHAIN}/${TARGET}/lib/libkernel.a 2>/dev/null
+        rm "${TOOLCHAIN}/${TARGET}/lib/libc.a" "${TOOLCHAIN}/${TARGET}/lib/libkernel.a" 2>/dev/null
         ;;
     esac
   done
@@ -65,4 +65,4 @@ function main() {
   install_newlib
 }
 
-main $@
+main "${@}"

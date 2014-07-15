@@ -15,4 +15,4 @@ function main() {
   tmux split-window -dv -t osdev:emul.0 "${serial}"
 }
 
-main $@
+main "${@}"
