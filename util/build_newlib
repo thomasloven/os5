@@ -23,7 +23,7 @@ function install_autoconf() {
 function install_newlib() {
   local package=newlib-2.1.0
   local url=ftp://sourceware.org/pub/newlib/${package}.tar.gz
-  local patches=$(pwd)/newlib.patch
+  local patches=$(pwd)/toolchain/newlib.patch
 
   local liblocation=${TOOLCHAIN}/${TARGET}/lib/libc.a
   local kernliblocation=${TOOLCHAIN}/${TARGET}/lib/libkernel.a
@@ -48,6 +48,9 @@ function install_newlib() {
 }
 
 function main() {
+
+  mkdir -p "${TOOLCHAIN}"
+  mkdir -p "${STASH}"
 
   while getopts "f" OPTION
   do

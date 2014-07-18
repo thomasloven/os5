@@ -93,7 +93,7 @@ function get_package() {
 
   print_task " Preparing" "${package}"
   download "${package}" "${url}"
-  unpack" ${package}"
+  unpack "${package}"
   local i
   for i in ${patches}
   do
@@ -115,19 +115,19 @@ function build_package() {
     rm -rf ./*
 
     print_task "  Configuring"" ${package}"
-    "../${package}/configure \
+    ../${package}/configure \
       --prefix=${TOOLCHAIN} \
-      ${configflags}" \
+      ${configflags} \
       >/dev/null 2>"${STASH}/error.log" || fail
     print_done "  "
 
     print_task "  Making" "${package}"
-    make -j "all${makesuffix}" \
+    make -j all${makesuffix} \
       >/dev/null 2>"${STASH}/error.log" || fail
     print_done "  "
 
     print_task "  Installing"" ${package}"
-    make -j "install${makesuffix}" \
+    make -j install${makesuffix} \
       >/dev/null 2>"${STASH}/error.log" || fail
     print_done "  "
 

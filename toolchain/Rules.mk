@@ -2,13 +2,12 @@ sp := $(sp).x
 dirstack_$(sp) := $(d)
 d := $(dir)
 
-TGT_LIB := $(TOOLCHAIN)/$(TARGET)/lib/libc.a
-TGT_TOOLCHAIN := $(TOOLCHAIN)/bin/$(TARGET)-gcc
+TGT_LIB := $(TOOLCHAIN)/$(TARGET)/lib/libc.a $(TOOLCHAIN)/$(TARGET)/lib/libkernel.a
+TGT_TOOLCHAIN := $(TOOLCHAIN)/bin/$(TARGET)-gcc $(TOOLCHAIN)/bin/$(TARGET)-ld $(TOOLCHAIN)/bin/i586-elf-gdb
 
 OBJS_$(d) := $(shell find $(d)/myos -name "*")
 
 $(TGT_LIB): $(OBJS_$(d))
-	echo $(TGT_LIB)
 	util/build_newlib -f
 
 $(TGT_TOOLCHAIN):

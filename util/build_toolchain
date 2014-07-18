@@ -1,11 +1,14 @@
 #!/usr/bin/env bash
 
+# Requires: gcc mpc, mpfr, gmp
+# On raspberry libmpc-dev, libmpfr-dev, libgmp-dev
+
 . ./util/common.sh
 
 function install_binutils() {
   local package=binutils-2.24
   local url=ftp://ftp.gnu.org/gnu/binutils/${package}.tar.gz
-  local patches=$(pwd)/binutils.patch
+  local patches=$(pwd)/toolchain/binutils.patch
 
   get_package "${package}" "${url}" "${patches}"
   build_package "${package}" "${TOOLCHAIN}/bin/${TARGET}-ld" "--target=${TARGET} --disable-werror"
@@ -14,7 +17,7 @@ function install_binutils() {
 function install_gcc() {
   local package=gcc-4.8.2
   local url=ftp://ftp.gnu.org/gnu/gcc/${package}/${package}.tar.gz
-  local patches=$(pwd)/gcc.patch
+  local patches=$(pwd)/toolchain/gcc.patch
 
   local gcclocation=${TOOLCHAIN}/bin/${TARGET}-gcc
   local liblocation=${TOOLCHAIN}/lib/gcc/${TARGET}/4.8.2/libgcc.a
@@ -36,6 +39,9 @@ function install_gdb() {
 }
 
 function main() {
+
+  mkdir -p "${TOOLCHAIN}"
+  mkdir -p "${STASH}"
 
   while getopts "f" OPTION
   do
