@@ -1,5 +1,6 @@
 ### Common flags
 #
+SHELL := /bin/bash
 CF_ALL = -ggdb -Wall -Wextra -std=gnu99
 LF_ALL =
 LL_ALL = 
