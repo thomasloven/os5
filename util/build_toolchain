@@ -38,6 +38,46 @@ function install_gdb() {
   build_package "${package}" "${gdblocation}" "--target=i586-elf --disable-debug --disable-dependency-tracking --with-python=/usr"
 }
 
+function install_grub() {
+  local objconv_package=objconv
+  local objconv_url=http://www.agner.org/optimize/objconv.zip
+  local package=grub
+  local url=ftp://ftp.gnu.org/gnu/grub/${package}.tar.gz
+  local patches=$(pwd)/toolchain/grub.patch
+
+  get_package "${objconv_package}" "${objconv_url}" ""
+  # get_package "${package}" "${url}" "${patches}"
+
+  # Compile objconv
+  # mkdir -p "${STASH}/build-objconv"
+  # pushd "${STASH}/build-objconv"
+  #   rm -rf .
+  #   print_task "  Building" " ${package}"
+  #   unzip ../objconv.zip
+  #   unzip source.zip
+  #   g++ -o objconv -O2 ./*.cpp
+  #   print_task "  Installing" " ${package}"
+  #   mv objconv "${TOOLCHAIN}/bin/objconv"
+  # popd
+
+  # Compile grub
+  pushd "${STASH}"
+    print_task "  Downloading" " grub"
+    git clone git://git.savannah.gnu.org/grub.git --depth=1
+    patch grub "${patches}"
+    pushd grub
+      ./autogen.sh
+    popd
+  popd
+  mkdir -p "${STASH}/build-grub"
+  pushd "${STASH}/build-grub"
+    ../grub/configure --prefix="${TOOLCHAIN}" --target=i386 CC=gcc-4.9 LDFLAGS=-L/usr/local/opt/flex/lib CPPFLAGS=-I/usr/local/opt/flex/include PATH="${TOOLCHAIN}/bin/:${PATH}"
+    PATH="${TOOLCHAIN}/bin/:${PATH}" make
+    make install
+  popd
+  
+}
+
 function main() {
 
   mkdir -p "${TOOLCHAIN}"
@@ -52,7 +92,9 @@ function main() {
     esac
   done
 
+
   install_binutils
+  install_grub
   PATH=${TOOLCHAIN}/bin/:${PATH}
   install_gcc
   install_gdb

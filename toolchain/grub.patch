@@ -1,0 +1,29 @@
+diff --git a/grub-core/genmod.sh.in b/grub-core/genmod.sh.in
+index 789732b..ffa1a66 100644
+--- a/grub-core/genmod.sh.in
++++ b/grub-core/genmod.sh.in
+@@ -90,6 +90,7 @@ else
+ 	@TARGET_OBJCONV@ -f@TARGET_MODULE_FORMAT@ \
+ 	    -nr:_grub_mod_init:grub_mod_init \
+ 	    -nr:_grub_mod_fini:grub_mod_fini \
++	    -ew2031 \
+ 	    -wd1106 -nu -nd $tmpfile.bin $tmpfile || exit 1
+ 	rm -f $name.bin
+ fi
+diff --git a/grub-core/kern/misc.c b/grub-core/kern/misc.c
+index c5c815d..2e8aa18 100644
+--- a/grub-core/kern/misc.c
++++ b/grub-core/kern/misc.c
+@@ -52,6 +52,12 @@ static int
+ grub_vsnprintf_real (char *str, grub_size_t max_len, const char *fmt0,
+ 		     struct printf_args *args);
+ 
++void *memmove (void *dest, const void *src, grub_size_t n);
++void *memcpy (void *dest, const void *src, grub_size_t n);
++int memcmp (const void *s1, const void *s2, grub_size_t n);
++void *memset (void *s, int c, grub_size_t n);
++void __bzero (void *s, grub_size_t n);
++
+ static void
+ free_printf_args (struct printf_args *args)
+ {

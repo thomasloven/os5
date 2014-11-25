@@ -10,9 +10,9 @@ function main() {
   emulator="${emulator} -hda image.img"
   emulator="${emulator} -vnc :5500,reverse"
 
-  tmux new-window -n "emul" "${emulator}; tmux kill-window -t osdev:emul"
-  tmux split-window -dh -t osdev:emul.0 "sleep 1; ${debugger} 2>output.log"
-  tmux split-window -dv -t osdev:emul.0 "${serial}"
+  tmux new-window -n "emul" "${emulator}; tmux kill-window -t emul"
+  tmux split-window -dh -t emul.0 "sleep 1; ${debugger} 2>output.log"
+  tmux split-window -dv -t emul.0 "${serial}"
 }
 
 main "${@}"

@@ -53,13 +53,22 @@ function download() {
   popd >/dev/null
 }
 
+function download_git() {
+  local package=$1
+  local url=$2
+
+  local filename=$(basename "${url}")
+}
+
 function unpack() {
   local package=$1
 
   pushd "${STASH}" >/dev/null
   print_task "  Unpacking" "${package}"
   if [[ ! -d ${STASH}/${package} ]]; then
-    /usr/bin/env tar -xf "${package}.tar.gz"
+    if [[ -f "${package}.tar.gz" ]]; then
+      /usr/bin/env tar -xf "${package}.tar.gz"
+    fi
     print_done "  "
   else
     print_skip "  "
